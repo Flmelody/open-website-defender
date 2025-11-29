@@ -1,0 +1,11 @@
+database:
+  driver: sqlite
+
+# 默认用户配置（首次启动时创建）
+default-user:
+  username: defender
+  password: defender
+
+trustedProxies:
+  - "127.0.0.1"
+  - "::1"

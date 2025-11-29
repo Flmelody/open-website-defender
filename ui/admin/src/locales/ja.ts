@@ -1,0 +1,69 @@
+export default {
+  common: {
+    brand: 'DEFENDER',
+    unknown: '不明',
+    confirm: '確認',
+    cancel: 'キャンセル',
+    success: '成功',
+    error: 'エラー',
+    actions: '操作',
+    edit: '編集',
+    delete: '削除',
+    refresh: '[ 更新 ]',
+    new: '[ 新規 ]',
+    created: '作成済み',
+    updated: '更新済み',
+    deleted: '削除済み',
+    total_records: '> 合計レコード数: {total}',
+    warning: '警告',
+    created_at: '作成日時',
+    added: '追加済み',
+    remove: '削除'
+  },
+  menu: {
+    system_modules: 'システムモジュール',
+    users_db: './ユーザーDB',
+    ip_white_list: './IPホワイトリスト',
+    ip_black_list: './IPブラックリスト'
+  },
+  layout: {
+    net_status: 'ネットワーク状態: 安全',
+    operator: 'オペレーター:',
+    terminate_session: '[ セッション終了 ]',
+    logout: 'ログアウト'
+  },
+  login: {
+    system_access_required: '> システムアクセスが必要です',
+    initializing: '> セキュリティプロトコルを初期化中...',
+    establishing: '> 安全な接続を確立中...',
+    access_detected: '> アクセスポイントを検出...',
+    authenticate: '> 続行するには認証してください:',
+    username: '> ユーザー名:',
+    password: '> パスワード:',
+    btn_authenticate: '[ 認証 ]',
+    required: '必須',
+    access_granted: 'アクセス許可',
+    access_denied: 'アクセス拒否',
+  },
+  user: {
+    new_user: '[ 新規ユーザー ]',
+    username: 'ユーザー名',
+    password: 'パスワード',
+    git_token: 'GITトークン',
+    is_admin: '管理者権限を付与',
+    delete_confirm: 'ユーザー {name} を削除しますか？',
+    title_create: 'ユーザー作成',
+    title_edit: 'ユーザー編集',
+    undefined: '<未定義>',
+    unchanged: '<変更なし>'
+  },
+  ip_list: {
+    ip_address: 'IPアドレス',
+    remark: '備考',
+    new_ip: '[ 新規IP ]',
+    delete_confirm: 'IP {ip} を削除しますか？',
+    title_create: 'IP追加',
+    title_edit: 'IP編集',
+  }
+}
+

@@ -1,0 +1,15 @@
+# Goland
+.idea
+# macOS specific
+.DS_Store
+
+# admin
+ui/admin/dist/
+ui/admin/node_modules/
+# guard
+ui/guard/dist/
+ui/guard/node_modules/
+
+.env
+data/
+logs/

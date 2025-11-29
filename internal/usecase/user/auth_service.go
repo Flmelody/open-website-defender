@@ -1,0 +1,75 @@
+package user
+
+import (
+	"sync"
+
+	"open-website-defender/internal/adapter/repository"
+	domainError "open-website-defender/internal/domain/error"
+	"open-website-defender/internal/infrastructure/database"
+	"open-website-defender/internal/pkg"
+	_interface "open-website-defender/internal/usecase/interface"
+)
+
+type AuthService struct {
+	userRepo _interface.UserRepository
+}
+
+var (
+	authService *AuthService
+	authOnce    sync.Once
+)
+
+func GetAuthService() *AuthService {
+	authOnce.Do(func() {
+		authService = &AuthService{
+			userRepo: repository.NewUserRepository(database.DB),
+		}
+	})
+	return authService
+}
+
+func NewAuthService(userRepo _interface.UserRepository) *AuthService {
+	return &AuthService{
+		userRepo: userRepo,
+	}
+}
+
+func (s *AuthService) Login(input *LoginInputDTO) (*LoginOutputDTO, error) {
+	if input.Username == "" || input.Password == "" {
+		return nil, domainError.ErrInvalidCredentials
+	}
+
+	user, err := s.userRepo.FindByUsernameAndPassword(input.Username, input.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		return nil, domainError.ErrInvalidCredentials
+	}
+
+	token, err := pkg.GenerateToken(user.Username, user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &LoginOutputDTO{
+		Token: token,
+		User: &UserInfoDTO{
+			ID:       user.ID,
+			Username: user.Username,
+		},
+	}, nil
+}
+
+func (s *AuthService) ValidateToken(tokenString string) (*UserInfoDTO, error) {
+	claims, err := pkg.ParseToken(tokenString)
+	if err != nil {
+		return nil, err
+	}
+
+	return &UserInfoDTO{
+		ID:       claims.UserID,
+		Username: claims.Username,
+	}, nil
+}

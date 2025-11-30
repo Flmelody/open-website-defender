@@ -76,13 +76,30 @@ func Auth(c *gin.Context) {
 
 	// 4. Check Token
 	service := user.GetAuthService()
-	authHeader := c.GetHeader("Defender-Authorization")
-	if len(authHeader) == 0 {
+	clientToken, err := c.Cookie("flmelody.token")
+	if err != nil {
+		clientToken = c.GetHeader("Defender-Authorization")
+	}
+	if clientToken == "" {
+		cookieHeader := c.GetHeader("Cookie")
+		if cookieHeader != "" {
+			cookies := strings.Split(cookieHeader, ";")
+			for _, cookie := range cookies {
+				cookie = strings.TrimSpace(cookie)
+				if strings.HasPrefix(cookie, "flmelody.token=") {
+					clientToken = strings.TrimPrefix(cookie, "flmelody.token=")
+					break
+				}
+			}
+		}
+	}
+
+	if clientToken == "" {
 		response.Unauthorized(c, "No authentication token provided")
 		return
 	}
 
-	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	tokenString := strings.TrimPrefix(clientToken, "Bearer ")
 	userInfo, err := service.ValidateToken(tokenString)
 	if err != nil {
 		logging.Sugar.Warnf("Token validation failed: %v", err)

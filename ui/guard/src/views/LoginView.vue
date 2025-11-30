@@ -2,6 +2,7 @@
 import {onMounted, reactive, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import request from '@/utils/request'
+import {getAppConfig} from "../utils/config.js";
 
 const router = useRouter()
 const route = useRoute()
@@ -114,7 +115,7 @@ const handleLogin = async () => {
       localStorage.setItem('flmelody.token', token)
 
       const expires = new Date(Date.now() + 24 * 60 * 60 * 1000)
-      document.cookie = `flmelody.token=${token}; expires=${expires.toUTCString()}; path=/;`
+      document.cookie = `flmelody.token=${token}; expires=${expires.toUTCString()}; path=/;domain=` + getAppConfig().guardDomain
 
       if (formData.rememberMe) {
         localStorage.setItem('rememberMe', 'true')

@@ -1,25 +1,25 @@
 package user
 
-type AuthLoginDto struct {
+type AuthLoginDTO struct {
 	Name string `form:"name" binding:"required"`
 	Pwd  string `form:"pwd" binding:"required"`
 }
 
-type CreateUserDto struct {
+type CreateUserDTO struct {
 	Username string
 	Password string
 	GitToken string
 	IsAdmin  bool
 }
 
-type UpdateUserDto struct {
+type UpdateUserDTO struct {
 	Username string
 	Password string
 	GitToken string
 	IsAdmin  bool
 }
 
-type UserDto struct {
+type UserDTO struct {
 	ID       uint   `json:"id"`
 	Username string `json:"username"`
 	GitToken string `json:"git_token,omitempty"`

@@ -21,7 +21,7 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-	input := &user.CreateUserDto{
+	input := &user.CreateUserDTO{
 		Username: req.Username,
 		Password: req.Password,
 		GitToken: req.GitToken,
@@ -60,7 +60,7 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	input := &user.UpdateUserDto{
+	input := &user.UpdateUserDTO{
 		Username: req.Username,
 		Password: req.Password,
 		GitToken: req.GitToken,

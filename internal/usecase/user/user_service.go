@@ -35,7 +35,7 @@ func NewUserService(userRepo _interface.UserRepository) *UserService {
 	}
 }
 
-func (s *UserService) CreateUser(input *CreateUserDto) (*UserDto, error) {
+func (s *UserService) CreateUser(input *CreateUserDTO) (*UserDTO, error) {
 	if input.Username == "" || input.Password == "" {
 		return nil, errors.New("username and password are required")
 	}
@@ -51,7 +51,7 @@ func (s *UserService) CreateUser(input *CreateUserDto) (*UserDto, error) {
 		return nil, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	return &UserDto{
+	return &UserDTO{
 		ID:       user.ID,
 		Username: user.Username,
 		GitToken: user.GitToken,
@@ -59,7 +59,7 @@ func (s *UserService) CreateUser(input *CreateUserDto) (*UserDto, error) {
 	}, nil
 }
 
-func (s *UserService) GetUser(id uint) (*UserDto, error) {
+func (s *UserService) GetUser(id uint) (*UserDTO, error) {
 	user, err := s.userRepo.FindByID(strconv.FormatUint(uint64(id), 10))
 	if err != nil {
 		return nil, fmt.Errorf("failed to find user: %w", err)
@@ -68,7 +68,7 @@ func (s *UserService) GetUser(id uint) (*UserDto, error) {
 		return nil, errors.New("user not found")
 	}
 
-	return &UserDto{
+	return &UserDTO{
 		ID:       user.ID,
 		Username: user.Username,
 		GitToken: user.GitToken,
@@ -76,7 +76,7 @@ func (s *UserService) GetUser(id uint) (*UserDto, error) {
 	}, nil
 }
 
-func (s *UserService) UpdateUser(id uint, input *UpdateUserDto) (*UserDto, error) {
+func (s *UserService) UpdateUser(id uint, input *UpdateUserDTO) (*UserDTO, error) {
 	user, err := s.userRepo.FindByID(strconv.FormatUint(uint64(id), 10))
 	if err != nil {
 		return nil, fmt.Errorf("failed to find user: %w", err)
@@ -100,7 +100,7 @@ func (s *UserService) UpdateUser(id uint, input *UpdateUserDto) (*UserDto, error
 		return nil, fmt.Errorf("failed to update user: %w", err)
 	}
 
-	return &UserDto{
+	return &UserDTO{
 		ID:       user.ID,
 		Username: user.Username,
 		GitToken: user.GitToken,
@@ -127,7 +127,7 @@ func (s *UserService) DeleteUser(id uint) error {
 	return nil
 }
 
-func (s *UserService) ListUsers(page, size int) ([]*UserDto, int64, error) {
+func (s *UserService) ListUsers(page, size int) ([]*UserDTO, int64, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -144,9 +144,9 @@ func (s *UserService) ListUsers(page, size int) ([]*UserDto, int64, error) {
 		return nil, 0, fmt.Errorf("failed to list users: %w", err)
 	}
 
-	userDtos := make([]*UserDto, 0, len(users))
+	userDtos := make([]*UserDTO, 0, len(users))
 	for _, user := range users {
-		userDtos = append(userDtos, &UserDto{
+		userDtos = append(userDtos, &UserDTO{
 			ID:       user.ID,
 			Username: user.Username,
 			GitToken: user.GitToken,

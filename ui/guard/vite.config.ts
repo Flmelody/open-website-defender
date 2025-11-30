@@ -16,9 +16,10 @@ export default defineConfig(({mode}) => {
   const backendHost = process.env.VITE_BACKEND_HOST || env.BACKEND_HOST || 'http://localhost:9999/wall'
   const rootPath = process.env.VITE_ROOT_PATH || env.ROOT_PATH || '/wall'
   const guardPath = process.env.VITE_GUARD_PATH || env.GUARD_PATH || '/guard'
+  const guardDomain = process.env.VITE_GUARD_DOMAIN || env.GUARD_DOMAIN || ''
   const adminPath = process.env.VITE_ADMIN_PATH || env.ADMIN_PATH || '/admin'
 
-  console.log('Build config:', { backendHost, rootPath, guardPath, adminPath })
+  console.log('Build config:', {backendHost, rootPath, guardPath, adminPath})
 
   // 提取后端地址（不含路径）用于 proxy
   const backendOrigin = new URL(backendHost).origin
@@ -43,11 +44,11 @@ export default defineConfig(({mode}) => {
       }
     },
     base: `${rootPath}${guardPath}`,
-    // 定义全局常量，构建时会被替换（但生产环境由 Go 注入覆盖）
     define: {
       '__BUILD_BACKEND_HOST__': JSON.stringify(backendHost),
       '__BUILD_ROOT_PATH__': JSON.stringify(rootPath),
       '__BUILD_GUARD_PATH__': JSON.stringify(guardPath),
+      '__BUILD_GUARD_DOMAIN__': JSON.stringify(guardDomain),
       '__BUILD_ADMIN_PATH__': JSON.stringify(adminPath),
     }
   }

@@ -28,7 +28,9 @@ export default {
     ip_black_list: './LISTE_NOIRE_IP',
     waf_rules: './RÈGLES_WAF',
     access_logs: './JOURNAUX_ACCÈS',
-    geo_block: './BLOCAGE_GÉO'
+    geo_block: './BLOCAGE_GÉO',
+    licenses: './LICENCES',
+    system_settings: './PARAMÈTRES_SYSTÈME'
   },
   layout: {
     net_status: 'ÉTAT_RÉSEAU : SÉCURISÉ',
@@ -108,5 +110,28 @@ export default {
     country_name: 'NOM_PAYS',
     delete_confirm: 'SUPPRIMER RÈGLE GÉO {code} ?',
     title_create: 'Ajouter blocage pays'
+  },
+  license: {
+    new_license: '[ NOUVELLE_LICENCE ]',
+    name: 'NOM',
+    name_placeholder: 'ex. Pipeline CI/CD',
+    status: 'STATUT',
+    active: 'ACTIF',
+    inactive: 'INACTIF',
+    delete_confirm: 'RÉVOQUER LA LICENCE {name} ?',
+    title_create: 'Créer une licence',
+    token_generated: 'JETON DE LICENCE GÉNÉRÉ',
+    token_warning: 'Ce jeton ne sera affiché qu\'UNE SEULE FOIS. Copiez-le maintenant — il ne pourra pas être récupéré ultérieurement.',
+    copy: 'COPIER',
+    copied: 'Copié dans le presse-papiers',
+    understood: 'J\'AI COPIÉ LE JETON'
+  },
+  system: {
+    section_headers: 'EN-TÊTES HTTP PERSONNALISÉS',
+    headers_desc: 'Configurez les noms des en-têtes HTTP utilisés pour l\'authentification. Les modifications nécessitent la mise à jour de tous les clients.',
+    git_token_header: 'EN-TÊTE_GIT_TOKEN',
+    license_header: 'EN-TÊTE_LICENCE',
+    save: '[ ENREGISTRER ]',
+    reset: '[ RÉINITIALISER ]'
   }
 }

@@ -28,7 +28,9 @@ export default {
     ip_black_list: './IP_BLACK_LIST',
     waf_rules: './WAF_RULES',
     access_logs: './ACCESS_LOGS',
-    geo_block: './GEO_BLOCK'
+    geo_block: './GEO_BLOCK',
+    licenses: './LICENSES',
+    system_settings: './SYSTEM_SETTINGS'
   },
   layout: {
     net_status: 'NET_STATUS: SECURE',
@@ -109,5 +111,28 @@ export default {
     country_name: 'COUNTRY_NAME',
     delete_confirm: 'DELETE GEO RULE {code}?',
     title_create: 'Add Country Block'
+  },
+  license: {
+    new_license: '[ NEW_LICENSE ]',
+    name: 'NAME',
+    name_placeholder: 'e.g. CI/CD Pipeline',
+    status: 'STATUS',
+    active: 'ACTIVE',
+    inactive: 'INACTIVE',
+    delete_confirm: 'REVOKE LICENSE {name}?',
+    title_create: 'Create License',
+    token_generated: 'LICENSE TOKEN GENERATED',
+    token_warning: 'This token will only be shown ONCE. Copy it now — it cannot be retrieved later.',
+    copy: 'COPY',
+    copied: 'Copied to clipboard',
+    understood: 'I HAVE COPIED THE TOKEN'
+  },
+  system: {
+    section_headers: 'CUSTOM HTTP HEADERS',
+    headers_desc: 'Configure the HTTP header names used for authentication. Changing these requires updating all clients.',
+    git_token_header: 'GIT_TOKEN_HEADER',
+    license_header: 'LICENSE_HEADER',
+    save: '[ SAVE ]',
+    reset: '[ RESET ]'
   }
 }

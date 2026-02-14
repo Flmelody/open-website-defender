@@ -27,6 +27,13 @@ func (r *UserRepository) Save(user *entity.User) error {
 		}
 		user.Password = hashed
 	}
+	if user.GitToken != "" {
+		hashed, err := pkg.HashPassword(user.GitToken)
+		if err != nil {
+			return err
+		}
+		user.GitToken = hashed
+	}
 	return r.db.Create(user).Error
 }
 
@@ -42,6 +49,15 @@ func (r *UserRepository) FindByID(id string) (*entity.User, error) {
 func (r *UserRepository) FindByEmail(email string) (*entity.User, error) {
 	var user entity.User
 	err := r.db.Where("email = ?", email).First(&user).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+	return &user, err
+}
+
+func (r *UserRepository) FindByUsername(username string) (*entity.User, error) {
+	var user entity.User
+	err := r.db.Where("username = ?", username).First(&user).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
@@ -80,18 +96,27 @@ func (r *UserRepository) FindByUsernameAndPassword(username string, password str
 }
 
 func (r *UserRepository) Update(user *entity.User) error {
-	if user.Password != "" {
-		var existingUser entity.User
-		if err := r.db.First(&existingUser, user.ID).Error; err == nil {
-			if existingUser.Password != user.Password {
-				hashed, hashErr := pkg.HashPassword(user.Password)
-				if hashErr != nil {
-					return hashErr
-				}
-				user.Password = hashed
-			}
-		}
+	var existingUser entity.User
+	if err := r.db.First(&existingUser, user.ID).Error; err != nil {
+		return err
 	}
+
+	if user.Password != "" && existingUser.Password != user.Password {
+		hashed, hashErr := pkg.HashPassword(user.Password)
+		if hashErr != nil {
+			return hashErr
+		}
+		user.Password = hashed
+	}
+
+	if user.GitToken != "" && existingUser.GitToken != user.GitToken {
+		hashed, hashErr := pkg.HashPassword(user.GitToken)
+		if hashErr != nil {
+			return hashErr
+		}
+		user.GitToken = hashed
+	}
+
 	return r.db.Save(user).Error
 }
 func (r *UserRepository) Delete(id string) error {

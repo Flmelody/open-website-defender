@@ -28,7 +28,9 @@ export default {
     ip_black_list: './IP黑名单',
     waf_rules: './WAF规则',
     access_logs: './访问日志',
-    geo_block: './地域封锁'
+    geo_block: './地域封锁',
+    licenses: './许可证',
+    system_settings: './系统设置'
   },
   layout: {
     net_status: '网络状态: 安全',
@@ -109,5 +111,28 @@ export default {
     country_name: '国家名称',
     delete_confirm: '删除地域规则 {code}?',
     title_create: '添加国家封锁'
+  },
+  license: {
+    new_license: '[ 新增许可证 ]',
+    name: '名称',
+    name_placeholder: '例如：CI/CD 流水线',
+    status: '状态',
+    active: '有效',
+    inactive: '已停用',
+    delete_confirm: '吊销许可证 {name}?',
+    title_create: '创建许可证',
+    token_generated: '许可证令牌已生成',
+    token_warning: '此令牌仅显示一次，请立即复制，之后将无法再次获取。',
+    copy: '复制',
+    copied: '已复制到剪贴板',
+    understood: '我已复制令牌'
+  },
+  system: {
+    section_headers: '自定义 HTTP 请求头',
+    headers_desc: '配置用于认证的 HTTP 请求头名称。修改后需要同步更新所有客户端。',
+    git_token_header: 'GIT_TOKEN 请求头',
+    license_header: '许可证请求头',
+    save: '[ 保存 ]',
+    reset: '[ 重置 ]'
   }
 }

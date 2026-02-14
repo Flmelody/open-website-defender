@@ -65,8 +65,15 @@ func Setup(appConfig *config.AppConfig) *gin.Engine {
 			authorized.GET("/geo-block-rules", handler.ListGeoBlockRules)
 			authorized.DELETE("/geo-block-rules/:id", handler.DeleteGeoBlockRule)
 
+			// Licenses
+			authorized.POST("/licenses", handler.CreateLicense)
+			authorized.GET("/licenses", handler.ListLicenses)
+			authorized.DELETE("/licenses/:id", handler.DeleteLicense)
+
 			// Dashboard & System
 			authorized.GET("/dashboard/stats", handler.GetDashboardStats)
+			authorized.GET("/system/settings", handler.GetSystemSettings)
+			authorized.PUT("/system/settings", handler.UpdateSystemSettings)
 			authorized.POST("/system/reload", handler.ReloadConfig)
 		}
 	}

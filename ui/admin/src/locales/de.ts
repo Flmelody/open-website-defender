@@ -28,7 +28,9 @@ export default {
     ip_black_list: './IP_BLACKLIST',
     waf_rules: './WAF_REGELN',
     access_logs: './ZUGRIFFSPROTOKOLLE',
-    geo_block: './GEO_SPERRE'
+    geo_block: './GEO_SPERRE',
+    licenses: './LIZENZEN',
+    system_settings: './SYSTEMEINSTELLUNGEN'
   },
   layout: {
     net_status: 'NETZWERKSTATUS: SICHER',
@@ -108,5 +110,28 @@ export default {
     country_name: 'LÄNDERNAME',
     delete_confirm: 'GEO-REGEL {code} LÖSCHEN?',
     title_create: 'Ländersperre hinzufügen'
+  },
+  license: {
+    new_license: '[ NEUE_LIZENZ ]',
+    name: 'NAME',
+    name_placeholder: 'z.B. CI/CD Pipeline',
+    status: 'STATUS',
+    active: 'AKTIV',
+    inactive: 'INAKTIV',
+    delete_confirm: 'LIZENZ {name} WIDERRUFEN?',
+    title_create: 'Lizenz erstellen',
+    token_generated: 'LIZENZ-TOKEN GENERIERT',
+    token_warning: 'Dieses Token wird nur EINMAL angezeigt. Kopieren Sie es jetzt — es kann später nicht abgerufen werden.',
+    copy: 'KOPIEREN',
+    copied: 'In die Zwischenablage kopiert',
+    understood: 'ICH HABE DAS TOKEN KOPIERT'
+  },
+  system: {
+    section_headers: 'BENUTZERDEFINIERTE HTTP-HEADER',
+    headers_desc: 'Konfigurieren Sie die HTTP-Header-Namen für die Authentifizierung. Änderungen erfordern die Aktualisierung aller Clients.',
+    git_token_header: 'GIT_TOKEN_HEADER',
+    license_header: 'LIZENZ_HEADER',
+    save: '[ SPEICHERN ]',
+    reset: '[ ZURÜCKSETZEN ]'
   }
 }

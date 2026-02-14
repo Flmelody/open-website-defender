@@ -73,3 +73,26 @@ func (s *AuthService) ValidateToken(tokenString string) (*UserInfoDTO, error) {
 		Username: claims.Username,
 	}, nil
 }
+
+func (s *AuthService) ValidateGitToken(username, token string) (*UserInfoDTO, error) {
+	if username == "" || token == "" {
+		return nil, domainError.ErrInvalidCredentials
+	}
+
+	user, err := s.userRepo.FindByUsername(username)
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, domainError.ErrInvalidCredentials
+	}
+
+	if user.GitToken == "" || !pkg.CheckPassword(user.GitToken, token) {
+		return nil, domainError.ErrInvalidCredentials
+	}
+
+	return &UserInfoDTO{
+		ID:       user.ID,
+		Username: user.Username,
+	}, nil
+}

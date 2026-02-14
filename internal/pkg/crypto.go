@@ -2,6 +2,8 @@ package pkg
 
 import (
 	"crypto/md5"
+	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 
 	"golang.org/x/crypto/bcrypt"
@@ -27,6 +29,19 @@ func HashPassword(password string) (string, error) {
 func CheckPassword(hashedPassword, password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 	return err == nil
+}
+
+// SHA256Hash returns the SHA-256 hex digest of the given text.
+func SHA256Hash(text string) string {
+	hash := sha256.Sum256([]byte(text))
+	return hex.EncodeToString(hash[:])
+}
+
+// GenerateRandomToken generates a cryptographically secure random hex token of n bytes.
+func GenerateRandomToken(n int) string {
+	b := make([]byte, n)
+	_, _ = rand.Read(b)
+	return hex.EncodeToString(b)
 }
 
 // IsMD5Hash checks if a string looks like an MD5 hex digest (32 hex chars).

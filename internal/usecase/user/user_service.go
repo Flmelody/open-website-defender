@@ -35,6 +35,13 @@ func NewUserService(userRepo _interface.UserRepository) *UserService {
 	}
 }
 
+func maskGitToken(token string) string {
+	if token != "" {
+		return "***"
+	}
+	return ""
+}
+
 func (s *UserService) CreateUser(input *CreateUserDTO) (*UserDTO, error) {
 	if input.Username == "" || input.Password == "" {
 		return nil, errors.New("username and password are required")
@@ -54,7 +61,7 @@ func (s *UserService) CreateUser(input *CreateUserDTO) (*UserDTO, error) {
 	return &UserDTO{
 		ID:       user.ID,
 		Username: user.Username,
-		GitToken: user.GitToken,
+		GitToken: maskGitToken(input.GitToken),
 		IsAdmin:  user.IsAdmin,
 	}, nil
 }
@@ -71,7 +78,7 @@ func (s *UserService) GetUser(id uint) (*UserDTO, error) {
 	return &UserDTO{
 		ID:       user.ID,
 		Username: user.Username,
-		GitToken: user.GitToken,
+		GitToken: maskGitToken(user.GitToken),
 		IsAdmin:  user.IsAdmin,
 	}, nil
 }
@@ -103,7 +110,7 @@ func (s *UserService) UpdateUser(id uint, input *UpdateUserDTO) (*UserDTO, error
 	return &UserDTO{
 		ID:       user.ID,
 		Username: user.Username,
-		GitToken: user.GitToken,
+		GitToken: maskGitToken(user.GitToken),
 		IsAdmin:  user.IsAdmin,
 	}, nil
 }
@@ -149,7 +156,7 @@ func (s *UserService) ListUsers(page, size int) ([]*UserDTO, int64, error) {
 		userDtos = append(userDtos, &UserDTO{
 			ID:       user.ID,
 			Username: user.Username,
-			GitToken: user.GitToken,
+			GitToken: maskGitToken(user.GitToken),
 			IsAdmin:  user.IsAdmin,
 		})
 	}

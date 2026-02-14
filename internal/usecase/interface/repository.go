@@ -6,6 +6,7 @@ type UserRepository interface {
 	Save(user *entity.User) error
 	FindByID(id string) (*entity.User, error)
 	FindByEmail(email string) (*entity.User, error)
+	FindByUsername(username string) (*entity.User, error)
 	FindByUsernameAndPassword(username string, password string) (*entity.User, error)
 	Update(user *entity.User) error
 	Delete(id string) error
@@ -24,4 +25,16 @@ type IpBlackListRepository interface {
 	Delete(id uint) error
 	List(limit, offset int) ([]*entity.IpBlackList, int64, error)
 	FindByIP(ip string) (*entity.IpBlackList, error)
+}
+
+type LicenseRepository interface {
+	Create(license *entity.License) error
+	Delete(id uint) error
+	List(limit, offset int) ([]*entity.License, int64, error)
+	FindByTokenHash(tokenHash string) (*entity.License, error)
+}
+
+type SystemRepository interface {
+	Get() (*entity.System, error)
+	Save(system *entity.System) error
 }

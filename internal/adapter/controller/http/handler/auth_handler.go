@@ -8,6 +8,8 @@ import (
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
 	"open-website-defender/internal/usecase/iplist"
+	"open-website-defender/internal/usecase/license"
+	"open-website-defender/internal/usecase/system"
 	"open-website-defender/internal/usecase/user"
 	"strings"
 	"time"
@@ -94,20 +96,53 @@ func Auth(c *gin.Context) {
 		}
 	}
 
-	if clientToken == "" {
-		response.Unauthorized(c, "No authentication token provided")
-		return
-	}
-
-	tokenString := strings.TrimPrefix(clientToken, "Bearer ")
-	userInfo, err := service.ValidateToken(tokenString)
-	if err != nil {
+	if clientToken != "" {
+		tokenString := strings.TrimPrefix(clientToken, "Bearer ")
+		userInfo, err := service.ValidateToken(tokenString)
+		if err == nil {
+			response.Success(c, userInfo)
+			return
+		}
 		logging.Sugar.Warnf("Token validation failed: %v", err)
-		response.Unauthorized(c, "Invalid or expired token")
-		return
 	}
 
-	response.Success(c, userInfo)
+	// 5. Check Git Token header (configurable)
+	systemService := system.GetSystemService()
+	gitHeaderName, licenseHeaderName := systemService.GetHeaderNames()
+
+	gitTokenHeader := c.GetHeader(gitHeaderName)
+	if gitTokenHeader != "" {
+		parts := strings.SplitN(gitTokenHeader, ":", 2)
+		if len(parts) == 2 {
+			userInfo, err := service.ValidateGitToken(parts[0], parts[1])
+			if err == nil {
+				logging.Sugar.Infof("Access granted via git token for user: %s", parts[0])
+				response.Success(c, userInfo)
+				return
+			}
+			logging.Sugar.Warnf("Git token validation failed for user '%s': %v", parts[0], err)
+		}
+	}
+
+	// 6. Check License header (configurable)
+	licenseToken := c.GetHeader(licenseHeaderName)
+	if licenseToken != "" {
+		licenseService := license.GetLicenseService()
+		valid, err := licenseService.ValidateToken(licenseToken)
+		if err == nil && valid {
+			logging.Sugar.Infof("Access granted via license token from IP: %s", clientIP)
+			response.Success(c, gin.H{
+				"message": "Access granted via license",
+				"ip":      clientIP,
+			})
+			return
+		}
+		if err != nil {
+			logging.Sugar.Warnf("License validation error: %v", err)
+		}
+	}
+
+	response.Unauthorized(c, "No valid authentication provided")
 }
 
 func Login(c *gin.Context) {

@@ -28,7 +28,9 @@ export default {
     ip_black_list: './ЧЕРНЫЙ_СПИСОК_IP',
     waf_rules: './ПРАВИЛА_WAF',
     access_logs: './ЖУРНАЛ_ДОСТУПА',
-    geo_block: './ГЕО_БЛОКИРОВКА'
+    geo_block: './ГЕО_БЛОКИРОВКА',
+    licenses: './ЛИЦЕНЗИИ',
+    system_settings: './НАСТРОЙКИ_СИСТЕМЫ'
   },
   layout: {
     net_status: 'СТАТУС СЕТИ: БЕЗОПАСНО',
@@ -108,5 +110,28 @@ export default {
     country_name: 'НАЗВАНИЕ_СТРАНЫ',
     delete_confirm: 'УДАЛИТЬ ГЕО-ПРАВИЛО {code}?',
     title_create: 'Добавить блокировку страны'
+  },
+  license: {
+    new_license: '[ НОВАЯ_ЛИЦЕНЗИЯ ]',
+    name: 'НАЗВАНИЕ',
+    name_placeholder: 'напр. CI/CD конвейер',
+    status: 'СТАТУС',
+    active: 'АКТИВНА',
+    inactive: 'НЕАКТИВНА',
+    delete_confirm: 'ОТОЗВАТЬ ЛИЦЕНЗИЮ {name}?',
+    title_create: 'Создать лицензию',
+    token_generated: 'ТОКЕН ЛИЦЕНЗИИ СГЕНЕРИРОВАН',
+    token_warning: 'Этот токен будет показан только ОДИН РАЗ. Скопируйте его сейчас — позже его нельзя будет получить.',
+    copy: 'КОПИРОВАТЬ',
+    copied: 'Скопировано в буфер обмена',
+    understood: 'Я СКОПИРОВАЛ ТОКЕН'
+  },
+  system: {
+    section_headers: 'ПОЛЬЗОВАТЕЛЬСКИЕ HTTP-ЗАГОЛОВКИ',
+    headers_desc: 'Настройте имена HTTP-заголовков для аутентификации. Изменения требуют обновления всех клиентов.',
+    git_token_header: 'ЗАГОЛОВОК_GIT_TOKEN',
+    license_header: 'ЗАГОЛОВОК_ЛИЦЕНЗИИ',
+    save: '[ СОХРАНИТЬ ]',
+    reset: '[ СБРОСИТЬ ]'
   }
 }

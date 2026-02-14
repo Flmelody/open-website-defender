@@ -8,11 +8,8 @@ type System struct {
 }
 
 type Security struct {
-	GitTokenSecret string `json:"git_token_secret"`
-}
-
-type License struct {
-	HttpHeader string `json:"http_header"`
+	GitTokenHeader string `json:"git_token_header"` // default "Defender-Git-Token"
+	LicenseHeader  string `json:"license_header"`   // default "Defender-License"
 }
 
 type GeoBlockRule struct {

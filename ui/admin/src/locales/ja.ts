@@ -28,7 +28,9 @@ export default {
     ip_black_list: './IPブラックリスト',
     waf_rules: './WAFルール',
     access_logs: './アクセスログ',
-    geo_block: './地域ブロック'
+    geo_block: './地域ブロック',
+    licenses: './ライセンス',
+    system_settings: './システム設定'
   },
   layout: {
     net_status: 'ネットワーク状態: 安全',
@@ -108,5 +110,28 @@ export default {
     country_name: '国名',
     delete_confirm: '地域ルール {code} を削除しますか？',
     title_create: '国別ブロック追加'
+  },
+  license: {
+    new_license: '[ 新規ライセンス ]',
+    name: '名前',
+    name_placeholder: '例: CI/CDパイプライン',
+    status: 'ステータス',
+    active: '有効',
+    inactive: '無効',
+    delete_confirm: 'ライセンス {name} を失効しますか？',
+    title_create: 'ライセンス作成',
+    token_generated: 'ライセンストークンが生成されました',
+    token_warning: 'このトークンは一度だけ表示されます。今すぐコピーしてください。後から取得することはできません。',
+    copy: 'コピー',
+    copied: 'クリップボードにコピーしました',
+    understood: 'トークンをコピーしました'
+  },
+  system: {
+    section_headers: 'カスタムHTTPヘッダー',
+    headers_desc: '認証に使用するHTTPヘッダー名を設定します。変更後はすべてのクライアントの更新が必要です。',
+    git_token_header: 'GIT_TOKEN_ヘッダー',
+    license_header: 'ライセンス_ヘッダー',
+    save: '[ 保存 ]',
+    reset: '[ リセット ]'
   }
 }

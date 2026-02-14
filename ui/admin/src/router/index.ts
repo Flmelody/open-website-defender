@@ -9,6 +9,8 @@ import IpBlackListView from '@/views/IpBlackListView.vue'
 import WafRulesView from '@/views/WafRulesView.vue'
 import AccessLogView from '@/views/AccessLogView.vue'
 import GeoBlockView from '@/views/GeoBlockView.vue'
+import LicenseView from '@/views/LicenseView.vue'
+import SystemSettingsView from '@/views/SystemSettingsView.vue'
 
 const config = getAppConfig()
 // Clean up double slashes if any
@@ -66,6 +68,16 @@ const router = createRouter({
           path: 'geo-block',
           name: 'geo-block',
           component: GeoBlockView
+        },
+        {
+          path: 'licenses',
+          name: 'licenses',
+          component: LicenseView
+        },
+        {
+          path: 'system-settings',
+          name: 'system-settings',
+          component: SystemSettingsView
         }
       ]
     }

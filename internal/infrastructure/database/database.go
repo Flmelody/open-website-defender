@@ -114,6 +114,8 @@ func InitDB() error {
 		&entity.WafRule{},
 		&entity.AccessLog{},
 		&entity.GeoBlockRule{},
+		&entity.License{},
+		&entity.System{},
 	)
 	if err != nil {
 		return err
@@ -129,6 +131,37 @@ func InitDB() error {
 		logging.Sugar.Warnf("Failed to initialize default WAF rules: %v", err)
 	}
 
+	err = initDefaultSystem()
+	if err != nil {
+		logging.Sugar.Warnf("Failed to initialize default system settings: %v", err)
+	}
+
+	return nil
+}
+
+func initDefaultSystem() error {
+	var count int64
+	if err := DB.Model(&entity.System{}).Count(&count).Error; err != nil {
+		return err
+	}
+
+	if count > 0 {
+		logging.Sugar.Info("System settings already exist, skipping default creation")
+		return nil
+	}
+
+	system := &entity.System{
+		Security: entity.Security{
+			GitTokenHeader: "Defender-Git-Token",
+			LicenseHeader:  "Defender-License",
+		},
+	}
+
+	if err := DB.Create(system).Error; err != nil {
+		return err
+	}
+
+	logging.Sugar.Info("Default system settings created successfully")
 	return nil
 }
 

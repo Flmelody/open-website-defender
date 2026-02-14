@@ -13,3 +13,5 @@ ui/guard/node_modules/
 .env
 data/
 logs/
+/CLAUDE.md
+/.claude/

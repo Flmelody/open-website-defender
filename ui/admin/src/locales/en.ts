@@ -22,9 +22,13 @@ export default {
   },
   menu: {
     system_modules: 'SYSTEM_MODULES',
+    dashboard: './DASHBOARD',
     users_db: './USERS_DB',
     ip_white_list: './IP_WHITE_LIST',
-    ip_black_list: './IP_BLACK_LIST'
+    ip_black_list: './IP_BLACK_LIST',
+    waf_rules: './WAF_RULES',
+    access_logs: './ACCESS_LOGS',
+    geo_block: './GEO_BLOCK'
   },
   layout: {
     net_status: 'NET_STATUS: SECURE',
@@ -65,5 +69,45 @@ export default {
     delete_confirm: 'DELETE IP {ip}?',
     title_create: 'Add IP',
     title_edit: 'Edit IP',
+  },
+  dashboard: {
+    total_requests: 'TOTAL_REQUESTS',
+    blocked_requests: 'BLOCKED_REQUESTS',
+    waf_rules: 'WAF_RULES',
+    blacklist_count: 'BLACKLIST_COUNT',
+    whitelist_count: 'WHITELIST_COUNT',
+    user_count: 'USER_COUNT',
+    uptime: 'UPTIME',
+    top_blocked_ips: 'TOP_BLOCKED_IPS',
+    block_count: 'BLOCK_COUNT'
+  },
+  waf: {
+    new_rule: '[ NEW_RULE ]',
+    name: 'NAME',
+    pattern: 'PATTERN',
+    category: 'CATEGORY',
+    action: 'ACTION',
+    enabled: 'ENABLED',
+    delete_confirm: 'DELETE RULE {name}?',
+    title_create: 'Create Rule',
+    title_edit: 'Edit Rule'
+  },
+  access_log: {
+    client_ip: 'CLIENT_IP',
+    method: 'METHOD',
+    path: 'PATH',
+    status: 'STATUS',
+    action: 'ACTION',
+    rule: 'RULE',
+    filter_ip: 'Filter by IP',
+    filter_action: 'Filter by Action',
+    search: '[ SEARCH ]'
+  },
+  geo: {
+    new_rule: '[ NEW_RULE ]',
+    country_code: 'COUNTRY_CODE',
+    country_name: 'COUNTRY_NAME',
+    delete_confirm: 'DELETE GEO RULE {code}?',
+    title_create: 'Add Country Block'
   }
 }

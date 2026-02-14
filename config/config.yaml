@@ -1,7 +1,81 @@
+# Database configuration
+# Supported drivers: sqlite (default), postgres, mysql
 database:
   driver: sqlite
+  # SQLite settings (used when driver is sqlite)
+  # file-path: ./data/app.db
 
-# 默认用户配置（首次启动时创建）
+  # PostgreSQL settings (used when driver is postgres)
+  # driver: postgres
+  # host: localhost
+  # port: 5432
+  # name: open_website_defender
+  # user: postgres
+  # password: your_password
+  # ssl-mode: disable
+
+  # MySQL settings (used when driver is mysql)
+  # driver: mysql
+  # host: localhost
+  # port: 3306
+  # name: open_website_defender
+  # user: root
+  # password: your_password
+
+# Security configuration
+security:
+  # JWT secret key for token signing. If empty, a random key is generated on each restart.
+  # IMPORTANT: Set this in production to persist tokens across restarts.
+  jwt-secret: ""
+  # Token expiration time in hours (default: 24)
+  token-expiration-hours: 24
+
+  # CORS configuration
+  cors:
+    # Allowed origins. Empty list = reflect any origin (permissive, for dev only).
+    # In production, set explicit origins:
+    # allowed-origins:
+    #   - "https://example.com"
+    #   - "https://admin.example.com"
+    allowed-origins: []
+    allow-credentials: true
+
+  # Security response headers
+  headers:
+    # Enable HSTS (only enable if behind HTTPS)
+    hsts-enabled: false
+    # X-Frame-Options: DENY, SAMEORIGIN, or empty to disable
+    frame-options: "DENY"
+
+# Rate limiting configuration
+rate-limit:
+  enabled: true
+  # Global rate limit: max requests per minute per IP
+  requests-per-minute: 100
+  # Login-specific rate limit (stricter)
+  login:
+    requests-per-minute: 5
+    # Lockout duration in seconds after exceeding login rate limit
+    lockout-duration: 300
+
+# Request filtering configuration (SQLi, XSS, Path Traversal detection)
+request-filtering:
+  enabled: true
+
+# Geo-IP blocking configuration
+geo-blocking:
+  enabled: false
+  # Path to MaxMind GeoLite2-Country.mmdb file
+  # Download from: https://dev.maxmind.com/geoip/geolite2-free-geolocation-data
+  database-path: ""
+  # Blocked countries are managed via the admin API (POST /geo-block-rules)
+
+# Server configuration
+server:
+  # Maximum request body size in MB (default: 10)
+  max-body-size-mb: 10
+
+# Default user credentials (created on first startup)
 default-user:
   username: defender
   password: defender

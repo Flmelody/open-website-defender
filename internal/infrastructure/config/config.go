@@ -1,22 +1,59 @@
 package config
 
 type Config struct {
-	Database  DatabaseConfig  `mapstructure:"database"`
-	Whitelist WhitelistConfig `mapstructure:"whitelist" json:"-"`
-	Blacklist BlacklistConfig `mapstructure:"blacklist" json:"-"`
-	Wall      AppConfig       `mapstructure:"wall"`
+	Database         DatabaseConfig         `mapstructure:"database"`
+	Security         SecurityConfig         `mapstructure:"security"`
+	RateLimit        RateLimitConfig        `mapstructure:"rate-limit"`
+	RequestFiltering RequestFilteringConfig `mapstructure:"request-filtering"`
+	Server           ServerConfig           `mapstructure:"server"`
+	Whitelist        WhitelistConfig        `mapstructure:"whitelist" json:"-"`
+	Blacklist        BlacklistConfig        `mapstructure:"blacklist" json:"-"`
+	Wall             AppConfig              `mapstructure:"wall"`
+}
+
+type RequestFilteringConfig struct {
+	Enabled bool `mapstructure:"enabled"`
+}
+
+type ServerConfig struct {
+	MaxBodySizeMB int64 `mapstructure:"max-body-size-mb"`
 }
 
 type DatabaseConfig struct {
-	Type     string `mapstructure:"type"`
 	Driver   string `mapstructure:"driver"`
 	Host     string `mapstructure:"host"`
 	Port     int    `mapstructure:"port"`
 	Name     string `mapstructure:"name"`
 	User     string `mapstructure:"user"`
 	Password string `mapstructure:"password"`
-	SSLMode  string `mapstructure:"ssl_mode"`
+	SSLMode  string `mapstructure:"ssl-mode"`
 	FilePath string `mapstructure:"file-path"`
+}
+
+type SecurityConfig struct {
+	JWTSecret          string       `mapstructure:"jwt-secret"`
+	TokenExpirationHrs int          `mapstructure:"token-expiration-hours"`
+	CORS               CORSConfig   `mapstructure:"cors"`
+	Headers            HeaderConfig `mapstructure:"headers"`
+}
+
+type CORSConfig struct {
+	AllowedOrigins   []string `mapstructure:"allowed-origins"`
+	AllowCredentials bool     `mapstructure:"allow-credentials"`
+}
+
+type HeaderConfig struct {
+	HSTSEnabled  bool   `mapstructure:"hsts-enabled"`
+	FrameOptions string `mapstructure:"frame-options"`
+}
+
+type RateLimitConfig struct {
+	Enabled           bool `mapstructure:"enabled"`
+	RequestsPerMinute int  `mapstructure:"requests-per-minute"`
+	Login             struct {
+		RequestsPerMinute int `mapstructure:"requests-per-minute"`
+		LockoutDuration   int `mapstructure:"lockout-duration"`
+	} `mapstructure:"login"`
 }
 
 type WhitelistConfig struct {

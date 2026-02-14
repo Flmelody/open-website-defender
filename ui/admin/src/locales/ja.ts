@@ -22,9 +22,13 @@ export default {
   },
   menu: {
     system_modules: 'システムモジュール',
+    dashboard: './ダッシュボード',
     users_db: './ユーザーDB',
     ip_white_list: './IPホワイトリスト',
-    ip_black_list: './IPブラックリスト'
+    ip_black_list: './IPブラックリスト',
+    waf_rules: './WAFルール',
+    access_logs: './アクセスログ',
+    geo_block: './地域ブロック'
   },
   layout: {
     net_status: 'ネットワーク状態: 安全',
@@ -64,6 +68,45 @@ export default {
     delete_confirm: 'IP {ip} を削除しますか？',
     title_create: 'IP追加',
     title_edit: 'IP編集',
+  },
+  dashboard: {
+    total_requests: 'リクエスト総数',
+    blocked_requests: 'ブロック済みリクエスト',
+    waf_rules: 'WAFルール数',
+    blacklist_count: 'ブラックリスト数',
+    whitelist_count: 'ホワイトリスト数',
+    user_count: 'ユーザー数',
+    uptime: '稼働時間',
+    top_blocked_ips: 'ブロック数上位IP',
+    block_count: 'ブロック数'
+  },
+  waf: {
+    new_rule: '[ 新規ルール ]',
+    name: '名前',
+    pattern: 'パターン',
+    category: 'カテゴリ',
+    action: 'アクション',
+    enabled: '有効',
+    delete_confirm: 'ルール {name} を削除しますか？',
+    title_create: 'ルール作成',
+    title_edit: 'ルール編集'
+  },
+  access_log: {
+    client_ip: 'クライアントIP',
+    method: 'メソッド',
+    path: 'パス',
+    status: 'ステータス',
+    action: 'アクション',
+    rule: 'ルール',
+    filter_ip: 'IPで絞り込み',
+    filter_action: 'アクションで絞り込み',
+    search: '[ 検索 ]'
+  },
+  geo: {
+    new_rule: '[ 新規ルール ]',
+    country_code: '国コード',
+    country_name: '国名',
+    delete_confirm: '地域ルール {code} を削除しますか？',
+    title_create: '国別ブロック追加'
   }
 }
-

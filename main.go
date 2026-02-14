@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"embed"
 	"flag"
 	"net/http"
@@ -9,9 +10,13 @@ import (
 	"open-website-defender/internal/infrastructure/config"
 	"open-website-defender/internal/infrastructure/database"
 	"open-website-defender/internal/infrastructure/logging"
+	"open-website-defender/internal/pkg"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
@@ -110,6 +115,12 @@ func main() {
 		return
 	}
 
+	// Initialize JWT secret from configuration
+	pkg.InitJWTSecret(
+		viper.GetString("security.jwt-secret"),
+		viper.GetInt("security.token-expiration-hours"),
+	)
+
 	err = database.InitDB()
 	if err != nil {
 		logging.Sugar.Fatalf("Error initializing database: %s", err)
@@ -128,19 +139,6 @@ func main() {
 		logging.Sugar.Warn("Failed to set trusted proxies:", err)
 		return
 	}
-
-	//r.Use(func(c *gin.Context) {
-	//	path := c.Request.URL.Path
-	//	adminRoot := appConfig.RootPath + appConfig.AdminPath
-	//	guardRoot := appConfig.RootPath + appConfig.GuardPath
-	//
-	//	if path == adminRoot || path == guardRoot {
-	//		c.Redirect(http.StatusMovedPermanently, path+"/")
-	//		c.Abort()
-	//		return
-	//	}
-	//	c.Next()
-	//})
 
 	adminFS, err := static.EmbedFolder(server, "ui/admin/dist")
 	if err != nil {
@@ -166,27 +164,84 @@ func main() {
 		c.Next()
 	})
 
-	r.Use(middleware.Logger())
-	r.Use(middleware.Recovery())
-	r.Use(func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", c.GetHeader("Origin"))
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With, Cookie")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Max-Age", "86400") // 24 hours
+	// Security headers
+	r.Use(middleware.SecurityHeaders())
 
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(204)
-			return
+	// CORS middleware (replaces inline handler)
+	r.Use(middleware.CORS())
+
+	// Request body size limit
+	maxBodySizeMB := viper.GetInt64("server.max-body-size-mb")
+	if maxBodySizeMB <= 0 {
+		maxBodySizeMB = 10 // default 10MB
+	}
+	r.Use(middleware.BodyLimit(maxBodySizeMB * 1024 * 1024))
+
+	// Access logging (must be before WAF/rate limiter to capture all actions)
+	r.Use(middleware.AccessLog())
+
+	// Geo-IP blocking
+	geoDBPath := viper.GetString("geo-blocking.database-path")
+	if viper.GetBool("geo-blocking.enabled") && geoDBPath != "" {
+		if err := pkg.InitGeoIP(geoDBPath); err == nil {
+			r.Use(middleware.GeoBlock())
+			logging.Sugar.Info("Geo-IP blocking enabled")
 		}
-		c.Next()
-	})
+	}
+
+	// Request filtering (SQLi, XSS, Path Traversal detection)
+	if viper.GetBool("request-filtering.enabled") {
+		r.Use(middleware.WAF())
+		logging.Sugar.Info("Request filtering enabled")
+	}
+
+	// Request logging
+	r.Use(middleware.Logger())
+
+	// Global rate limiter
+	if viper.GetBool("rate-limit.enabled") {
+		globalRPM := viper.GetInt("rate-limit.requests-per-minute")
+		if globalRPM <= 0 {
+			globalRPM = 100
+		}
+		r.Use(middleware.RateLimiter("global", globalRPM))
+		logging.Sugar.Infof("Global rate limiter enabled: %d requests/minute per IP", globalRPM)
+	}
+
+	// Server configuration with timeouts
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "9999"
 	}
-	err = r.Run(":" + port)
-	if err != nil {
-		return
+
+	srv := &http.Server{
+		Addr:         ":" + port,
+		Handler:      r,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 30 * time.Second,
+		IdleTimeout:  60 * time.Second,
 	}
+
+	// Start server in goroutine
+	go func() {
+		logging.Sugar.Infof("Starting server on :%s", port)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logging.Sugar.Fatalf("Failed to start server: %s", err)
+		}
+	}()
+
+	// Graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	logging.Sugar.Info("Shutting down server...")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		logging.Sugar.Fatalf("Server forced to shutdown: %s", err)
+	}
+
+	pkg.CloseGeoIP()
+	logging.Sugar.Info("Server exited gracefully")
 }

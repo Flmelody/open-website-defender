@@ -88,6 +88,14 @@ func Conflict(c *gin.Context, message string) {
 	})
 }
 
+func TooManyRequests(c *gin.Context, message string) {
+	c.JSON(http.StatusTooManyRequests, Response{
+		Code:    429,
+		Message: "too many requests",
+		Error:   message,
+	})
+}
+
 func InternalServerError(c *gin.Context, message string) {
 	c.JSON(http.StatusInternalServerError, Response{
 		Code:    500,

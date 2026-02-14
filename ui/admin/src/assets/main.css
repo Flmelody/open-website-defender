@@ -97,8 +97,87 @@ body {
 }
 
 .el-input__inner {
-  color: #fff !important;
+  color: #0F0 !important;
   font-family: var(--font-mono) !important;
+}
+
+.el-input__inner::placeholder {
+  color: #4a6a4a !important;
+}
+
+/* Textarea */
+.el-textarea__inner {
+  background-color: rgba(0, 20, 0, 0.6) !important;
+  box-shadow: none !important;
+  border: 1px solid #005000 !important;
+  border-radius: 0 !important;
+  color: #0F0 !important;
+  font-family: var(--font-mono) !important;
+}
+
+.el-textarea__inner:focus {
+  border-color: #0F0 !important;
+  background-color: rgba(0, 30, 0, 0.8) !important;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.3) !important;
+}
+
+.el-textarea__inner::placeholder {
+  color: #4a6a4a !important;
+}
+
+/* Select */
+.el-select .el-select__wrapper {
+  background-color: rgba(0, 20, 0, 0.6) !important;
+  box-shadow: none !important;
+  border: 1px solid #005000 !important;
+  border-radius: 0 !important;
+  color: #0F0 !important;
+  font-family: var(--font-mono) !important;
+}
+
+.el-select .el-select__wrapper.is-focused {
+  border-color: #0F0 !important;
+  box-shadow: 0 0 8px rgba(0, 255, 0, 0.3) !important;
+}
+
+.el-select .el-select__selected-item, .el-select .el-select__placeholder span {
+  color: #0F0 !important;
+}
+
+.el-select__suffix .el-icon {
+  color: #0F0 !important;
+}
+
+/* Select Dropdown */
+.el-select__popper, .el-select-dropdown {
+  background-color: rgba(5, 20, 5, 0.95) !important;
+  border: 1px solid #005000 !important;
+  border-radius: 0 !important;
+}
+
+.el-select-dropdown__item {
+  color: #8a8 !important;
+  font-family: var(--font-mono) !important;
+}
+
+.el-select-dropdown__item.is-hovering {
+  background-color: rgba(0, 255, 0, 0.15) !important;
+  color: #0F0 !important;
+}
+
+.el-select-dropdown__item.is-selected {
+  color: #0F0 !important;
+  font-weight: bold !important;
+}
+
+.el-popper.is-light {
+  background-color: rgba(5, 20, 5, 0.95) !important;
+  border: 1px solid #005000 !important;
+}
+
+.el-popper.is-light .el-popper__arrow::before {
+  background-color: rgba(5, 20, 5, 0.95) !important;
+  border-color: #005000 !important;
 }
 
 /* Dialogs & Message Boxes - CRITICAL FIX */

@@ -10,7 +10,6 @@ import (
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
 	_interface "open-website-defender/internal/usecase/interface"
-	"path/filepath"
 	"sync"
 )
 
@@ -150,12 +149,7 @@ func (s *IpWhiteListService) FindByIP(ip string) (*IpWhiteListDto, error) {
 	}
 
 	for _, rule := range rules {
-		matched, err := filepath.Match(rule, ip)
-		if err == nil && matched {
-			cache.Set(cacheKey, []byte(rule), 600)
-			return &IpWhiteListDto{Ip: rule}, nil
-		}
-		if rule == ip {
+		if pkg.MatchIP(rule, ip) {
 			cache.Set(cacheKey, []byte(rule), 600)
 			return &IpWhiteListDto{Ip: rule}, nil
 		}

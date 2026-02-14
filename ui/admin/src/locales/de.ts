@@ -22,9 +22,13 @@ export default {
   },
   menu: {
     system_modules: 'SYSTEM_MODULE',
+    dashboard: './DASHBOARD',
     users_db: './BENUTZER_DB',
     ip_white_list: './IP_WHITELIST',
-    ip_black_list: './IP_BLACKLIST'
+    ip_black_list: './IP_BLACKLIST',
+    waf_rules: './WAF_REGELN',
+    access_logs: './ZUGRIFFSPROTOKOLLE',
+    geo_block: './GEO_SPERRE'
   },
   layout: {
     net_status: 'NETZWERKSTATUS: SICHER',
@@ -64,6 +68,45 @@ export default {
     delete_confirm: 'IP {ip} LÖSCHEN?',
     title_create: 'IP hinzufügen',
     title_edit: 'IP bearbeiten',
+  },
+  dashboard: {
+    total_requests: 'ANFRAGEN_GESAMT',
+    blocked_requests: 'BLOCKIERTE_ANFRAGEN',
+    waf_rules: 'WAF_REGELN',
+    blacklist_count: 'BLACKLIST_ANZAHL',
+    whitelist_count: 'WHITELIST_ANZAHL',
+    user_count: 'BENUTZER_ANZAHL',
+    uptime: 'BETRIEBSZEIT',
+    top_blocked_ips: 'MEISTBLOCKIERTE_IPS',
+    block_count: 'BLOCKIERUNGEN'
+  },
+  waf: {
+    new_rule: '[ NEUE_REGEL ]',
+    name: 'NAME',
+    pattern: 'MUSTER',
+    category: 'KATEGORIE',
+    action: 'AKTION',
+    enabled: 'AKTIVIERT',
+    delete_confirm: 'REGEL {name} LÖSCHEN?',
+    title_create: 'Regel erstellen',
+    title_edit: 'Regel bearbeiten'
+  },
+  access_log: {
+    client_ip: 'CLIENT_IP',
+    method: 'METHODE',
+    path: 'PFAD',
+    status: 'STATUS',
+    action: 'AKTION',
+    rule: 'REGEL',
+    filter_ip: 'Nach IP filtern',
+    filter_action: 'Nach Aktion filtern',
+    search: '[ SUCHEN ]'
+  },
+  geo: {
+    new_rule: '[ NEUE_REGEL ]',
+    country_code: 'LÄNDERCODE',
+    country_name: 'LÄNDERNAME',
+    delete_confirm: 'GEO-REGEL {code} LÖSCHEN?',
+    title_create: 'Ländersperre hinzufügen'
   }
 }
-

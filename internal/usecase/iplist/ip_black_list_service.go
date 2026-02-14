@@ -10,7 +10,6 @@ import (
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
 	_interface "open-website-defender/internal/usecase/interface"
-	"path/filepath"
 	"sync"
 )
 
@@ -155,14 +154,8 @@ func (s *IpBlackListService) FindByIP(ip string) (*IpBlackListDto, error) {
 	}
 
 	for _, rule := range rules {
-		matched, err := filepath.Match(rule, ip)
-		if err == nil && matched {
-			// Cache positive result
+		if pkg.MatchIP(rule, ip) {
 			cache.Set(cacheKey, []byte(rule), 600) // 10 min TTL for IP check
-			return &IpBlackListDto{Ip: rule}, nil
-		}
-		if rule == ip {
-			cache.Set(cacheKey, []byte(rule), 600)
 			return &IpBlackListDto{Ip: rule}, nil
 		}
 	}

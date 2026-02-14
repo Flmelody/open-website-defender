@@ -22,9 +22,13 @@ export default {
   },
   menu: {
     system_modules: '系统模块',
+    dashboard: './仪表盘',
     users_db: './用户数据库',
     ip_white_list: './IP白名单',
-    ip_black_list: './IP黑名单'
+    ip_black_list: './IP黑名单',
+    waf_rules: './WAF规则',
+    access_logs: './访问日志',
+    geo_block: './地域封锁'
   },
   layout: {
     net_status: '网络状态: 安全',
@@ -65,5 +69,45 @@ export default {
     delete_confirm: '删除IP {ip}?',
     title_create: '添加IP',
     title_edit: '编辑IP',
+  },
+  dashboard: {
+    total_requests: '总请求数',
+    blocked_requests: '已拦截请求',
+    waf_rules: 'WAF规则数',
+    blacklist_count: '黑名单数量',
+    whitelist_count: '白名单数量',
+    user_count: '用户数量',
+    uptime: '运行时间',
+    top_blocked_ips: '被拦截最多的IP',
+    block_count: '拦截次数'
+  },
+  waf: {
+    new_rule: '[ 新增规则 ]',
+    name: '名称',
+    pattern: '匹配模式',
+    category: '分类',
+    action: '动作',
+    enabled: '启用',
+    delete_confirm: '删除规则 {name}?',
+    title_create: '创建规则',
+    title_edit: '编辑规则'
+  },
+  access_log: {
+    client_ip: '客户端IP',
+    method: '方法',
+    path: '路径',
+    status: '状态码',
+    action: '动作',
+    rule: '规则',
+    filter_ip: '按IP筛选',
+    filter_action: '按动作筛选',
+    search: '[ 搜索 ]'
+  },
+  geo: {
+    new_rule: '[ 新增规则 ]',
+    country_code: '国家代码',
+    country_name: '国家名称',
+    delete_confirm: '删除地域规则 {code}?',
+    title_create: '添加国家封锁'
   }
 }

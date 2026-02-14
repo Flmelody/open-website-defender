@@ -22,9 +22,13 @@ export default {
   },
   menu: {
     system_modules: 'MODULES_SYSTÈME',
+    dashboard: './TABLEAU_DE_BORD',
     users_db: './BDD_UTILISATEURS',
     ip_white_list: './LISTE_BLANCHE_IP',
-    ip_black_list: './LISTE_NOIRE_IP'
+    ip_black_list: './LISTE_NOIRE_IP',
+    waf_rules: './RÈGLES_WAF',
+    access_logs: './JOURNAUX_ACCÈS',
+    geo_block: './BLOCAGE_GÉO'
   },
   layout: {
     net_status: 'ÉTAT_RÉSEAU : SÉCURISÉ',
@@ -64,6 +68,45 @@ export default {
     delete_confirm: 'SUPPRIMER IP {ip} ?',
     title_create: 'Ajouter IP',
     title_edit: 'Modifier IP',
+  },
+  dashboard: {
+    total_requests: 'REQUÊTES_TOTALES',
+    blocked_requests: 'REQUÊTES_BLOQUÉES',
+    waf_rules: 'RÈGLES_WAF',
+    blacklist_count: 'LISTE_NOIRE',
+    whitelist_count: 'LISTE_BLANCHE',
+    user_count: 'UTILISATEURS',
+    uptime: 'TEMPS_ACTIVITÉ',
+    top_blocked_ips: 'IPS_LES_PLUS_BLOQUÉES',
+    block_count: 'BLOCAGES'
+  },
+  waf: {
+    new_rule: '[ NOUVELLE_RÈGLE ]',
+    name: 'NOM',
+    pattern: 'MODÈLE',
+    category: 'CATÉGORIE',
+    action: 'ACTION',
+    enabled: 'ACTIVÉ',
+    delete_confirm: 'SUPPRIMER RÈGLE {name} ?',
+    title_create: 'Créer une règle',
+    title_edit: 'Modifier la règle'
+  },
+  access_log: {
+    client_ip: 'IP_CLIENT',
+    method: 'MÉTHODE',
+    path: 'CHEMIN',
+    status: 'STATUT',
+    action: 'ACTION',
+    rule: 'RÈGLE',
+    filter_ip: 'Filtrer par IP',
+    filter_action: 'Filtrer par action',
+    search: '[ RECHERCHER ]'
+  },
+  geo: {
+    new_rule: '[ NOUVELLE_RÈGLE ]',
+    country_code: 'CODE_PAYS',
+    country_name: 'NOM_PAYS',
+    delete_confirm: 'SUPPRIMER RÈGLE GÉO {code} ?',
+    title_create: 'Ajouter blocage pays'
   }
 }
-

@@ -1,7 +1,7 @@
 export default {
   common: {
     brand: 'DEFENDER',
-    unknown: 'НЕIZVESTNO',
+    unknown: 'НЕИЗВЕСТНО',
     confirm: 'ПОДТВЕРДИТЬ',
     cancel: 'ОТМЕНА',
     success: 'УСПЕХ',
@@ -22,9 +22,13 @@ export default {
   },
   menu: {
     system_modules: 'СИСТЕМНЫЕ_МОДУЛИ',
+    dashboard: './ПАНЕЛЬ_УПРАВЛЕНИЯ',
     users_db: './БАЗА_ПОЛЬЗОВАТЕЛЕЙ',
     ip_white_list: './БЕЛЫЙ_СПИСОК_IP',
-    ip_black_list: './ЧЕРНЫЙ_СПИСОК_IP'
+    ip_black_list: './ЧЕРНЫЙ_СПИСОК_IP',
+    waf_rules: './ПРАВИЛА_WAF',
+    access_logs: './ЖУРНАЛ_ДОСТУПА',
+    geo_block: './ГЕО_БЛОКИРОВКА'
   },
   layout: {
     net_status: 'СТАТУС СЕТИ: БЕЗОПАСНО',
@@ -64,6 +68,45 @@ export default {
     delete_confirm: 'УДАЛИТЬ IP {ip}?',
     title_create: 'Добавить IP',
     title_edit: 'Редактировать IP',
+  },
+  dashboard: {
+    total_requests: 'ВСЕГО_ЗАПРОСОВ',
+    blocked_requests: 'ЗАБЛОКИРОВАНО_ЗАПРОСОВ',
+    waf_rules: 'ПРАВИЛА_WAF',
+    blacklist_count: 'ЧЁРНЫЙ_СПИСОК',
+    whitelist_count: 'БЕЛЫЙ_СПИСОК',
+    user_count: 'ПОЛЬЗОВАТЕЛИ',
+    uptime: 'ВРЕМЯ_РАБОТЫ',
+    top_blocked_ips: 'НАИБОЛЕЕ_БЛОКИРУЕМЫЕ_IP',
+    block_count: 'БЛОКИРОВКИ'
+  },
+  waf: {
+    new_rule: '[ НОВОЕ_ПРАВИЛО ]',
+    name: 'НАЗВАНИЕ',
+    pattern: 'ШАБЛОН',
+    category: 'КАТЕГОРИЯ',
+    action: 'ДЕЙСТВИЕ',
+    enabled: 'ВКЛЮЧЕНО',
+    delete_confirm: 'УДАЛИТЬ ПРАВИЛО {name}?',
+    title_create: 'Создать правило',
+    title_edit: 'Редактировать правило'
+  },
+  access_log: {
+    client_ip: 'IP_КЛИЕНТА',
+    method: 'МЕТОД',
+    path: 'ПУТЬ',
+    status: 'СТАТУС',
+    action: 'ДЕЙСТВИЕ',
+    rule: 'ПРАВИЛО',
+    filter_ip: 'Фильтр по IP',
+    filter_action: 'Фильтр по действию',
+    search: '[ ПОИСК ]'
+  },
+  geo: {
+    new_rule: '[ НОВОЕ_ПРАВИЛО ]',
+    country_code: 'КОД_СТРАНЫ',
+    country_name: 'НАЗВАНИЕ_СТРАНЫ',
+    delete_confirm: 'УДАЛИТЬ ГЕО-ПРАВИЛО {code}?',
+    title_create: 'Добавить блокировку страны'
   }
 }
-

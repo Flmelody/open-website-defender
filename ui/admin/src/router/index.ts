@@ -2,9 +2,13 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { getAppConfig } from '@/utils/config'
 import Layout from '@/views/Layout.vue'
 import LoginView from '@/views/LoginView.vue'
+import DashboardView from '@/views/DashboardView.vue'
 import UserView from '@/views/UserView.vue'
 import IpWhiteListView from '@/views/IpWhiteListView.vue'
 import IpBlackListView from '@/views/IpBlackListView.vue'
+import WafRulesView from '@/views/WafRulesView.vue'
+import AccessLogView from '@/views/AccessLogView.vue'
+import GeoBlockView from '@/views/GeoBlockView.vue'
 
 const config = getAppConfig()
 // Clean up double slashes if any
@@ -26,7 +30,12 @@ const router = createRouter({
       children: [
         {
           path: '',
-          redirect: 'users'
+          redirect: 'dashboard'
+        },
+        {
+          path: 'dashboard',
+          name: 'dashboard',
+          component: DashboardView
         },
         {
           path: 'users',
@@ -42,6 +51,21 @@ const router = createRouter({
           path: 'ip-black-list',
           name: 'ip-black-list',
           component: IpBlackListView
+        },
+        {
+          path: 'waf-rules',
+          name: 'waf-rules',
+          component: WafRulesView
+        },
+        {
+          path: 'access-logs',
+          name: 'access-logs',
+          component: AccessLogView
+        },
+        {
+          path: 'geo-block',
+          name: 'geo-block',
+          component: GeoBlockView
         }
       ]
     }
@@ -53,7 +77,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !token) {
     next({ name: 'login' })
   } else if (to.meta.guest && token) {
-    next({ name: 'users' })
+    next({ name: 'dashboard' })
   } else {
     next()
   }

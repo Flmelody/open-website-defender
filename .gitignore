@@ -15,3 +15,6 @@ data/
 logs/
 /CLAUDE.md
 /.claude/
+
+# MkDocs build output
+site/

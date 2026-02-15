@@ -1,0 +1,104 @@
+site_name: Website Defender
+site_description: A lightweight WAF (Web Application Firewall) for protecting web applications
+site_url: https://flmelody.github.io/open-website-defender/
+repo_url: https://github.com/Flmelody/open-website-defender
+repo_name: Flmelody/open-website-defender
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.top
+    - content.code.copy
+    - search.suggest
+    - search.highlight
+
+plugins:
+  - search
+  - i18n:
+      docs_structure: suffix
+      languages:
+        - locale: en
+          name: English
+          default: true
+          build: true
+        - locale: zh
+          name: 中文
+          build: true
+          nav_translations:
+            Home: 首页
+            Getting Started: 快速开始
+            Architecture: 架构说明
+            Features: 功能特性
+            Authentication: 认证与访问控制
+            Domain Scopes: 域名作用域
+            WAF Rules: WAF 规则
+            IP Lists: IP 黑白名单
+            Geo-IP Blocking: 地域封锁
+            Rate Limiting: 速率限制
+            Security Headers: 安全响应头
+            Access Logs: 访问日志
+            User Management: 用户管理
+            Configuration: 配置说明
+            Environment Variables: 环境变量
+            Database: 数据库
+            API Reference: API 参考
+            Deployment: 部署
+            Nginx Setup: Nginx 配置
+            Development: 开发指南
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started/index.md
+  - Architecture: architecture/index.md
+  - Features:
+      - Authentication: features/authentication.md
+      - Domain Scopes: features/domain-scopes.md
+      - WAF Rules: features/waf.md
+      - IP Lists: features/ip-lists.md
+      - Geo-IP Blocking: features/geo-blocking.md
+      - Rate Limiting: features/rate-limiting.md
+      - Security Headers: features/security-headers.md
+      - Access Logs: features/access-logs.md
+      - User Management: features/user-management.md
+  - Configuration:
+      - Configuration: configuration/index.md
+      - Environment Variables: configuration/environment-variables.md
+      - Database: configuration/database.md
+  - API Reference: api-reference/index.md
+  - Deployment:
+      - Deployment: deployment/index.md
+      - Nginx Setup: deployment/nginx-setup.md
+  - Development: development/index.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - tables
+  - toc:
+      permalink: true
+  - attr_list
+  - md_in_html

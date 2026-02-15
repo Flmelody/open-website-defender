@@ -1,6 +1,6 @@
 site_name: Website Defender
 site_description: A lightweight WAF (Web Application Firewall) for protecting web applications
-site_url: https://flmelody.github.io/open-website-defender/
+site_url: https://defender.flmelody.org/
 repo_url: https://github.com/Flmelody/open-website-defender
 repo_name: Flmelody/open-website-defender
 

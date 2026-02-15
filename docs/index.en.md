@@ -97,6 +97,12 @@ Each rule can `block` (return 403) or `log` (allow but record). Add your own rul
 
 ![Admin Dashboard](assets/images/defender-admin.png)
 
+## Demo Video
+
+<div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;">
+  <iframe src="//player.bilibili.com/player.html?bvid=BV1BEZxBEEhJ&autoplay=0" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowfullscreen></iframe>
+</div>
+
 ---
 
 ## Get Started in 3 Steps

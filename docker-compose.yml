@@ -1,0 +1,45 @@
+services:
+  defender:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        BACKEND_HOST: ${BACKEND_HOST:-http://localhost:9999/wall}
+        ROOT_PATH: ${ROOT_PATH:-/wall}
+        ADMIN_PATH: ${ADMIN_PATH:-/admin}
+        GUARD_PATH: ${GUARD_PATH:-/guard}
+        PORT: ${PORT:-9999}
+    ports:
+      - "${PORT:-9999}:${PORT:-9999}"
+    environment:
+      - PORT=${PORT:-9999}
+    # volumes:
+    #   - ./data:/app/data      # Mount for SQLite data persistence
+    #   - ./config:/app/config  # Mount to override default config
+    restart: unless-stopped
+
+  # Uncomment to use PostgreSQL instead of SQLite:
+  #
+  # postgres:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_DB: open_website_defender
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: changeme
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   restart: unless-stopped
+  #
+  # Then update config/config.yaml:
+  #   database:
+  #     driver: postgres
+  #     host: postgres
+  #     port: 5432
+  #     name: open_website_defender
+  #     user: postgres
+  #     password: changeme
+
+# volumes:
+#   pgdata:

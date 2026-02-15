@@ -58,6 +58,7 @@ plugins:
             API Reference: API 参考
             Deployment: 部署
             Nginx Setup: Nginx 配置
+            Docker: Docker
             Development: 开发指南
 
 nav:
@@ -82,6 +83,7 @@ nav:
   - Deployment:
       - Deployment: deployment/index.md
       - Nginx Setup: deployment/nginx-setup.md
+      - Docker: deployment/docker.md
   - Development: development/index.md
 
 markdown_extensions:

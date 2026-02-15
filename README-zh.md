@@ -32,9 +32,63 @@ graph LR
 - **IP 白名单**：允许特定 IP 或 CIDR 网段（如 `192.168.1.0/24`）直接跳过认证。
 - **IP 黑名单**：通过精确匹配或 CIDR 网段封禁恶意 IP。
 
+- **域名作用域访问控制**：通过逗号分隔的域名模式限制用户可访问的域名（如 `gitea.com, *.internal.org`）。作用域为空则不限制访问。管理员用户跳过作用域检查。域名通过 `X-Forwarded-Host` 请求头获取，回退到 `Host` 请求头。
+
 **认证验证流程：**
 ```
-IP 黑名单 → IP 白名单 → JWT 令牌 → Git Token → 许可证令牌 → 拒绝
+IP 黑名单 → IP 白名单 → JWT 令牌（+ 作用域检查） → Git Token（+ 作用域检查） → 许可证令牌 → 拒绝
+```
+
+### 域名作用域
+
+域名作用域实现了多租户访问控制，允许不同用户通过同一个 Defender 实例访问不同的受保护服务。
+
+**工作原理：**
+
+1. 当请求到达 `/auth` 时，Defender 从 `X-Forwarded-Host` 读取域名（回退到 `Host` 请求头）
+2. 令牌/Git Token 认证成功后，检查用户的作用域是否匹配请求的域名
+3. 如果域名不匹配任何作用域模式，返回 `403 Forbidden`
+
+**作用域模式：**
+
+| 模式 | 匹配 | 不匹配 |
+|------|------|--------|
+| `gitea.com` | `gitea.com` | `gitlab.com`、`sub.gitea.com` |
+| `*.example.com` | `app.example.com`、`dev.example.com` | `example.com` |
+| `gitea.com, *.internal.org` | `gitea.com`、`app.internal.org` | `gitlab.com` |
+| *（空）* | 所有域名（不限制） | - |
+
+**规则：**
+
+- **作用域为空** = 不限制访问（向后兼容已有用户）
+- **管理员用户** 始终跳过作用域检查，无论其作用域值如何
+- 匹配**不区分大小写**
+- 匹配前会自动剥离端口号（`gitea.com:3000` 匹配作用域 `gitea.com`）
+
+**Nginx 配置：**
+
+要将域名信息传递给 Defender，需配置 Nginx 通过 `X-Forwarded-Host` 转发 `Host` 请求头：
+
+```nginx
+server {
+    server_name gitea.example.com;
+
+    location / {
+        auth_request /auth;
+
+        # 将原始域名传递给 Defender 用于作用域检查
+        proxy_pass http://gitea-backend;
+    }
+
+    location = /auth {
+        internal;
+        proxy_pass http://127.0.0.1:9999/wall/auth;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+    }
+}
 ```
 
 ### Web 应用防火墙（WAF）
@@ -88,6 +142,7 @@ IP 黑名单 → IP 白名单 → JWT 令牌 → Git Token → 许可证令牌 �
 - 创建、编辑和删除管理员用户
 - 角色控制（管理员权限标识）
 - 一键生成 Git Token 并复制
+- **域名作用域**：限制每个用户可访问的受保护域名
 
 ### 许可证管理
 

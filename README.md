@@ -34,9 +34,63 @@ graph LR
 - **IP Whitelist**: Allow specific IPs or CIDR ranges (e.g. `192.168.1.0/24`) to bypass authentication.
 - **IP Blacklist**: Block malicious IPs by exact match or CIDR range.
 
+- **Domain Scope Access Control**: Restrict users to specific domains using comma-separated patterns (e.g. `gitea.com, *.internal.org`). Empty scopes grant unrestricted access. Admin users bypass scope checks. Domain is determined from `X-Forwarded-Host` header with fallback to `Host`.
+
 **Auth verification flow:**
 ```
-IP Blacklist → IP Whitelist → JWT Token → Git Token → License Token → Deny
+IP Blacklist → IP Whitelist → JWT Token (+ Scope Check) → Git Token (+ Scope Check) → License Token → Deny
+```
+
+### Domain Scopes
+
+Domain scopes enable multi-tenant access control, allowing different users to access different protected services behind the same Defender instance.
+
+**How it works:**
+
+1. When a request hits `/auth`, Defender reads the domain from `X-Forwarded-Host` (fallback: `Host` header)
+2. After successful token/git-token authentication, the user's scopes are checked against the requested domain
+3. If the domain doesn't match any scope pattern, a `403 Forbidden` is returned
+
+**Scope patterns:**
+
+| Pattern | Matches | Does Not Match |
+|---------|---------|----------------|
+| `gitea.com` | `gitea.com` | `gitlab.com`, `sub.gitea.com` |
+| `*.example.com` | `app.example.com`, `dev.example.com` | `example.com` |
+| `gitea.com, *.internal.org` | `gitea.com`, `app.internal.org` | `gitlab.com` |
+| *(empty)* | Everything (unrestricted) | - |
+
+**Rules:**
+
+- **Empty scopes** = unrestricted access (backwards compatible with existing users)
+- **Admin users** always bypass scope checks regardless of their scopes value
+- Matching is **case-insensitive**
+- Ports are stripped before matching (`gitea.com:3000` matches scope `gitea.com`)
+
+**Nginx configuration:**
+
+To pass the domain information to Defender, configure Nginx to forward the `Host` header via `X-Forwarded-Host`:
+
+```nginx
+server {
+    server_name gitea.example.com;
+
+    location / {
+        auth_request /auth;
+
+        # Pass the original host to Defender for scope checking
+        proxy_pass http://gitea-backend;
+    }
+
+    location = /auth {
+        internal;
+        proxy_pass http://127.0.0.1:9999/wall/auth;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+    }
+}
 ```
 
 ### Web Application Firewall (WAF)
@@ -90,6 +144,7 @@ All requests are logged with client IP, method, path, status code, latency, User
 - Create, edit, and delete admin users
 - Role-based access (admin privilege flag)
 - Auto-generate Git tokens with one-click copy
+- **Domain scopes**: restrict which protected domains each user can access
 
 ### License Management
 

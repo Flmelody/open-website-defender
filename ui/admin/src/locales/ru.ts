@@ -61,7 +61,11 @@ export default {
     title_create: 'Создать пользователя',
     title_edit: 'Редактировать пользователя',
     undefined: '<НЕ_ОПРЕДЕЛЕНО>',
-    unchanged: '<БЕЗ_ИЗМЕНЕНИЙ>'
+    unchanged: '<БЕЗ_ИЗМЕНЕНИЙ>',
+    scopes: 'ОБЛАСТИ',
+    scopes_placeholder: 'напр. gitea.com, *.internal.org',
+    scopes_hint: 'Шаблоны доменов через запятую. Поддержка подстановок (*.example.com). Оставьте пустым для неограниченного доступа.',
+    unrestricted: '<БЕЗ_ОГРАНИЧЕНИЙ>'
   },
   ip_list: {
     ip_address: 'IP_АДРЕС',

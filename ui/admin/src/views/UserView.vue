@@ -36,6 +36,12 @@
               <span v-else class="null-value">{{ t('user.undefined') }}</span>
             </template>
           </el-table-column>
+          <el-table-column prop="scopes" :label="t('user.scopes')" show-overflow-tooltip>
+            <template #default="scope">
+              <span v-if="scope.row.scopes" class="bright-text">{{ scope.row.scopes }}</span>
+              <span v-else class="null-value">{{ t('user.unrestricted') }}</span>
+            </template>
+          </el-table-column>
           <el-table-column :label="t('common.actions')" width="200" align="right">
             <template #default="scope">
               <div class="ops-cell">
@@ -114,6 +120,14 @@
         <el-form-item prop="is_admin">
           <el-checkbox v-model="form.is_admin" :label="t('user.is_admin')" />
         </el-form-item>
+        <el-form-item :label="'> ' + t('user.scopes')" prop="scopes">
+          <el-input
+            v-model="form.scopes"
+            :placeholder="t('user.scopes_placeholder')"
+            :disabled="form.is_admin"
+          />
+          <div class="scope-hint">{{ t('user.scopes_hint') }}</div>
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -157,7 +171,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed } from 'vue'
+import { ref, onMounted, reactive, computed, watch } from 'vue'
 import request from '@/utils/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { CopyDocument, WarningFilled } from '@element-plus/icons-vue'
@@ -168,6 +182,7 @@ interface User {
   username: string
   git_token?: string
   is_admin?: boolean
+  scopes?: string
 }
 
 const { t } = useI18n()
@@ -195,7 +210,14 @@ const form = reactive({
   username: '',
   password: '',
   git_token: '',
-  is_admin: false
+  is_admin: false,
+  scopes: ''
+})
+
+watch(() => form.is_admin, (val) => {
+  if (val) {
+    form.scopes = ''
+  }
 })
 
 const rules = computed(() => ({
@@ -223,6 +245,7 @@ const handleAdd = () => {
   form.password = ''
   form.git_token = ''
   form.is_admin = false
+  form.scopes = ''
   isEditMode.value = false
   pendingToken.value = ''
   dialogVisible.value = true
@@ -235,6 +258,7 @@ const handleEdit = (row: User) => {
   form.password = ''
   form.git_token = ''
   form.is_admin = row.is_admin || false
+  form.scopes = row.scopes || ''
   isEditMode.value = true
   pendingToken.value = ''
   dialogVisible.value = true
@@ -520,5 +544,12 @@ onMounted(() => {
   color: #0F0;
   font-size: 12px;
   text-align: right;
+}
+
+.scope-hint {
+  color: #8a8;
+  font-size: 12px;
+  margin-top: 4px;
+  font-family: 'Courier New', monospace;
 }
 </style>

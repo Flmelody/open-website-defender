@@ -52,6 +52,7 @@ func (s *UserService) CreateUser(input *CreateUserDTO) (*UserDTO, error) {
 		Password: input.Password,
 		GitToken: input.GitToken,
 		IsAdmin:  input.IsAdmin,
+		Scopes:   input.Scopes,
 	}
 
 	if err := s.userRepo.Save(user); err != nil {
@@ -63,6 +64,7 @@ func (s *UserService) CreateUser(input *CreateUserDTO) (*UserDTO, error) {
 		Username: user.Username,
 		GitToken: maskGitToken(input.GitToken),
 		IsAdmin:  user.IsAdmin,
+		Scopes:   user.Scopes,
 	}, nil
 }
 
@@ -80,6 +82,7 @@ func (s *UserService) GetUser(id uint) (*UserDTO, error) {
 		Username: user.Username,
 		GitToken: maskGitToken(user.GitToken),
 		IsAdmin:  user.IsAdmin,
+		Scopes:   user.Scopes,
 	}, nil
 }
 
@@ -102,6 +105,7 @@ func (s *UserService) UpdateUser(id uint, input *UpdateUserDTO) (*UserDTO, error
 		user.GitToken = input.GitToken
 	}
 	user.IsAdmin = input.IsAdmin
+	user.Scopes = input.Scopes
 
 	if err := s.userRepo.Update(user); err != nil {
 		return nil, fmt.Errorf("failed to update user: %w", err)
@@ -112,6 +116,7 @@ func (s *UserService) UpdateUser(id uint, input *UpdateUserDTO) (*UserDTO, error
 		Username: user.Username,
 		GitToken: maskGitToken(user.GitToken),
 		IsAdmin:  user.IsAdmin,
+		Scopes:   user.Scopes,
 	}, nil
 }
 
@@ -158,6 +163,7 @@ func (s *UserService) ListUsers(page, size int) ([]*UserDTO, int64, error) {
 			Username: user.Username,
 			GitToken: maskGitToken(user.GitToken),
 			IsAdmin:  user.IsAdmin,
+			Scopes:   user.Scopes,
 		})
 	}
 

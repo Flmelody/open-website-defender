@@ -5,6 +5,7 @@ type CreateUserRequest struct {
 	Password string `json:"password" binding:"required,min=6,max=50"`
 	GitToken string `json:"git_token" binding:"omitempty,max=300"`
 	IsAdmin  bool   `json:"is_admin" binding:"omitempty"`
+	Scopes   string `json:"scopes" binding:"omitempty,max=1000"`
 }
 
 type UpdateUserRequest struct {
@@ -12,6 +13,7 @@ type UpdateUserRequest struct {
 	Password string `json:"password" binding:"omitempty,min=6,max=50"`
 	GitToken string `json:"git_token" binding:"omitempty,max=300"`
 	IsAdmin  bool   `json:"is_admin" binding:"omitempty"`
+	Scopes   string `json:"scopes" binding:"omitempty,max=1000"`
 }
 
 type ListUserRequest struct {

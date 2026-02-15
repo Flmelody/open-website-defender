@@ -26,6 +26,7 @@ func CreateUser(c *gin.Context) {
 		Password: req.Password,
 		GitToken: req.GitToken,
 		IsAdmin:  req.IsAdmin,
+		Scopes:   req.Scopes,
 	}
 
 	userDto, err := service.CreateUser(input)
@@ -65,6 +66,7 @@ func UpdateUser(c *gin.Context) {
 		Password: req.Password,
 		GitToken: req.GitToken,
 		IsAdmin:  req.IsAdmin,
+		Scopes:   req.Scopes,
 	}
 
 	userDto, err := service.UpdateUser(uint(id), input)

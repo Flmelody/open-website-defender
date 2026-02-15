@@ -61,7 +61,11 @@ export default {
     title_create: 'Créer un utilisateur',
     title_edit: 'Modifier l\'utilisateur',
     undefined: '<INDÉFINI>',
-    unchanged: '<INCHANGÉ>'
+    unchanged: '<INCHANGÉ>',
+    scopes: 'PORTÉES',
+    scopes_placeholder: 'ex. gitea.com, *.internal.org',
+    scopes_hint: 'Modèles de domaines séparés par des virgules. Wildcards supportés (*.example.com). Laisser vide pour un accès illimité.',
+    unrestricted: '<ILLIMITÉ>'
   },
   ip_list: {
     ip_address: 'ADRESSE_IP',

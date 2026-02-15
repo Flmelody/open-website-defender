@@ -67,7 +67,11 @@ export default {
     token_warning: '此令牌仅显示一次，请立即复制，之后将无法再次获取。',
     copy: '复制',
     copied: '已复制到剪贴板',
-    understood: '我已复制令牌'
+    understood: '我已复制令牌',
+    scopes: '作用域',
+    scopes_placeholder: '例如: gitea.com, *.internal.org',
+    scopes_hint: '逗号分隔的域名模式。支持通配符 (*.example.com)。留空表示不限制访问。',
+    unrestricted: '<不限制>'
   },
   ip_list: {
     ip_address: 'IP地址',

@@ -17,6 +17,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func getRequestedDomain(c *gin.Context) string {
+	host := c.GetHeader("X-Forwarded-Host")
+	if host == "" {
+		host = c.Request.Host
+	}
+	return pkg.StripPort(host)
+}
+
+func checkUserScope(userInfo *user.UserInfoDTO, domain string) bool {
+	if userInfo.IsAdmin {
+		return true
+	}
+	return pkg.CheckDomainScope(userInfo.Scopes, domain)
+}
+
 type LoginResponse struct {
 	Token string            `json:"token"`
 	User  *UserInfoResponse `json:"user"`
@@ -96,10 +111,17 @@ func Auth(c *gin.Context) {
 		}
 	}
 
+	requestedDomain := getRequestedDomain(c)
+
 	if clientToken != "" {
 		tokenString := strings.TrimPrefix(clientToken, "Bearer ")
 		userInfo, err := service.ValidateToken(tokenString)
 		if err == nil {
+			if !checkUserScope(userInfo, requestedDomain) {
+				logging.Sugar.Warnf("Scope denied for user '%s': domain '%s' not in scopes '%s'", userInfo.Username, requestedDomain, userInfo.Scopes)
+				response.Forbidden(c, "Domain not in user scope")
+				return
+			}
 			response.Success(c, userInfo)
 			return
 		}
@@ -116,6 +138,11 @@ func Auth(c *gin.Context) {
 		if len(parts) == 2 {
 			userInfo, err := service.ValidateGitToken(parts[0], parts[1])
 			if err == nil {
+				if !checkUserScope(userInfo, requestedDomain) {
+					logging.Sugar.Warnf("Scope denied for user '%s': domain '%s' not in scopes '%s'", userInfo.Username, requestedDomain, userInfo.Scopes)
+					response.Forbidden(c, "Domain not in user scope")
+					return
+				}
 				logging.Sugar.Infof("Access granted via git token for user: %s", parts[0])
 				response.Success(c, userInfo)
 				return

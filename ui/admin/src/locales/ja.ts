@@ -61,7 +61,11 @@ export default {
     title_create: 'ユーザー作成',
     title_edit: 'ユーザー編集',
     undefined: '<未定義>',
-    unchanged: '<変更なし>'
+    unchanged: '<変更なし>',
+    scopes: 'スコープ',
+    scopes_placeholder: '例: gitea.com, *.internal.org',
+    scopes_hint: 'カンマ区切りのドメインパターン。ワイルドカード対応 (*.example.com)。空欄で無制限アクセス。',
+    unrestricted: '<無制限>'
   },
   ip_list: {
     ip_address: 'IPアドレス',

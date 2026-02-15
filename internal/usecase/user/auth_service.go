@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"sync"
 
 	"open-website-defender/internal/adapter/repository"
@@ -68,9 +69,19 @@ func (s *AuthService) ValidateToken(tokenString string) (*UserInfoDTO, error) {
 		return nil, err
 	}
 
+	user, err := s.userRepo.FindByID(fmt.Sprintf("%d", claims.UserID))
+	if err != nil {
+		return nil, err
+	}
+	if user == nil {
+		return nil, domainError.ErrUserNotFound
+	}
+
 	return &UserInfoDTO{
-		ID:       claims.UserID,
-		Username: claims.Username,
+		ID:       user.ID,
+		Username: user.Username,
+		Scopes:   user.Scopes,
+		IsAdmin:  user.IsAdmin,
 	}, nil
 }
 
@@ -94,5 +105,7 @@ func (s *AuthService) ValidateGitToken(username, token string) (*UserInfoDTO, er
 	return &UserInfoDTO{
 		ID:       user.ID,
 		Username: user.Username,
+		Scopes:   user.Scopes,
+		IsAdmin:  user.IsAdmin,
 	}, nil
 }

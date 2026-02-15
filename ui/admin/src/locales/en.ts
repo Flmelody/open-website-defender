@@ -67,7 +67,11 @@ export default {
     token_warning: 'This token will only be shown ONCE. Copy it now — it cannot be retrieved later.',
     copy: 'COPY',
     copied: 'Copied to clipboard',
-    understood: 'I HAVE COPIED THE TOKEN'
+    understood: 'I HAVE COPIED THE TOKEN',
+    scopes: 'SCOPES',
+    scopes_placeholder: 'e.g. gitea.com, *.internal.org',
+    scopes_hint: 'Comma-separated domain patterns. Wildcards supported (*.example.com). Leave empty for unrestricted access.',
+    unrestricted: '<UNRESTRICTED>'
   },
   ip_list: {
     ip_address: 'IP_ADDRESS',

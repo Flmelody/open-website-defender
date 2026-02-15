@@ -61,7 +61,11 @@ export default {
     title_create: 'Benutzer erstellen',
     title_edit: 'Benutzer bearbeiten',
     undefined: '<UNDEFINIERT>',
-    unchanged: '<UNVERÄNDERT>'
+    unchanged: '<UNVERÄNDERT>',
+    scopes: 'BEREICHE',
+    scopes_placeholder: 'z.B. gitea.com, *.internal.org',
+    scopes_hint: 'Kommagetrennte Domain-Muster. Wildcards unterstützt (*.example.com). Leer lassen für uneingeschränkten Zugriff.',
+    unrestricted: '<UNEINGESCHRÄNKT>'
   },
   ip_list: {
     ip_address: 'IP_ADRESSE',

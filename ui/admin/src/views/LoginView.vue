@@ -104,7 +104,7 @@ const handleLogin = async () => {
       try {
         await authStore.login(loginForm.username, loginForm.password)
         ElMessage.success(t('login.access_granted'))
-        router.push({name: 'users'})
+        router.push({name: 'dashboard'})
       } catch (error: any) {
         ElMessage.error(t('login.access_denied'))
       } finally {

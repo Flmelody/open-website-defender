@@ -61,7 +61,13 @@ export default {
     title_create: 'Create User',
     title_edit: 'Edit User',
     undefined: '<UNDEFINED>',
-    unchanged: '<UNCHANGED>'
+    unchanged: '<UNCHANGED>',
+    generate: 'GENERATE',
+    token_generated: 'GIT TOKEN GENERATED',
+    token_warning: 'This token will only be shown ONCE. Copy it now — it cannot be retrieved later.',
+    copy: 'COPY',
+    copied: 'Copied to clipboard',
+    understood: 'I HAVE COPIED THE TOKEN'
   },
   ip_list: {
     ip_address: 'IP_ADDRESS',

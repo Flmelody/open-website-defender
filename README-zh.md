@@ -23,11 +23,99 @@ graph LR
 
 ## 功能特性
 
-- **🛡️ 登录鉴权**：为您的应用添加一层安全的登录验证。
-- **⚪ IP 白名单**：允许特定 IP 直接访问服务，无需登录。
-- **⚫ IP 黑名单**：禁止恶意 IP 访问您的服务。
-- **👥 用户管理**：管理系统用户和访问凭证。
-- **📊 可视化面板**：简单易用的管理后台。
+### 认证与访问控制
+
+- **JWT 令牌认证**：安全的登录验证，支持可配置的令牌过期时间，通过 `Defender-Authorization` 请求头传递。
+- **Cookie 认证**：支持 `flmelody.token` Cookie，实现无缝的浏览器会话。
+- **Git Token 认证**：机器访问方式，通过可配置的 HTTP 请求头（默认 `Defender-Git-Token`），格式为 `username:token`。
+- **许可证令牌认证**：API 访问方式，通过可配置的 HTTP 请求头（默认 `Defender-License`），令牌以 SHA-256 哈希存储。
+- **IP 白名单**：允许特定 IP 或 CIDR 网段（如 `192.168.1.0/24`）直接跳过认证。
+- **IP 黑名单**：通过精确匹配或 CIDR 网段封禁恶意 IP。
+
+**认证验证流程：**
+```
+IP 黑名单 → IP 白名单 → JWT 令牌 → Git Token → 许可证令牌 → 拒绝
+```
+
+### Web 应用防火墙（WAF）
+
+基于正则表达式的请求过滤，检查 URL 路径、查询参数、User-Agent 和请求体（最大 10KB）。每条规则支持 `block`（返回 403 拦截）或 `log`（放行但记录）动作。
+
+**9 条内置规则：**
+
+| 分类 | 规则 | 说明 |
+|------|------|------|
+| SQL 注入 | Union Select | 检测 `UNION SELECT` 联合查询攻击 |
+| SQL 注入 | Common Patterns | 检测 `; DROP`、`; ALTER`、`; DELETE` 等破坏性语句 |
+| SQL 注入 | Boolean Injection | 检测 `' OR 1=1` 等布尔型盲注 |
+| SQL 注入 | Comment Injection | 检测 `' --` 和 `/* */` 注释注入 |
+| XSS | Script Tag | 检测 `<script>` 标签注入 |
+| XSS | Event Handler | 检测 `onerror=`、`onclick=` 等事件属性 |
+| XSS | JavaScript Protocol | 检测 `javascript:` 和 `vbscript:` 协议 |
+| 路径穿越 | Dot Dot Slash | 检测 `../`、`..\` 及 URL 编码变体 |
+| 路径穿越 | Sensitive Files | 检测访问 `/etc/passwd`、`/proc/self` 等敏感文件 |
+
+可通过管理后台添加自定义规则。
+
+### 地域封锁（Geo-IP Blocking）
+
+基于 MaxMind GeoLite2-Country 数据库，按国家/地区封锁请求。封锁的国家代码通过管理后台进行管理。
+
+### 速率限制
+
+- **全局限速**：每个 IP 可配置的每分钟请求数（默认 100 次）。
+- **登录限速**：更严格的限制（默认 5 次/分钟），超出后自动锁定 IP（默认 5 分钟）。
+
+### 安全响应头
+
+所有响应自动附加安全头：
+- `X-Content-Type-Options: nosniff`
+- `X-XSS-Protection: 1; mode=block`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+- `X-Frame-Options`（可配置，默认 `DENY`）
+- `Strict-Transport-Security`（HSTS，可选）
+
+### 访问日志与分析
+
+所有请求均被记录，包括客户端 IP、请求方法、路径、状态码、延迟、User-Agent 和处理动作（放行/拦截）。仪表盘提供：
+- 总请求数和拦截请求数
+- 被拦截最多的 Top 10 IP
+- 按 IP、动作、状态码和时间范围筛选
+
+### 用户管理
+
+- 创建、编辑和删除管理员用户
+- 角色控制（管理员权限标识）
+- 一键生成 Git Token 并复制
+
+### 许可证管理
+
+- 生成许可证令牌用于 API/机器访问
+- 令牌仅显示一次，以哈希形式安全存储
+- 通过管理后台激活/吊销许可证
+
+### 管理后台
+
+- 实时统计数据（请求数、拦截数、运行时间）
+- 用户、IP 名单、WAF 规则、访问日志、地域封锁、许可证和系统设置管理
+- 黑客风格终端 UI
+- **支持 6 种语言**：英语、中文、德语、法语、日语、俄语
+
+### 多数据库支持
+
+| 数据库 | 默认配置 |
+|--------|---------|
+| **SQLite**（默认） | `./data/app.db` |
+| **PostgreSQL** | `localhost:5432` |
+| **MySQL** | `localhost:3306` |
+
+### 部署
+
+- 单文件部署，前端资源通过 `go:embed` 嵌入
+- 通过 `config/config.yaml` 或环境变量配置
+- 支持优雅关停
+- 可配置信任代理
 
 ## 截图预览
 
@@ -42,7 +130,7 @@ graph LR
 ### 环境要求
 - Go 1.25+
 - Node.js 20+
-- Nginx (需包含 `auth_request` 模块)
+- Nginx（需包含 `auth_request` 模块）
 
 ### 构建
 
@@ -76,22 +164,81 @@ cd open-website-defender
 
 您可以通过 `config/config.yaml` 配置文件或环境变量来配置应用。
 
-### 环境变量 (构建时)
-- `BACKEND_HOST`: 后端 API 地址 (默认: `http://localhost:9999/wall`)
-- `ROOT_PATH`: 根路径上下文 (默认: `/wall`)
-- `ADMIN_PATH`: 管理后台路径 (默认: `/admin`)
-- `GUARD_PATH`: 防护页/登录页路径 (默认: `/guard`)
+### 环境变量（构建时）
+- `BACKEND_HOST`: 后端 API 地址（默认: `http://localhost:9999/wall`）
+- `ROOT_PATH`: 根路径上下文（默认: `/wall`）
+- `ADMIN_PATH`: 管理后台路径（默认: `/admin`）
+- `GUARD_PATH`: 防护页/登录页路径（默认: `/guard`）
+
+### 运行时配置（`config/config.yaml`）
+
+```yaml
+# 数据库: sqlite（默认）、postgres、mysql
+database:
+  driver: sqlite
+
+# JWT 和 CORS 设置
+security:
+  jwt-secret: ""
+  token-expiration-hours: 24
+
+# 速率限制
+rate-limit:
+  enabled: true
+  requests-per-minute: 100
+  login:
+    requests-per-minute: 5
+    lockout-duration: 300
+
+# WAF（SQL 注入、XSS、路径穿越检测）
+request-filtering:
+  enabled: true
+
+# 地域封锁（需要 MaxMind MMDB 文件）
+geo-blocking:
+  enabled: false
+  database-path: ""
+```
+
+## API 参考
+
+所有路由均以可配置的 `ROOT_PATH`（默认 `/wall`）为前缀。
+
+| 方法 | 路径 | 说明 | 鉴权 |
+|------|------|------|------|
+| `POST` | `/login` | 用户登录 | 否 |
+| `GET` | `/auth` | 验证凭证（IP 名单 + 令牌） | 否 |
+| `GET` | `/health` | 健康检查 | 否 |
+| `GET` | `/dashboard/stats` | 仪表盘统计数据 | 是 |
+| `POST/GET/PUT/DELETE` | `/users[/:id]` | 用户管理 | 是 |
+| `POST/GET/DELETE` | `/ip-black-list[/:id]` | IP 黑名单管理 | 是 |
+| `POST/GET/DELETE` | `/ip-white-list[/:id]` | IP 白名单管理 | 是 |
+| `POST/GET/PUT/DELETE` | `/waf-rules[/:id]` | WAF 规则管理 | 是 |
+| `GET` | `/access-logs` | 访问日志查询 | 是 |
+| `GET` | `/access-logs/stats` | 访问日志统计 | 是 |
+| `POST/GET/DELETE` | `/geo-block-rules[/:id]` | 地域封锁管理 | 是 |
+| `POST/GET/DELETE` | `/licenses[/:id]` | 许可证管理 | 是 |
+| `GET/PUT` | `/system/settings` | 系统设置 | 是 |
+| `POST` | `/system/reload` | 重载配置并清除缓存 | 是 |
+
+## 中间件链
+
+请求按以下顺序依次通过中间件：
+
+```
+安全响应头 → CORS → 请求体限制 → 访问日志 → 地域封锁 → WAF → 速率限制 → 路由处理
+```
 
 ## License
 
 Copyright (c) 2023 Flmelody, All rights reserved.
 
-本文件根据 GNU 通用公共许可证第 3 版（GPLv3）（以下简称“许可证”）授权； 除非遵守该许可证，否则您不得使用本文件。
+本文件根据 GNU 通用公共许可证第 3 版（GPLv3）（以下简称"许可证"）授权； 除非遵守该许可证，否则您不得使用本文件。
 您可通过以下网址获取许可证副本：
 
 https://www.gnu.org/licenses/gpl-3.0.html
 
-除非适用法律要求或书面同意，根据本许可分发的软件均按“原样”提供，不附带任何形式的明示或暗示的保证或条件。有关许可权限与限制的具体条款，请参阅本许可文本。
+除非适用法律要求或书面同意，根据本许可分发的软件均按"原样"提供，不附带任何形式的明示或暗示的保证或条件。有关许可权限与限制的具体条款，请参阅本许可文本。
 
 ## 支持
 

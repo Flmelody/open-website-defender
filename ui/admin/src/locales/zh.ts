@@ -61,7 +61,13 @@ export default {
     title_create: '创建用户',
     title_edit: '编辑用户',
     undefined: '<未定义>',
-    unchanged: '<未更改>'
+    unchanged: '<未更改>',
+    generate: '生成',
+    token_generated: 'Git Token 已生成',
+    token_warning: '此令牌仅显示一次，请立即复制，之后将无法再次获取。',
+    copy: '复制',
+    copied: '已复制到剪贴板',
+    understood: '我已复制令牌'
   },
   ip_list: {
     ip_address: 'IP地址',

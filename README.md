@@ -25,11 +25,99 @@ graph LR
 
 ## Features
 
-- **🛡️ Login Authentication**: Adds a secure login layer to your applications.
-- **⚪ IP Whitelist**: Allow specific IPs to access services directly without authentication.
-- **⚫ IP Blacklist**: Block malicious IPs from accessing your services.
-- **👥 User Management**: Manage administrative users and access credentials.
-- **📊 Visual Dashboard**: Easy-to-use admin interface for configuration.
+### Authentication & Access Control
+
+- **JWT Token Authentication**: Secure login with configurable token expiration, issued via `Defender-Authorization` header.
+- **Cookie-based Authentication**: Supports `flmelody.token` cookie for seamless browser sessions.
+- **Git Token Authentication**: Machine access via configurable HTTP header (default `Defender-Git-Token`), format `username:token`.
+- **License Token Authentication**: API access via configurable HTTP header (default `Defender-License`), tokens are SHA-256 hashed before storage.
+- **IP Whitelist**: Allow specific IPs or CIDR ranges (e.g. `192.168.1.0/24`) to bypass authentication.
+- **IP Blacklist**: Block malicious IPs by exact match or CIDR range.
+
+**Auth verification flow:**
+```
+IP Blacklist → IP Whitelist → JWT Token → Git Token → License Token → Deny
+```
+
+### Web Application Firewall (WAF)
+
+Regex-based request filtering that inspects URL path, query string, User-Agent, and request body (up to 10KB). Each rule supports `block` (return 403) or `log` (allow but record) actions.
+
+**9 built-in rules:**
+
+| Category | Rule | Description |
+|----------|------|-------------|
+| SQL Injection | Union Select | Detects `UNION SELECT` based attacks |
+| SQL Injection | Common Patterns | Detects `; DROP`, `; ALTER`, `; DELETE`, etc. |
+| SQL Injection | Boolean Injection | Detects `' OR 1=1` style bypass |
+| SQL Injection | Comment Injection | Detects `' --` and `/* */` comment abuse |
+| XSS | Script Tag | Detects `<script>` tag injection |
+| XSS | Event Handler | Detects `onerror=`, `onclick=`, etc. |
+| XSS | JavaScript Protocol | Detects `javascript:` and `vbscript:` |
+| Path Traversal | Dot Dot Slash | Detects `../`, `..\`, and URL-encoded variants |
+| Path Traversal | Sensitive Files | Detects `/etc/passwd`, `/proc/self`, etc. |
+
+Custom rules can be added via the admin dashboard.
+
+### Geo-IP Blocking
+
+Block requests by country using MaxMind GeoLite2-Country database. Country codes are managed via the admin dashboard.
+
+### Rate Limiting
+
+- **Global**: Configurable requests-per-minute per IP (default 100).
+- **Login-specific**: Stricter limit (default 5/min) with automatic IP lockout (default 5 minutes).
+
+### Security Headers
+
+Automatic security headers on all responses:
+- `X-Content-Type-Options: nosniff`
+- `X-XSS-Protection: 1; mode=block`
+- `Referrer-Policy: strict-origin-when-cross-origin`
+- `Permissions-Policy: camera=(), microphone=(), geolocation=()`
+- `X-Frame-Options` (configurable, default `DENY`)
+- `Strict-Transport-Security` (HSTS, optional)
+
+### Access Logging & Analytics
+
+All requests are logged with client IP, method, path, status code, latency, User-Agent, and action (allowed/blocked). The dashboard provides:
+- Total and blocked request counts
+- Top 10 blocked IPs
+- Filtering by IP, action, status code, and time range
+
+### User Management
+
+- Create, edit, and delete admin users
+- Role-based access (admin privilege flag)
+- Auto-generate Git tokens with one-click copy
+
+### License Management
+
+- Generate license tokens for API/machine access
+- Tokens shown once and hashed for secure storage
+- Activate/revoke licenses via admin dashboard
+
+### Admin Dashboard
+
+- Real-time statistics (requests, blocks, uptime)
+- User, IP list, WAF rule, access log, geo-block, license, and system settings management
+- Hacker-themed terminal UI
+- **6 languages**: English, Chinese, German, French, Japanese, Russian
+
+### Multi-Database Support
+
+| Database | Default Config |
+|----------|---------------|
+| **SQLite** (default) | `./data/app.db` |
+| **PostgreSQL** | `localhost:5432` |
+| **MySQL** | `localhost:3306` |
+
+### Deployment
+
+- Single-binary deployment with embedded frontend assets (`go:embed`)
+- Configurable via `config/config.yaml` or environment variables
+- Graceful shutdown support
+- Trusted proxy configuration
 
 ## Screenshots
 
@@ -83,6 +171,65 @@ You can configure the application using `config/config.yaml` or environment vari
 - `ROOT_PATH`: The root path context (default: `/wall`)
 - `ADMIN_PATH`: The path for the admin dashboard (default: `/admin`)
 - `GUARD_PATH`: The path for the guard login page (default: `/guard`)
+
+### Runtime Configuration (`config/config.yaml`)
+
+```yaml
+# Database: sqlite (default), postgres, mysql
+database:
+  driver: sqlite
+
+# JWT and CORS settings
+security:
+  jwt-secret: ""
+  token-expiration-hours: 24
+
+# Rate limiting
+rate-limit:
+  enabled: true
+  requests-per-minute: 100
+  login:
+    requests-per-minute: 5
+    lockout-duration: 300
+
+# WAF (SQL injection, XSS, path traversal detection)
+request-filtering:
+  enabled: true
+
+# Geo-IP blocking (requires MaxMind MMDB file)
+geo-blocking:
+  enabled: false
+  database-path: ""
+```
+
+## API Reference
+
+All routes are prefixed with the configurable `ROOT_PATH` (default `/wall`).
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| `POST` | `/login` | User authentication | No |
+| `GET` | `/auth` | Verify credentials (IP lists + token) | No |
+| `GET` | `/health` | Health check | No |
+| `GET` | `/dashboard/stats` | Dashboard statistics | Yes |
+| `POST/GET/PUT/DELETE` | `/users[/:id]` | User CRUD | Yes |
+| `POST/GET/DELETE` | `/ip-black-list[/:id]` | IP blacklist management | Yes |
+| `POST/GET/DELETE` | `/ip-white-list[/:id]` | IP whitelist management | Yes |
+| `POST/GET/PUT/DELETE` | `/waf-rules[/:id]` | WAF rule management | Yes |
+| `GET` | `/access-logs` | Access log query | Yes |
+| `GET` | `/access-logs/stats` | Access log statistics | Yes |
+| `POST/GET/DELETE` | `/geo-block-rules[/:id]` | Geo-blocking management | Yes |
+| `POST/GET/DELETE` | `/licenses[/:id]` | License management | Yes |
+| `GET/PUT` | `/system/settings` | System settings | Yes |
+| `POST` | `/system/reload` | Reload configuration & clear caches | Yes |
+
+## Middleware Chain
+
+Requests pass through the following middleware in order:
+
+```
+SecurityHeaders → CORS → BodyLimit → AccessLog → GeoBlock → WAF → RateLimiter → Route Handler
+```
 
 ## License
 

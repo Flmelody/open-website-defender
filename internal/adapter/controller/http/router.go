@@ -70,6 +70,11 @@ func Setup(appConfig *config.AppConfig) *gin.Engine {
 			authorized.GET("/licenses", handler.ListLicenses)
 			authorized.DELETE("/licenses/:id", handler.DeleteLicense)
 
+			// Authorized Domains
+			authorized.POST("/authorized-domains", handler.CreateAuthorizedDomain)
+			authorized.GET("/authorized-domains", handler.ListAuthorizedDomains)
+			authorized.DELETE("/authorized-domains/:id", handler.DeleteAuthorizedDomain)
+
 			// Dashboard & System
 			authorized.GET("/dashboard/stats", handler.GetDashboardStats)
 			authorized.GET("/system/settings", handler.GetSystemSettings)

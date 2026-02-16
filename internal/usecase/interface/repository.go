@@ -11,11 +11,13 @@ type UserRepository interface {
 	Update(user *entity.User) error
 	Delete(id string) error
 	List(limit, offset int) ([]*entity.User, int64, error)
+	RemoveScopeFromAll(scope string) error
 }
 
 type IpWhiteListRepository interface {
 	Create(ip *entity.IpWhiteList) error
 	Delete(id uint) error
+	DeleteByDomain(domain string) error
 	List(limit, offset int) ([]*entity.IpWhiteList, int64, error)
 	FindByIP(ip string) (*entity.IpWhiteList, error)
 }
@@ -32,6 +34,15 @@ type LicenseRepository interface {
 	Delete(id uint) error
 	List(limit, offset int) ([]*entity.License, int64, error)
 	FindByTokenHash(tokenHash string) (*entity.License, error)
+}
+
+type AuthorizedDomainRepository interface {
+	Create(domain *entity.AuthorizedDomain) error
+	Delete(id uint) error
+	FindByID(id uint) (*entity.AuthorizedDomain, error)
+	List(limit, offset int) ([]*entity.AuthorizedDomain, int64, error)
+	ListAll() ([]*entity.AuthorizedDomain, error)
+	FindByName(name string) (*entity.AuthorizedDomain, error)
 }
 
 type SystemRepository interface {

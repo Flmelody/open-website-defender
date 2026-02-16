@@ -42,11 +42,18 @@ The same formats as the whitelist are supported: exact IP, CIDR range, and IPv6.
 
 ## Management
 
+### Authorized Domain Binding
+
+Each IP whitelist entry can be bound to an **authorized domain**, indicating which protected domain this IP is whitelisted for. When adding a whitelist entry, the domain field provides a dropdown populated from the [Authorized Domains](authorized-domains.md) registry.
+
+!!! info "Cascade Deletion"
+    When an authorized domain is deleted, all IP whitelist entries bound to that domain are automatically removed. See [Authorized Domains](authorized-domains.md) for details.
+
 ### Admin Dashboard
 
 Both IP lists can be managed through the admin dashboard:
 
-- Add new entries with optional descriptions
+- Add new entries with domain binding (whitelist) or without (blacklist)
 - View all current entries
 - Delete individual entries
 
@@ -74,3 +81,11 @@ IP Blacklist → IP Whitelist → JWT Token → Git Token → License Token → 
 ```
 
 This means IP-level decisions are made before any token parsing or validation occurs, providing fast rejection of known-bad actors and fast acceptance of known-good infrastructure.
+
+---
+
+## Related Pages
+
+- [Authorized Domains](authorized-domains.md) -- Domain registry for whitelist bindings
+- [Authentication](authentication.md) -- Full auth verification flow
+- [API Reference](../api-reference/index.md) -- Complete API documentation

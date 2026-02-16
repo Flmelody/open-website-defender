@@ -1,4 +1,4 @@
-import { DataBoard, Moon, Sunny, User, Lock, Document, Location, Key, Setting } from '@element-plus/icons-vue'
+import { DataBoard, Moon, Sunny, User, Lock, Document, Location, Key, Setting, Link } from '@element-plus/icons-vue'
 import type { Component } from 'vue'
 
 export interface MenuItem {
@@ -37,6 +37,11 @@ export const menuItems: MenuItem[] = [
     index: '/geo-block',
     icon: Location,
     label: 'menu.geo_block'
+  },
+  {
+    index: '/authorized-domains',
+    icon: Link,
+    label: 'menu.authorized_domains'
   },
   {
     index: '/licenses',

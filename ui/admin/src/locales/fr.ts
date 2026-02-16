@@ -29,6 +29,7 @@ export default {
     waf_rules: './RÈGLES_WAF',
     access_logs: './JOURNAUX_ACCÈS',
     geo_block: './BLOCAGE_GÉO',
+    authorized_domains: './DOMAINES_AUTORISÉS',
     licenses: './LICENCES',
     system_settings: './PARAMÈTRES_SYSTÈME'
   },
@@ -62,18 +63,22 @@ export default {
     title_edit: 'Modifier l\'utilisateur',
     undefined: '<INDÉFINI>',
     unchanged: '<INCHANGÉ>',
-    scopes: 'PORTÉES',
-    scopes_placeholder: 'ex. gitea.com, *.internal.org',
-    scopes_hint: 'Modèles de domaines séparés par des virgules. Wildcards supportés (*.example.com). Laisser vide pour un accès illimité.',
+    authorized_domains: 'DOMAINES_AUTORISÉS',
+    authorized_domains_placeholder: 'ex. gitea.com, *.internal.org',
+    authorized_domains_hint: 'Modèles de domaines séparés par des virgules. Wildcards supportés (*.example.com). Laisser vide pour un accès illimité.',
     unrestricted: '<ILLIMITÉ>'
   },
   ip_list: {
     ip_address: 'ADRESSE_IP',
+    domain: 'DOMAINE_AUTORISÉ',
     remark: 'REMARQUE',
     new_ip: '[ NOUVELLE_IP ]',
     delete_confirm: 'SUPPRIMER IP {ip} ?',
     title_create: 'Ajouter IP',
     title_edit: 'Modifier IP',
+    use_my_ip: '[ MON_IP ]',
+    ip_hint: 'Supporte IP exacte, CIDR (192.168.0.0/24) et wildcards (192.168.1.*)',
+    ip_invalid: 'Format d\'adresse IP invalide',
   },
   dashboard: {
     total_requests: 'REQUÊTES_TOTALES',
@@ -129,6 +134,13 @@ export default {
     copy: 'COPIER',
     copied: 'Copié dans le presse-papiers',
     understood: 'J\'AI COPIÉ LE JETON'
+  },
+  authorized_domain: {
+    new_domain: '[ NOUVEAU_DOMAINE ]',
+    name: 'NOM_DOMAINE',
+    name_placeholder: 'ex. example.com',
+    delete_confirm: 'SUPPRIMER DOMAINE {name} ?',
+    title_create: 'Ajouter domaine autorisé'
   },
   system: {
     section_headers: 'EN-TÊTES HTTP PERSONNALISÉS',

@@ -29,6 +29,7 @@ export default {
     waf_rules: './WAF_REGELN',
     access_logs: './ZUGRIFFSPROTOKOLLE',
     geo_block: './GEO_SPERRE',
+    authorized_domains: './AUTORISIERTE_DOMÄNEN',
     licenses: './LIZENZEN',
     system_settings: './SYSTEMEINSTELLUNGEN'
   },
@@ -62,18 +63,22 @@ export default {
     title_edit: 'Benutzer bearbeiten',
     undefined: '<UNDEFINIERT>',
     unchanged: '<UNVERÄNDERT>',
-    scopes: 'BEREICHE',
-    scopes_placeholder: 'z.B. gitea.com, *.internal.org',
-    scopes_hint: 'Kommagetrennte Domain-Muster. Wildcards unterstützt (*.example.com). Leer lassen für uneingeschränkten Zugriff.',
+    authorized_domains: 'AUTORISIERTE_DOMÄNEN',
+    authorized_domains_placeholder: 'z.B. gitea.com, *.internal.org',
+    authorized_domains_hint: 'Kommagetrennte Domain-Muster. Wildcards unterstützt (*.example.com). Leer lassen für uneingeschränkten Zugriff.',
     unrestricted: '<UNEINGESCHRÄNKT>'
   },
   ip_list: {
     ip_address: 'IP_ADRESSE',
+    domain: 'AUTORISIERTE_DOMÄNE',
     remark: 'BEMERKUNG',
     new_ip: '[ NEUE_IP ]',
     delete_confirm: 'IP {ip} LÖSCHEN?',
     title_create: 'IP hinzufügen',
     title_edit: 'IP bearbeiten',
+    use_my_ip: '[ MEINE_IP ]',
+    ip_hint: 'Unterstützt exakte IP, CIDR (192.168.0.0/24) und Wildcards (192.168.1.*)',
+    ip_invalid: 'Ungültiges IP-Adressformat',
   },
   dashboard: {
     total_requests: 'ANFRAGEN_GESAMT',
@@ -129,6 +134,13 @@ export default {
     copy: 'KOPIEREN',
     copied: 'In die Zwischenablage kopiert',
     understood: 'ICH HABE DAS TOKEN KOPIERT'
+  },
+  authorized_domain: {
+    new_domain: '[ NEUE_DOMÄNE ]',
+    name: 'DOMÄNENNAME',
+    name_placeholder: 'z.B. example.com',
+    delete_confirm: 'DOMÄNE {name} LÖSCHEN?',
+    title_create: 'Autorisierte Domäne hinzufügen'
   },
   system: {
     section_headers: 'BENUTZERDEFINIERTE HTTP-HEADER',

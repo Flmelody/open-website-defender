@@ -29,6 +29,7 @@ export default {
     waf_rules: './WAF_RULES',
     access_logs: './ACCESS_LOGS',
     geo_block: './GEO_BLOCK',
+    authorized_domains: './AUTHORIZED_DOMAINS',
     licenses: './LICENSES',
     system_settings: './SYSTEM_SETTINGS'
   },
@@ -68,19 +69,22 @@ export default {
     copy: 'COPY',
     copied: 'Copied to clipboard',
     understood: 'I HAVE COPIED THE TOKEN',
-    scopes: 'SCOPES',
-    scopes_placeholder: 'e.g. gitea.com, *.internal.org',
-    scopes_hint: 'Comma-separated domain patterns. Wildcards supported (*.example.com). Leave empty for unrestricted access.',
+    authorized_domains: 'AUTHORIZED_DOMAINS',
+    authorized_domains_placeholder: 'e.g. gitea.com, *.internal.org',
+    authorized_domains_hint: 'Comma-separated domain patterns. Wildcards supported (*.example.com). Leave empty for unrestricted access.',
     unrestricted: '<UNRESTRICTED>'
   },
   ip_list: {
     ip_address: 'IP_ADDRESS',
-    domain: 'DOMAIN',
+    domain: 'AUTHORIZED_DOMAIN',
     remark: 'REMARK',
     new_ip: '[ NEW_IP ]',
     delete_confirm: 'DELETE IP {ip}?',
     title_create: 'Add IP',
     title_edit: 'Edit IP',
+    use_my_ip: '[ MY_IP ]',
+    ip_hint: 'Supports exact IP, CIDR (192.168.0.0/24), and wildcards (192.168.1.*)',
+    ip_invalid: 'Invalid IP address format',
   },
   dashboard: {
     total_requests: 'TOTAL_REQUESTS',
@@ -136,6 +140,13 @@ export default {
     copy: 'COPY',
     copied: 'Copied to clipboard',
     understood: 'I HAVE COPIED THE TOKEN'
+  },
+  authorized_domain: {
+    new_domain: '[ NEW_DOMAIN ]',
+    name: 'DOMAIN_NAME',
+    name_placeholder: 'e.g. example.com',
+    delete_confirm: 'DELETE DOMAIN {name}?',
+    title_create: 'Add Authorized Domain'
   },
   system: {
     section_headers: 'CUSTOM HTTP HEADERS',

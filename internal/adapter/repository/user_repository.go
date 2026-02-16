@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"strings"
+
 	"open-website-defender/internal/domain/entity"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
@@ -119,6 +121,47 @@ func (r *UserRepository) Update(user *entity.User) error {
 
 	return r.db.Save(user).Error
 }
+func (r *UserRepository) RemoveScopeFromAll(scope string) error {
+	var users []*entity.User
+	if err := r.db.Where("scopes LIKE ?", "%"+scope+"%").Find(&users).Error; err != nil {
+		return err
+	}
+	for _, user := range users {
+		parts := splitAndTrim(user.Scopes)
+		var filtered []string
+		for _, p := range parts {
+			if p != scope {
+				filtered = append(filtered, p)
+			}
+		}
+		newScopes := ""
+		if len(filtered) > 0 {
+			newScopes = joinScopes(filtered)
+		}
+		if newScopes != user.Scopes {
+			if err := r.db.Model(user).Update("scopes", newScopes).Error; err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func splitAndTrim(s string) []string {
+	var result []string
+	for _, p := range strings.Split(s, ",") {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			result = append(result, p)
+		}
+	}
+	return result
+}
+
+func joinScopes(parts []string) string {
+	return strings.Join(parts, ", ")
+}
+
 func (r *UserRepository) Delete(id string) error {
 	return r.db.Delete(&entity.User{}, "id = ?", id).Error
 }

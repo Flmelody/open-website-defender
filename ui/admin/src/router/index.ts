@@ -9,6 +9,7 @@ import IpBlackListView from '@/views/IpBlackListView.vue'
 import WafRulesView from '@/views/WafRulesView.vue'
 import AccessLogView from '@/views/AccessLogView.vue'
 import GeoBlockView from '@/views/GeoBlockView.vue'
+import AuthorizedDomainView from '@/views/AuthorizedDomainView.vue'
 import LicenseView from '@/views/LicenseView.vue'
 import SystemSettingsView from '@/views/SystemSettingsView.vue'
 
@@ -68,6 +69,11 @@ const router = createRouter({
           path: 'geo-block',
           name: 'geo-block',
           component: GeoBlockView
+        },
+        {
+          path: 'authorized-domains',
+          name: 'authorized-domains',
+          component: AuthorizedDomainView
         },
         {
           path: 'licenses',

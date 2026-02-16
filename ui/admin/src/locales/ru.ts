@@ -29,6 +29,7 @@ export default {
     waf_rules: './ПРАВИЛА_WAF',
     access_logs: './ЖУРНАЛ_ДОСТУПА',
     geo_block: './ГЕО_БЛОКИРОВКА',
+    authorized_domains: './АВТОРИЗОВАННЫЕ_ДОМЕНЫ',
     licenses: './ЛИЦЕНЗИИ',
     system_settings: './НАСТРОЙКИ_СИСТЕМЫ'
   },
@@ -62,18 +63,22 @@ export default {
     title_edit: 'Редактировать пользователя',
     undefined: '<НЕ_ОПРЕДЕЛЕНО>',
     unchanged: '<БЕЗ_ИЗМЕНЕНИЙ>',
-    scopes: 'ОБЛАСТИ',
-    scopes_placeholder: 'напр. gitea.com, *.internal.org',
-    scopes_hint: 'Шаблоны доменов через запятую. Поддержка подстановок (*.example.com). Оставьте пустым для неограниченного доступа.',
+    authorized_domains: 'АВТОРИЗОВАННЫЕ_ДОМЕНЫ',
+    authorized_domains_placeholder: 'напр. gitea.com, *.internal.org',
+    authorized_domains_hint: 'Шаблоны доменов через запятую. Поддержка подстановок (*.example.com). Оставьте пустым для неограниченного доступа.',
     unrestricted: '<БЕЗ_ОГРАНИЧЕНИЙ>'
   },
   ip_list: {
     ip_address: 'IP_АДРЕС',
+    domain: 'АВТОРИЗОВАННЫЙ_ДОМЕН',
     remark: 'ПРИМЕЧАНИЕ',
     new_ip: '[ НОВЫЙ_IP ]',
     delete_confirm: 'УДАЛИТЬ IP {ip}?',
     title_create: 'Добавить IP',
     title_edit: 'Редактировать IP',
+    use_my_ip: '[ МОЙ_IP ]',
+    ip_hint: 'Поддержка точного IP, CIDR (192.168.0.0/24) и подстановок (192.168.1.*)',
+    ip_invalid: 'Неверный формат IP-адреса',
   },
   dashboard: {
     total_requests: 'ВСЕГО_ЗАПРОСОВ',
@@ -129,6 +134,13 @@ export default {
     copy: 'КОПИРОВАТЬ',
     copied: 'Скопировано в буфер обмена',
     understood: 'Я СКОПИРОВАЛ ТОКЕН'
+  },
+  authorized_domain: {
+    new_domain: '[ НОВЫЙ_ДОМЕН ]',
+    name: 'ИМЯ_ДОМЕНА',
+    name_placeholder: 'напр. example.com',
+    delete_confirm: 'УДАЛИТЬ ДОМЕН {name}?',
+    title_create: 'Добавить авторизованный домен'
   },
   system: {
     section_headers: 'ПОЛЬЗОВАТЕЛЬСКИЕ HTTP-ЗАГОЛОВКИ',

@@ -29,6 +29,7 @@ export default {
     waf_rules: './WAF规则',
     access_logs: './访问日志',
     geo_block: './地域封锁',
+    authorized_domains: './授权域管理',
     licenses: './许可证',
     system_settings: './系统设置'
   },
@@ -68,19 +69,22 @@ export default {
     copy: '复制',
     copied: '已复制到剪贴板',
     understood: '我已复制令牌',
-    scopes: '作用域',
-    scopes_placeholder: '例如: gitea.com, *.internal.org',
-    scopes_hint: '逗号分隔的域名模式。支持通配符 (*.example.com)。留空表示不限制访问。',
+    authorized_domains: '授权域',
+    authorized_domains_placeholder: '例如: gitea.com, *.internal.org',
+    authorized_domains_hint: '逗号分隔的域名模式。支持通配符 (*.example.com)。留空表示不限制访问。',
     unrestricted: '<不限制>'
   },
   ip_list: {
     ip_address: 'IP地址',
-    domain: '域名',
+    domain: '授权域',
     remark: '备注',
     new_ip: '[ 新增IP ]',
     delete_confirm: '删除IP {ip}?',
     title_create: '添加IP',
     title_edit: '编辑IP',
+    use_my_ip: '[ 我的IP ]',
+    ip_hint: '支持精确IP、CIDR (192.168.0.0/24) 和通配符 (192.168.1.*)',
+    ip_invalid: 'IP地址格式无效',
   },
   dashboard: {
     total_requests: '总请求数',
@@ -136,6 +140,13 @@ export default {
     copy: '复制',
     copied: '已复制到剪贴板',
     understood: '我已复制令牌'
+  },
+  authorized_domain: {
+    new_domain: '[ 新增授权域 ]',
+    name: '域名',
+    name_placeholder: '例如: example.com',
+    delete_confirm: '删除授权域 {name}?',
+    title_create: '添加授权域'
   },
   system: {
     section_headers: '自定义 HTTP 请求头',

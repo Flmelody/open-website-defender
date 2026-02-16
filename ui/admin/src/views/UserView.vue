@@ -36,7 +36,7 @@
               <span v-else class="null-value">{{ t('user.undefined') }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="scopes" :label="t('user.scopes')" show-overflow-tooltip>
+          <el-table-column prop="scopes" :label="t('user.authorized_domains')" show-overflow-tooltip>
             <template #default="scope">
               <span v-if="scope.row.scopes" class="bright-text">{{ scope.row.scopes }}</span>
               <span v-else class="null-value">{{ t('user.unrestricted') }}</span>
@@ -76,7 +76,7 @@
           v-model:current-page="queryParams.page"
           v-model:page-size="queryParams.size"
           :page-sizes="[10, 20, 50]"
-          layout="prev, pager, next"
+          layout="sizes, prev, pager, next"
           :total="total"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
@@ -120,13 +120,20 @@
         <el-form-item prop="is_admin">
           <el-checkbox v-model="form.is_admin" :label="t('user.is_admin')" />
         </el-form-item>
-        <el-form-item :label="'> ' + t('user.scopes')" prop="scopes">
-          <el-input
-            v-model="form.scopes"
-            :placeholder="t('user.scopes_placeholder')"
+        <el-form-item :label="'> ' + t('user.authorized_domains')" prop="scopes">
+          <el-select
+            v-model="scopesArray"
+            multiple
+            filterable
+            allow-create
+            default-first-option
+            :placeholder="t('user.authorized_domains_placeholder')"
             :disabled="form.is_admin"
-          />
-          <div class="scope-hint">{{ t('user.scopes_hint') }}</div>
+            style="width: 100%"
+          >
+            <el-option v-for="d in domainOptions" :key="d" :label="d" :value="d" />
+          </el-select>
+          <div class="scope-hint">{{ t('user.authorized_domains_hint') }}</div>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -200,6 +207,8 @@ const formRef = ref()
 const formLoading = ref(false)
 const isEditMode = ref(false)
 
+const domainOptions = ref<string[]>([])
+const scopesArray = ref<string[]>([])
 const tokenDialogVisible = ref(false)
 const generatedToken = ref('')
 const copiedVisible = ref(false)
@@ -217,13 +226,27 @@ const form = reactive({
 watch(() => form.is_admin, (val) => {
   if (val) {
     form.scopes = ''
+    scopesArray.value = []
   }
+})
+
+watch(scopesArray, (val) => {
+  form.scopes = val.join(', ')
 })
 
 const rules = computed(() => ({
   username: [{ required: true, message: t('login.required'), trigger: 'blur' }],
   password: [{ required: !isEditMode.value, message: t('login.required'), trigger: 'blur' }]
 }))
+
+const fetchDomainOptions = async () => {
+  try {
+    const res: any = await request.get('/authorized-domains', { params: { all: 'true' } })
+    domainOptions.value = (res || []).map((d: any) => d.name)
+  } catch {
+    // handled
+  }
+}
 
 const fetchData = async () => {
   loading.value = true
@@ -246,6 +269,7 @@ const handleAdd = () => {
   form.git_token = ''
   form.is_admin = false
   form.scopes = ''
+  scopesArray.value = []
   isEditMode.value = false
   pendingToken.value = ''
   dialogVisible.value = true
@@ -259,6 +283,7 @@ const handleEdit = (row: User) => {
   form.git_token = ''
   form.is_admin = row.is_admin || false
   form.scopes = row.scopes || ''
+  scopesArray.value = row.scopes ? row.scopes.split(',').map((s: string) => s.trim()).filter(Boolean) : []
   isEditMode.value = true
   pendingToken.value = ''
   dialogVisible.value = true
@@ -362,6 +387,7 @@ const handleCurrentChange = (val: number) => {
 
 onMounted(() => {
   fetchData()
+  fetchDomainOptions()
 })
 </script>
 
@@ -552,4 +578,5 @@ onMounted(() => {
   margin-top: 4px;
   font-family: 'Courier New', monospace;
 }
+
 </style>

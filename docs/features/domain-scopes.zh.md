@@ -11,6 +11,10 @@
 !!! info "适用场景"
     当您使用同一个 Defender 实例保护多个内部服务时，域名作用域可以限制每个用户只能访问被授权的服务。例如，开发人员只能访问 `gitea.example.com`，而运维人员可以同时访问 `gitea.example.com` 和 `jenkins.example.com`。
 
+## 授权域集成
+
+域名作用域与[授权域管理](authorized-domains.md)协同工作。授权域注册表提供所有受保护域名的集中列表，在配置用户作用域时自动填充下拉选择器。删除授权域时，系统会自动从所有用户的作用域列表中移除该域名。
+
 ## 作用域模式
 
 | 模式 | 匹配 | 不匹配 |
@@ -66,6 +70,7 @@ server {
 
 ## 相关页面
 
+- [授权域管理](authorized-domains.md) - 集中管理受保护域名
 - [认证与访问控制](authentication.md) - 完整的认证流程说明
 - [用户管理](user-management.md) - 如何为用户设置域名作用域
 - [Nginx 配置](../deployment/nginx-setup.md) - 完整的 Nginx 配置指南

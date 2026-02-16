@@ -36,16 +36,19 @@ Website Defender 提供完整的用户管理功能，支持通过管理后台或
 !!! tip "使用场景"
     Git Token 适合用于 CI/CD 管道、自动化脚本、Git 客户端等需要非交互式认证的场景。
 
-## 域名作用域
+## 授权域作用域
 
 为每个用户配置可访问的受保护域名：
 
-- 使用逗号分隔的域名模式（如 `gitea.com, *.internal.org`）
-- 支持精确匹配和通配符匹配
+- 从[授权域管理](authorized-domains.md)注册表中通过多选下拉选择器选取域名
+- 也可以手动输入自定义模式（如 `*.internal.org`）
 - 作用域为空表示不限制访问
 - 管理员用户始终跳过作用域检查
 
-详细说明请参阅[域名作用域](domain-scopes.md)。
+!!! info "级联清理"
+    当授权域从注册表中删除时，该域名会自动从所有用户的作用域列表中移除。详见[授权域管理](authorized-domains.md)。
+
+详细的作用域匹配规则请参阅[域名作用域](domain-scopes.md)。
 
 ## 许可证管理
 
@@ -88,6 +91,7 @@ Website Defender 提供完整的用户管理功能，支持通过管理后台或
 
 ## 相关页面
 
+- [授权域管理](authorized-domains.md) - 集中管理受保护域名
 - [认证与访问控制](authentication.md) - 各种认证方式详解
 - [域名作用域](domain-scopes.md) - 多租户访问控制
 - [API 参考](../api-reference/index.md) - 完整的 API 接口文档

@@ -11,9 +11,13 @@ Domain scopes enable **multi-tenant access control**, allowing different users t
 !!! info "Domain Source"
     The domain is extracted from the `X-Forwarded-Host` header first, falling back to the `Host` header if not present. Make sure your Nginx configuration passes this header -- see [Nginx Setup](../deployment/nginx-setup.md).
 
+## Authorized Domains
+
+Domain scopes work together with [Authorized Domains](authorized-domains.md). The authorized domains registry provides a centralized list of all protected domains, which populates the dropdown selectors when configuring user scopes. Deleting an authorized domain automatically removes it from all users' scope lists.
+
 ## Scope Patterns
 
-Scopes are defined as comma-separated patterns on each user. The following pattern types are supported:
+Scopes are defined as comma-separated patterns on each user, typically selected from [authorized domains](authorized-domains.md). The following pattern types are supported:
 
 | Pattern | Matches | Does Not Match |
 |---------|---------|----------------|

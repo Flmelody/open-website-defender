@@ -29,6 +29,7 @@ export default {
     waf_rules: './WAFルール',
     access_logs: './アクセスログ',
     geo_block: './地域ブロック',
+    authorized_domains: './認可ドメイン管理',
     licenses: './ライセンス',
     system_settings: './システム設定'
   },
@@ -62,18 +63,22 @@ export default {
     title_edit: 'ユーザー編集',
     undefined: '<未定義>',
     unchanged: '<変更なし>',
-    scopes: 'スコープ',
-    scopes_placeholder: '例: gitea.com, *.internal.org',
-    scopes_hint: 'カンマ区切りのドメインパターン。ワイルドカード対応 (*.example.com)。空欄で無制限アクセス。',
+    authorized_domains: '認可ドメイン',
+    authorized_domains_placeholder: '例: gitea.com, *.internal.org',
+    authorized_domains_hint: 'カンマ区切りのドメインパターン。ワイルドカード対応 (*.example.com)。空欄で無制限アクセス。',
     unrestricted: '<無制限>'
   },
   ip_list: {
     ip_address: 'IPアドレス',
+    domain: '認可ドメイン',
     remark: '備考',
     new_ip: '[ 新規IP ]',
     delete_confirm: 'IP {ip} を削除しますか？',
     title_create: 'IP追加',
     title_edit: 'IP編集',
+    use_my_ip: '[ 自分のIP ]',
+    ip_hint: '正確なIP、CIDR (192.168.0.0/24)、ワイルドカード (192.168.1.*) に対応',
+    ip_invalid: 'IPアドレスの形式が無効です',
   },
   dashboard: {
     total_requests: 'リクエスト総数',
@@ -129,6 +134,13 @@ export default {
     copy: 'コピー',
     copied: 'クリップボードにコピーしました',
     understood: 'トークンをコピーしました'
+  },
+  authorized_domain: {
+    new_domain: '[ 新規認可ドメイン ]',
+    name: 'ドメイン名',
+    name_placeholder: '例: example.com',
+    delete_confirm: '認可ドメイン {name} を削除しますか？',
+    title_create: '認可ドメイン追加'
   },
   system: {
     section_headers: 'カスタムHTTPヘッダー',

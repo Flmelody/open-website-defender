@@ -68,6 +68,14 @@ Obtain a token by calling `POST /login`.
 | `GET` | `/access-logs` | Query access logs with filters | Yes |
 | `GET` | `/access-logs/stats` | Aggregated access log statistics | Yes |
 
+### Authorized Domains
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| `GET` | `/authorized-domains` | List authorized domains (paginated, or `?all=true` for all) | Yes |
+| `POST` | `/authorized-domains` | Register a new authorized domain | Yes |
+| `DELETE` | `/authorized-domains/:id` | Remove an authorized domain (cascades to whitelist and user scopes) | Yes |
+
 ### Geo-Blocking
 
 | Method | Path | Description | Auth |

@@ -143,6 +143,9 @@ body {
 .el-select .el-select__selected-item, .el-select .el-select__placeholder span {
   color: #0F0 !important;
 }
+.el-select .el-select__placeholder.is-transparent span {
+  color: #555 !important;
+}
 
 .el-select__suffix .el-icon {
   color: #0F0 !important;

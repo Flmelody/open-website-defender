@@ -34,7 +34,8 @@ graph LR
 - **IP Whitelist**: Allow specific IPs or CIDR ranges (e.g. `192.168.1.0/24`) to bypass authentication.
 - **IP Blacklist**: Block malicious IPs by exact match or CIDR range.
 
-- **Domain Scope Access Control**: Restrict users to specific domains using comma-separated patterns (e.g. `gitea.com, *.internal.org`). Empty scopes grant unrestricted access. Admin users bypass scope checks. Domain is determined from `X-Forwarded-Host` header with fallback to `Host`.
+- **Authorized Domains**: Centrally manage protected domains. Used as the data source for IP whitelist domain binding and user access scopes. Deleting an authorized domain cascades to remove related IP whitelist entries and user scope references.
+- **Domain Scope Access Control**: Restrict users to specific authorized domains using comma-separated patterns (e.g. `gitea.com, *.internal.org`). Empty scopes grant unrestricted access. Admin users bypass scope checks. Domain is determined from `X-Forwarded-Host` header with fallback to `Host`.
 
 **Auth verification flow:**
 ```
@@ -139,12 +140,18 @@ All requests are logged with client IP, method, path, status code, latency, User
 - Top 10 blocked IPs
 - Filtering by IP, action, status code, and time range
 
+### Authorized Domain Management
+
+- Centrally register and manage all protected domains
+- Serves as data source for IP whitelist domain binding and user scope selection
+- **Cascade delete**: removing an authorized domain automatically cleans up related IP whitelist entries and user scope references
+
 ### User Management
 
 - Create, edit, and delete admin users
 - Role-based access (admin privilege flag)
 - Auto-generate Git tokens with one-click copy
-- **Domain scopes**: restrict which protected domains each user can access
+- **Authorized domain scopes**: restrict which protected domains each user can access (selectable from registered authorized domains)
 
 ### License Management
 
@@ -155,7 +162,7 @@ All requests are logged with client IP, method, path, status code, latency, User
 ### Admin Dashboard
 
 - Real-time statistics (requests, blocks, uptime)
-- User, IP list, WAF rule, access log, geo-block, license, and system settings management
+- User, IP list, authorized domain, WAF rule, access log, geo-block, license, and system settings management
 - Hacker-themed terminal UI
 - **6 languages**: English, Chinese, German, French, Japanese, Russian
 
@@ -273,6 +280,7 @@ All routes are prefixed with the configurable `ROOT_PATH` (default `/wall`).
 | `POST/GET/PUT/DELETE` | `/waf-rules[/:id]` | WAF rule management | Yes |
 | `GET` | `/access-logs` | Access log query | Yes |
 | `GET` | `/access-logs/stats` | Access log statistics | Yes |
+| `POST/GET/DELETE` | `/authorized-domains[/:id]` | Authorized domain management | Yes |
 | `POST/GET/DELETE` | `/geo-block-rules[/:id]` | Geo-blocking management | Yes |
 | `POST/GET/DELETE` | `/licenses[/:id]` | License management | Yes |
 | `GET/PUT` | `/system/settings` | System settings | Yes |

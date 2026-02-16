@@ -115,6 +115,7 @@ func InitDB() error {
 		&entity.AccessLog{},
 		&entity.GeoBlockRule{},
 		&entity.License{},
+		&entity.AuthorizedDomain{},
 		&entity.System{},
 	)
 	if err != nil {

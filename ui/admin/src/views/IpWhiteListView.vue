@@ -63,7 +63,7 @@
           v-model:current-page="queryParams.page"
           v-model:page-size="queryParams.size"
           :page-sizes="[10, 20, 50]"
-          layout="prev, pager, next"
+          layout="sizes, prev, pager, next"
           :total="total"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
@@ -86,10 +86,23 @@
         class="hacker-form"
       >
         <el-form-item :label="'> ' + t('ip_list.ip_address')" prop="ip">
-          <el-input v-model="form.ip" placeholder="192.168.1.1" />
+          <div class="ip-input-row">
+            <el-input v-model="form.ip" placeholder="192.168.1.1" />
+            <el-button :loading="myIpLoading" @click="fetchMyIp">{{ t('ip_list.use_my_ip') }}</el-button>
+          </div>
+          <div class="field-hint">{{ t('ip_list.ip_hint') }}</div>
         </el-form-item>
         <el-form-item :label="'> ' + t('ip_list.domain')" prop="domain">
-          <el-input v-model="form.domain" placeholder="example.com" />
+          <el-select
+            v-model="form.domain"
+            filterable
+            allow-create
+            default-first-option
+            placeholder="example.com"
+            style="width: 100%"
+          >
+            <el-option v-for="d in domainOptions" :key="d" :label="d" :value="d" />
+          </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -136,8 +149,51 @@ const form = reactive({
   domain: ''
 })
 
+const domainOptions = ref<string[]>([])
+const myIpLoading = ref(false)
+
+const fetchMyIp = async () => {
+  myIpLoading.value = true
+  try {
+    const res = await fetch('https://api.ipify.org?format=json')
+    const data = await res.json()
+    form.ip = data.ip || ''
+  } catch (error) {
+    // handled
+  } finally {
+    myIpLoading.value = false
+  }
+}
+
+const ipValidator = (_rule: any, value: string, callback: (err?: Error) => void) => {
+  if (!value) return callback()
+  const ipv4Seg = '(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)'
+  const wildSeg = `(${ipv4Seg}|\\*)`
+  const ipv4 = `^${ipv4Seg}\\.${ipv4Seg}\\.${ipv4Seg}\\.${ipv4Seg}$`
+  const cidr = `^${ipv4Seg}\\.${ipv4Seg}\\.${ipv4Seg}\\.${ipv4Seg}/(3[0-2]|[12]?\\d)$`
+  const wildcard = `^${wildSeg}\\.${wildSeg}\\.${wildSeg}\\.${wildSeg}$`
+  const pattern = new RegExp(`${ipv4}|${cidr}|${wildcard}`)
+  if (!pattern.test(value)) {
+    callback(new Error(t('ip_list.ip_invalid')))
+  } else {
+    callback()
+  }
+}
+
+const fetchDomainOptions = async () => {
+  try {
+    const res: any = await request.get('/authorized-domains', { params: { all: 'true' } })
+    domainOptions.value = (res || []).map((d: any) => d.name)
+  } catch {
+    // handled
+  }
+}
+
 const rules = computed(() => ({
-  ip: [{ required: true, message: t('login.required'), trigger: 'blur' }],
+  ip: [
+    { required: true, message: t('login.required'), trigger: 'blur' },
+    { validator: ipValidator, trigger: ['blur', 'change'] }
+  ],
   domain: [{ required: true, message: t('login.required'), trigger: 'blur' }]
 }))
 
@@ -157,6 +213,7 @@ const fetchData = async () => {
 const handleAdd = () => {
   dialogTitle.value = t('ip_list.title_create')
   form.ip = ''
+  form.domain = ''
   dialogVisible.value = true
 }
 
@@ -211,6 +268,7 @@ const handleCurrentChange = (val: number) => {
 
 onMounted(() => {
   fetchData()
+  fetchDomainOptions()
 })
 </script>
 
@@ -309,5 +367,27 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+}
+
+.ip-input-row {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  align-items: center;
+}
+
+.ip-input-row .el-input {
+  flex: 1;
+}
+
+.ip-input-row .el-button {
+  flex-shrink: 0;
+}
+
+.field-hint {
+  color: #8a8;
+  font-size: 12px;
+  margin-top: 4px;
+  font-family: 'Courier New', monospace;
 }
 </style>

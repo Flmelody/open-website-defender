@@ -58,7 +58,7 @@
           v-model:current-page="queryParams.page"
           v-model:page-size="queryParams.size"
           :page-sizes="[10, 20, 50]"
-          layout="prev, pager, next"
+          layout="sizes, prev, pager, next"
           :total="total"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
@@ -82,6 +82,7 @@
       >
         <el-form-item :label="'> ' + t('ip_list.ip_address')" prop="ip">
           <el-input v-model="form.ip" placeholder="192.168.1.1" />
+          <div class="field-hint">{{ t('ip_list.ip_hint') }}</div>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -126,8 +127,26 @@ const form = reactive({
   ip: ''
 })
 
+const ipValidator = (_rule: any, value: string, callback: (err?: Error) => void) => {
+  if (!value) return callback()
+  const ipv4Seg = '(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)'
+  const wildSeg = `(${ipv4Seg}|\\*)`
+  const ipv4 = `^${ipv4Seg}\\.${ipv4Seg}\\.${ipv4Seg}\\.${ipv4Seg}$`
+  const cidr = `^${ipv4Seg}\\.${ipv4Seg}\\.${ipv4Seg}\\.${ipv4Seg}/(3[0-2]|[12]?\\d)$`
+  const wildcard = `^${wildSeg}\\.${wildSeg}\\.${wildSeg}\\.${wildSeg}$`
+  const pattern = new RegExp(`${ipv4}|${cidr}|${wildcard}`)
+  if (!pattern.test(value)) {
+    callback(new Error(t('ip_list.ip_invalid')))
+  } else {
+    callback()
+  }
+}
+
 const rules = computed(() => ({
-  ip: [{ required: true, message: t('login.required'), trigger: 'blur' }]
+  ip: [
+    { required: true, message: t('login.required'), trigger: 'blur' },
+    { validator: ipValidator, trigger: ['blur', 'change'] }
+  ]
 }))
 
 const fetchData = async () => {
@@ -298,5 +317,12 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+}
+
+.field-hint {
+  color: #8a8;
+  font-size: 12px;
+  margin-top: 4px;
+  font-family: 'Courier New', monospace;
 }
 </style>

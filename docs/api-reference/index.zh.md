@@ -64,6 +64,14 @@ Website Defender 提供 RESTful API 用于管理所有功能。所有路由均�
 | `GET` | `/access-logs` | 查询访问日志列表 | 是 |
 | `GET` | `/access-logs/stats` | 获取访问日志统计数据 | 是 |
 
+### 授权域管理
+
+| 方法 | 路径 | 说明 | 鉴权 |
+|------|------|------|------|
+| `GET` | `/authorized-domains` | 查询授权域列表（分页，或 `?all=true` 获取全部） | 是 |
+| `POST` | `/authorized-domains` | 注册新的授权域 | 是 |
+| `DELETE` | `/authorized-domains/:id` | 删除授权域（级联清理白名单条目和用户作用域） | 是 |
+
 ### 地域封锁
 
 | 方法 | 路径 | 说明 | 鉴权 |

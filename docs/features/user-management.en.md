@@ -37,15 +37,19 @@ Each user can have a Git token for machine access (CI/CD, scripts, automated too
 !!! tip "Regenerating Git Tokens"
     You can regenerate a user's Git token at any time from the admin dashboard. The previous token is immediately invalidated.
 
-## Domain Scopes
+## Authorized Domain Scopes
 
 Each user can be assigned domain scopes that restrict which protected services they can access:
 
-- Scopes are defined as comma-separated patterns (e.g., `gitea.com, *.internal.org`)
+- Scopes are selected from the [Authorized Domains](authorized-domains.md) registry via a multi-select dropdown
+- Custom patterns (e.g., `*.internal.org`) can also be typed manually
 - Empty scopes grant unrestricted access
 - Admin users bypass scope checks regardless of their scope configuration
 
-For full details on how domain scopes work, see [Domain Scopes](domain-scopes.md).
+!!! info "Cascade Cleanup"
+    When an authorized domain is deleted from the registry, it is automatically removed from all users' scope lists. See [Authorized Domains](authorized-domains.md).
+
+For full details on how domain scope matching works, see [Domain Scopes](domain-scopes.md).
 
 ## License Management
 

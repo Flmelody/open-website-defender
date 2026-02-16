@@ -35,6 +35,10 @@ func (r *IpWhiteListRepository) List(limit, offset int) ([]*entity.IpWhiteList, 
 	return list, total, err
 }
 
+func (r *IpWhiteListRepository) DeleteByDomain(domain string) error {
+	return r.db.Where("domain = ?", domain).Delete(&entity.IpWhiteList{}).Error
+}
+
 func (r *IpWhiteListRepository) FindByIP(ip string) (*entity.IpWhiteList, error) {
 	var item entity.IpWhiteList
 	// Exact match for management/duplicate check

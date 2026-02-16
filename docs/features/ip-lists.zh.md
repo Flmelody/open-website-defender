@@ -31,13 +31,20 @@ Website Defender 提供 IP 黑名单和白名单机制，实现基于 IP 地址�
 !!! warning "优先级说明"
     IP 黑名单的优先级高于白名单。如果某个 IP 同时存在于黑名单和白名单中，该 IP 将被拒绝访问。
 
+### 授权域绑定
+
+每个 IP 白名单条目可以绑定一个**授权域**，指定该 IP 白名单适用于哪个受保护域名。添加白名单条目时，域名字段提供一个下拉选择器，选项来自[授权域管理](authorized-domains.md)注册表。
+
+!!! info "级联删除"
+    当授权域被删除时，绑定该域名的所有 IP 白名单条目将被自动移除。详见[授权域管理](authorized-domains.md)。
+
 ## 管理方式
 
 ### 通过管理后台
 
 1. 登录管理后台（默认 `http://localhost:9999/wall/admin/`）
 2. 进入 **IP 黑名单** 或 **IP 白名单** 管理页面
-3. 添加、查看或删除 IP 条目
+3. 添加、查看或删除 IP 条目（白名单支持绑定授权域）
 
 ### 通过 API
 
@@ -59,6 +66,7 @@ IP 名单支持通过 REST API 进行管理：
 
 ## 相关页面
 
+- [授权域管理](authorized-domains.md) - 白名单域名绑定的数据源
 - [认证与访问控制](authentication.md) - 了解 IP 名单在认证流程中的位置
 - [架构说明](../architecture/index.md) - 认证流程图
 - [API 参考](../api-reference/index.md) - 完整的 API 接口文档

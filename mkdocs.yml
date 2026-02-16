@@ -44,6 +44,7 @@ plugins:
             Architecture: 架构说明
             Features: 功能特性
             Authentication: 认证与访问控制
+            Authorized Domains: 授权域管理
             Domain Scopes: 域名作用域
             WAF Rules: WAF 规则
             IP Lists: IP 黑白名单
@@ -67,6 +68,7 @@ nav:
   - Architecture: architecture/index.md
   - Features:
       - Authentication: features/authentication.md
+      - Authorized Domains: features/authorized-domains.md
       - Domain Scopes: features/domain-scopes.md
       - WAF Rules: features/waf.md
       - IP Lists: features/ip-lists.md

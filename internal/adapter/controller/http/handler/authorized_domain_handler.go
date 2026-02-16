@@ -4,6 +4,7 @@ import (
 	"open-website-defender/internal/adapter/controller/http/request"
 	"open-website-defender/internal/adapter/controller/http/response"
 	"open-website-defender/internal/infrastructure/logging"
+	"open-website-defender/internal/pkg"
 	authorized_domain "open-website-defender/internal/usecase/authorized_domain"
 	"strconv"
 	"strings"
@@ -18,6 +19,11 @@ func CreateAuthorizedDomain(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		logging.Sugar.Errorf("Invalid request format: %v", err)
 		response.BadRequest(c, "Invalid request format: "+err.Error())
+		return
+	}
+
+	if !pkg.ValidateDomainPattern(req.Name) {
+		response.BadRequest(c, "Invalid domain format")
 		return
 	}
 

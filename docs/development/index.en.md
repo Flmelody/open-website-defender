@@ -187,7 +187,7 @@ The auth middleware chain:
 1. **IP Blacklist check** -- immediately deny blocked IPs
 2. **IP Whitelist check** -- immediately allow trusted IPs
 3. **JWT Token validation** -- check `Defender-Authorization` header or `flmelody.token` cookie
-4. **Domain Scope check** -- verify the user can access the requested domain
+4. **Authorized Domain check** -- verify the user can access the requested domain
 5. **Git Token validation** -- check `Defender-Git-Token` header
 6. **License Token validation** -- check `Defender-License` header
 

@@ -72,6 +72,7 @@ export default {
     authorized_domains: '授权域',
     authorized_domains_placeholder: '例如: gitea.com, *.internal.org',
     authorized_domains_hint: '逗号分隔的域名模式。支持通配符 (*.example.com)。留空表示不限制访问。',
+    authorized_domains_invalid: '域名格式无效（例如 example.com 或 *.example.com）',
     unrestricted: '<不限制>'
   },
   ip_list: {
@@ -85,6 +86,7 @@ export default {
     use_my_ip: '[ 我的IP ]',
     ip_hint: '支持精确IP、CIDR (192.168.0.0/24) 和通配符 (192.168.1.*)',
     ip_invalid: 'IP地址格式无效',
+    domain_invalid: '域名格式无效（例如 example.com 或 *.example.com）',
   },
   dashboard: {
     total_requests: '总请求数',
@@ -145,6 +147,7 @@ export default {
     new_domain: '[ 新增授权域 ]',
     name: '域名',
     name_placeholder: '例如: example.com',
+    name_invalid: '域名格式无效（例如 example.com 或 *.example.com）',
     delete_confirm: '删除授权域 {name}?',
     title_create: '添加授权域'
   },

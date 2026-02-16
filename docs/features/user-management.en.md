@@ -1,6 +1,6 @@
 # User Management
 
-Website Defender provides full user management capabilities through the admin dashboard and API, including role-based access control, token generation, and domain scope assignment.
+Website Defender provides full user management capabilities through the admin dashboard and API, including role-based access control, token generation, and authorized domain assignment.
 
 ## User CRUD Operations
 
@@ -19,8 +19,8 @@ Each user has an **admin privilege flag** that controls their access level:
 
 | Role | Capabilities |
 |------|-------------|
-| **Admin** | Full access to all dashboard features, user management, and settings. Bypasses domain scope checks. |
-| **Regular User** | Can authenticate and access protected services within their assigned domain scopes. |
+| **Admin** | Full access to all dashboard features, user management, and settings. Bypasses authorized domain checks. |
+| **Regular User** | Can authenticate and access protected services within their assigned authorized domains. |
 
 !!! note "At Least One Admin"
     Ensure at least one admin user exists at all times. The default user created on first startup (`defender`) has admin privileges.
@@ -32,24 +32,21 @@ Each user can have a Git token for machine access (CI/CD, scripts, automated too
 - Tokens are **auto-generated** via the admin dashboard
 - **One-click copy** for easy integration
 - Token format: `username:token` (sent via the `Defender-Git-Token` header)
-- Git tokens are subject to the user's [domain scope](domain-scopes.md) restrictions
+- Git tokens are subject to the user's [authorized domain](authorized-domains.md) restrictions
 
 !!! tip "Regenerating Git Tokens"
     You can regenerate a user's Git token at any time from the admin dashboard. The previous token is immediately invalidated.
 
-## Authorized Domain Scopes
+## Authorized Domains
 
-Each user can be assigned domain scopes that restrict which protected services they can access:
+Each user can be assigned authorized domains that restrict which protected services they can access:
 
-- Scopes are selected from the [Authorized Domains](authorized-domains.md) registry via a multi-select dropdown
+- Authorized domains are selected from the [Authorized Domains](authorized-domains.md) registry via a multi-select dropdown
 - Custom patterns (e.g., `*.internal.org`) can also be typed manually
-- Empty scopes grant unrestricted access
-- Admin users bypass scope checks regardless of their scope configuration
+- Empty authorized domains grant unrestricted access
+- Admin users bypass authorized domain checks regardless of their configuration
 
-!!! info "Cascade Cleanup"
-    When an authorized domain is deleted from the registry, it is automatically removed from all users' scope lists. See [Authorized Domains](authorized-domains.md).
-
-For full details on how domain scope matching works, see [Domain Scopes](domain-scopes.md).
+For full details on how authorized domain matching works, see [Authorized Domains](authorized-domains.md).
 
 ## License Management
 

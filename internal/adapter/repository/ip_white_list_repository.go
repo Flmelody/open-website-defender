@@ -21,6 +21,19 @@ func (r *IpWhiteListRepository) Create(ip *entity.IpWhiteList) error {
 	return r.db.Create(ip).Error
 }
 
+func (r *IpWhiteListRepository) Update(ip *entity.IpWhiteList) error {
+	return r.db.Save(ip).Error
+}
+
+func (r *IpWhiteListRepository) FindByID(id uint) (*entity.IpWhiteList, error) {
+	var item entity.IpWhiteList
+	err := r.db.First(&item, id).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+	return &item, err
+}
+
 func (r *IpWhiteListRepository) Delete(id uint) error {
 	return r.db.Delete(&entity.IpWhiteList{}, id).Error
 }

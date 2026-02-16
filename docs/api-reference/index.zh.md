@@ -14,6 +14,7 @@ Website Defender 提供 RESTful API 用于管理所有功能。所有路由均�
 | 方法 | 路径 | 说明 | 鉴权 |
 |------|------|------|------|
 | `POST` | `/login` | 用户登录，返回 JWT 令牌 | 否 |
+| `POST` | `/admin-login` | 管理后台登录，仅管理员可用，非管理员返回 403 | 否 |
 | `GET` | `/auth` | 验证凭证（IP 名单 + 令牌），供 Nginx `auth_request` 调用 | 否 |
 | `GET` | `/health` | 健康检查 | 否 |
 
@@ -46,6 +47,7 @@ Website Defender 提供 RESTful API 用于管理所有功能。所有路由均�
 |------|------|------|------|
 | `POST` | `/ip-white-list` | 添加白名单条目 | 是 |
 | `GET` | `/ip-white-list` | 查询白名单列表 | 是 |
+| `PUT` | `/ip-white-list/:id` | 更新白名单条目 | 是 |
 | `DELETE` | `/ip-white-list/:id` | 删除白名单条目 | 是 |
 
 ### WAF 规则
@@ -70,7 +72,7 @@ Website Defender 提供 RESTful API 用于管理所有功能。所有路由均�
 |------|------|------|------|
 | `GET` | `/authorized-domains` | 查询授权域列表（分页，或 `?all=true` 获取全部） | 是 |
 | `POST` | `/authorized-domains` | 注册新的授权域 | 是 |
-| `DELETE` | `/authorized-domains/:id` | 删除授权域（级联清理白名单条目和用户作用域） | 是 |
+| `DELETE` | `/authorized-domains/:id` | 删除授权域 | 是 |
 
 ### 地域封锁
 
@@ -97,7 +99,7 @@ Website Defender 提供 RESTful API 用于管理所有功能。所有路由均�
 | `POST` | `/system/reload` | 重载配置并清除缓存 | 是 |
 
 !!! tip "路径前缀"
-    以上所有路径均需加上 `ROOT_PATH` 前缀。例如，如果 `ROOT_PATH` 为默认值 `/wall`，则登录接口的完整路径为 `/wall/login`。
+    以上所有路径均需加上 `ROOT_PATH` 前缀。例如，如果 `ROOT_PATH` 为默认值 `/wall`，则登录接口的完整路径为 `/wall/login`，管理后台登录接口为 `/wall/admin-login`。
 
 ---
 

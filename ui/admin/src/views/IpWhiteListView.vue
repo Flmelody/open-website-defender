@@ -39,13 +39,22 @@
               <span class="dim-text">{{ new Date(scope.row.created_at).toLocaleString() }}</span>
             </template>
           </el-table-column>
-          <el-table-column :label="t('common.actions')" width="120" align="right">
+          <el-table-column :label="t('common.actions')" width="160" align="right">
             <template #default="scope">
               <div class="ops-cell">
-                <el-button 
-                  type="danger" 
-                  link 
-                  size="small" 
+                <el-button
+                  type="primary"
+                  link
+                  size="small"
+                  @click="handleEdit(scope.row)"
+                  class="action-link"
+                >
+                  {{ t('common.edit') }}
+                </el-button>
+                <el-button
+                  type="danger"
+                  link
+                  size="small"
                   @click="handleDelete(scope.row)"
                   class="action-link delete"
                 >
@@ -144,6 +153,9 @@ const dialogTitle = ref('')
 const formRef = ref()
 const formLoading = ref(false)
 
+const isEditMode = ref(false)
+const editId = ref(0)
+
 const form = reactive({
   ip: '',
   domain: ''
@@ -180,6 +192,16 @@ const ipValidator = (_rule: any, value: string, callback: (err?: Error) => void)
   }
 }
 
+const domainValidator = (_rule: any, value: string, callback: (err?: Error) => void) => {
+  if (!value) return callback()
+  const pattern = /^(\*\.)?([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/
+  if (!pattern.test(value)) {
+    callback(new Error(t('ip_list.domain_invalid')))
+  } else {
+    callback()
+  }
+}
+
 const fetchDomainOptions = async () => {
   try {
     const res: any = await request.get('/authorized-domains', { params: { all: 'true' } })
@@ -194,7 +216,10 @@ const rules = computed(() => ({
     { required: true, message: t('login.required'), trigger: 'blur' },
     { validator: ipValidator, trigger: ['blur', 'change'] }
   ],
-  domain: [{ required: true, message: t('login.required'), trigger: 'blur' }]
+  domain: [
+    { required: true, message: t('login.required'), trigger: 'blur' },
+    { validator: domainValidator, trigger: ['blur', 'change'] }
+  ]
 }))
 
 const fetchData = async () => {
@@ -214,6 +239,17 @@ const handleAdd = () => {
   dialogTitle.value = t('ip_list.title_create')
   form.ip = ''
   form.domain = ''
+  isEditMode.value = false
+  editId.value = 0
+  dialogVisible.value = true
+}
+
+const handleEdit = (row: IpItem) => {
+  dialogTitle.value = t('ip_list.title_edit')
+  form.ip = row.ip
+  form.domain = row.domain
+  isEditMode.value = true
+  editId.value = row.id
   dialogVisible.value = true
 }
 
@@ -243,8 +279,13 @@ const handleSubmit = async () => {
     if (valid) {
       formLoading.value = true
       try {
-        await request.post('/ip-white-list', form)
-        ElMessage.success(t('common.added'))
+        if (isEditMode.value) {
+          await request.put(`/ip-white-list/${editId.value}`, form)
+          ElMessage.success(t('common.updated'))
+        } else {
+          await request.post('/ip-white-list', form)
+          ElMessage.success(t('common.added'))
+        }
         dialogVisible.value = false
         fetchData()
       } catch (error) {

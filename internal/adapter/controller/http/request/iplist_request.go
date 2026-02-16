@@ -14,6 +14,11 @@ type CreateIpWhiteListRequest struct {
 	Domain string `json:"domain"`
 }
 
+type UpdateIpWhiteListRequest struct {
+	Ip     string `json:"ip" binding:"required"`
+	Domain string `json:"domain"`
+}
+
 type ListIpWhiteListRequest struct {
 	Page int `form:"page"`
 	Size int `form:"size"`

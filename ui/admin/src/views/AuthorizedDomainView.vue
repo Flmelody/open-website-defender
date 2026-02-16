@@ -96,8 +96,21 @@ const formRef = ref()
 const formLoading = ref(false)
 const form = reactive({ name: '' })
 
+const domainValidator = (_rule: any, value: string, callback: (err?: Error) => void) => {
+  if (!value) return callback()
+  const pattern = /^(\*\.)?([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/
+  if (!pattern.test(value)) {
+    callback(new Error(t('authorized_domain.name_invalid')))
+  } else {
+    callback()
+  }
+}
+
 const rules = computed(() => ({
-  name: [{ required: true, message: t('login.required'), trigger: 'blur' }]
+  name: [
+    { required: true, message: t('login.required'), trigger: 'blur' },
+    { validator: domainValidator, trigger: ['blur', 'change'] }
+  ]
 }))
 
 const fetchData = async () => {

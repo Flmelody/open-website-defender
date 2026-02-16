@@ -30,6 +30,12 @@ func Setup(appConfig *config.AppConfig) *gin.Engine {
 		loginHandlers = append(loginHandlers, handler.Login)
 		api.POST("/login", loginHandlers...)
 
+		// Admin login with admin privilege check
+		adminLoginHandlers := make([]gin.HandlerFunc, len(loginHandlers)-1, len(loginHandlers))
+		copy(adminLoginHandlers, loginHandlers[:len(loginHandlers)-1])
+		adminLoginHandlers = append(adminLoginHandlers, handler.AdminLogin)
+		api.POST("/admin-login", adminLoginHandlers...)
+
 		authorized := api.Group("")
 		// Middleware for route protection
 		authorized.Use(handler.AuthMiddleware)
@@ -48,6 +54,7 @@ func Setup(appConfig *config.AppConfig) *gin.Engine {
 			// IP Whitelist
 			authorized.POST("/ip-white-list", handler.CreateIpWhiteList)
 			authorized.GET("/ip-white-list", handler.ListIpWhiteList)
+			authorized.PUT("/ip-white-list/:id", handler.UpdateIpWhiteList)
 			authorized.DELETE("/ip-white-list/:id", handler.DeleteIpWhiteList)
 
 			// WAF Rules

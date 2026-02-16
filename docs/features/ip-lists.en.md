@@ -46,8 +46,7 @@ The same formats as the whitelist are supported: exact IP, CIDR range, and IPv6.
 
 Each IP whitelist entry can be bound to an **authorized domain**, indicating which protected domain this IP is whitelisted for. When adding a whitelist entry, the domain field provides a dropdown populated from the [Authorized Domains](authorized-domains.md) registry.
 
-!!! info "Cascade Deletion"
-    When an authorized domain is deleted, all IP whitelist entries bound to that domain are automatically removed. See [Authorized Domains](authorized-domains.md) for details.
+If a whitelist entry is bound to a domain, the IP is only whitelisted for requests to that specific domain. Requests to other domains will fall through to token-based authentication. If the domain field is empty, the IP is whitelisted for all domains.
 
 ### Admin Dashboard
 

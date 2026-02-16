@@ -66,6 +66,7 @@ export default {
     authorized_domains: '認可ドメイン',
     authorized_domains_placeholder: '例: gitea.com, *.internal.org',
     authorized_domains_hint: 'カンマ区切りのドメインパターン。ワイルドカード対応 (*.example.com)。空欄で無制限アクセス。',
+    authorized_domains_invalid: 'ドメイン形式が無効です（例: example.com または *.example.com）',
     unrestricted: '<無制限>'
   },
   ip_list: {
@@ -79,6 +80,7 @@ export default {
     use_my_ip: '[ 自分のIP ]',
     ip_hint: '正確なIP、CIDR (192.168.0.0/24)、ワイルドカード (192.168.1.*) に対応',
     ip_invalid: 'IPアドレスの形式が無効です',
+    domain_invalid: 'ドメイン形式が無効です（例: example.com または *.example.com）',
   },
   dashboard: {
     total_requests: 'リクエスト総数',
@@ -139,6 +141,7 @@ export default {
     new_domain: '[ 新規認可ドメイン ]',
     name: 'ドメイン名',
     name_placeholder: '例: example.com',
+    name_invalid: 'ドメイン形式が無効です（例: example.com または *.example.com）',
     delete_confirm: '認可ドメイン {name} を削除しますか？',
     title_create: '認可ドメイン追加'
   },

@@ -27,6 +27,11 @@ const (
 	cacheKeyWhiteListIP    = "whitelist:ip:"
 )
 
+type whiteListRule struct {
+	IP     string `json:"ip"`
+	Domain string `json:"domain"`
+}
+
 func GetIpWhiteListService() *IpWhiteListService {
 	ipWhiteListOnce.Do(func() {
 		ipWhiteListService = &IpWhiteListService{
@@ -36,12 +41,12 @@ func GetIpWhiteListService() *IpWhiteListService {
 	return ipWhiteListService
 }
 
-func (s *IpWhiteListService) getRules() ([]string, error) {
+func (s *IpWhiteListService) getRules() ([]*whiteListRule, error) {
 	cache := pkg.Cacher()
 
 	data, err := cache.Get([]byte(cacheKeyWhiteListRules))
 	if err == nil {
-		var rules []string
+		var rules []*whiteListRule
 		if err := json.Unmarshal(data, &rules); err == nil {
 			return rules, nil
 		}
@@ -52,9 +57,9 @@ func (s *IpWhiteListService) getRules() ([]string, error) {
 		return nil, err
 	}
 
-	rules := make([]string, 0, len(list))
+	rules := make([]*whiteListRule, 0, len(list))
 	for _, item := range list {
-		rules = append(rules, item.Ip)
+		rules = append(rules, &whiteListRule{IP: item.Ip, Domain: item.Domain})
 	}
 
 	data, err = json.Marshal(rules)
@@ -85,6 +90,42 @@ func (s *IpWhiteListService) Create(input *CreateIpWhiteListDto) (*IpWhiteListDt
 
 	if err := s.repo.Create(item); err != nil {
 		return nil, fmt.Errorf("failed to create whitelist item: %w", err)
+	}
+
+	pkg.Cacher().Del([]byte(cacheKeyWhiteListRules))
+
+	return &IpWhiteListDto{
+		ID:        item.ID,
+		Ip:        item.Ip,
+		Domain:    item.Domain,
+		CreatedAt: item.CreatedAt,
+	}, nil
+}
+
+func (s *IpWhiteListService) Update(id uint, input *UpdateIpWhiteListDto) (*IpWhiteListDto, error) {
+	item, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if item == nil {
+		return nil, errors.New("whitelist item not found")
+	}
+
+	if input.Ip != "" {
+		// Check for duplicate IP (but allow same record)
+		existing, err := s.repo.FindByIP(input.Ip)
+		if err != nil {
+			return nil, err
+		}
+		if existing != nil && existing.ID != id {
+			return nil, errors.New("ip already exists in whitelist")
+		}
+		item.Ip = input.Ip
+	}
+	item.Domain = input.Domain
+
+	if err := s.repo.Update(item); err != nil {
+		return nil, fmt.Errorf("failed to update whitelist item: %w", err)
 	}
 
 	pkg.Cacher().Del([]byte(cacheKeyWhiteListRules))
@@ -139,7 +180,10 @@ func (s *IpWhiteListService) FindByIP(ip string) (*IpWhiteListDto, error) {
 		if len(val) == 0 {
 			return nil, nil
 		}
-		return &IpWhiteListDto{Ip: string(val)}, nil
+		var dto IpWhiteListDto
+		if err := json.Unmarshal(val, &dto); err == nil {
+			return &dto, nil
+		}
 	}
 
 	rules, err := s.getRules()
@@ -149,9 +193,11 @@ func (s *IpWhiteListService) FindByIP(ip string) (*IpWhiteListDto, error) {
 	}
 
 	for _, rule := range rules {
-		if pkg.MatchIP(rule, ip) {
-			cache.Set(cacheKey, []byte(rule), 600)
-			return &IpWhiteListDto{Ip: rule}, nil
+		if pkg.MatchIP(rule.IP, ip) {
+			dto := &IpWhiteListDto{Ip: rule.IP, Domain: rule.Domain}
+			data, _ := json.Marshal(dto)
+			cache.Set(cacheKey, data, 600)
+			return dto, nil
 		}
 	}
 

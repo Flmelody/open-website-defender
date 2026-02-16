@@ -3,7 +3,6 @@ package middleware
 import (
 	"open-website-defender/internal/adapter/controller/http/response"
 	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/pkg"
 	"open-website-defender/internal/usecase/geoblock"
 
 	"github.com/gin-gonic/gin"
@@ -12,7 +11,7 @@ import (
 // GeoBlock returns a middleware that blocks requests from specific countries.
 func GeoBlock() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		clientIP := pkg.GetClientIP(c)
+		clientIP := c.ClientIP()
 		service := geoblock.GetGeoBlockService()
 
 		blocked, country := service.IsBlocked(clientIP)

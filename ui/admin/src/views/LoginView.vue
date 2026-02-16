@@ -106,7 +106,7 @@ const handleLogin = async () => {
         ElMessage.success(t('login.access_granted'))
         router.push({name: 'dashboard'})
       } catch (error: any) {
-        ElMessage.error(t('login.access_denied'))
+        // Error message already shown by request interceptor
       } finally {
         loading.value = false
       }

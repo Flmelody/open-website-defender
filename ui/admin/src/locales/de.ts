@@ -66,6 +66,7 @@ export default {
     authorized_domains: 'AUTORISIERTE_DOMÄNEN',
     authorized_domains_placeholder: 'z.B. gitea.com, *.internal.org',
     authorized_domains_hint: 'Kommagetrennte Domain-Muster. Wildcards unterstützt (*.example.com). Leer lassen für uneingeschränkten Zugriff.',
+    authorized_domains_invalid: 'Ungültiges Domain-Format (z.B. example.com oder *.example.com)',
     unrestricted: '<UNEINGESCHRÄNKT>'
   },
   ip_list: {
@@ -79,6 +80,7 @@ export default {
     use_my_ip: '[ MEINE_IP ]',
     ip_hint: 'Unterstützt exakte IP, CIDR (192.168.0.0/24) und Wildcards (192.168.1.*)',
     ip_invalid: 'Ungültiges IP-Adressformat',
+    domain_invalid: 'Ungültiges Domain-Format (z.B. example.com oder *.example.com)',
   },
   dashboard: {
     total_requests: 'ANFRAGEN_GESAMT',
@@ -139,6 +141,7 @@ export default {
     new_domain: '[ NEUE_DOMÄNE ]',
     name: 'DOMÄNENNAME',
     name_placeholder: 'z.B. example.com',
+    name_invalid: 'Ungültiges Domain-Format (z.B. example.com oder *.example.com)',
     delete_confirm: 'DOMÄNE {name} LÖSCHEN?',
     title_create: 'Autorisierte Domäne hinzufügen'
   },

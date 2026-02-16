@@ -17,8 +17,8 @@ Website Defender 提供完整的用户管理功能，支持通过管理后台或
 
 每个用户拥有一个**管理员权限标识**：
 
-- **管理员**：拥有完整的管理后台访问权限，可管理用户、IP 名单、WAF 规则等所有功能。管理员始终跳过[域名作用域](domain-scopes.md)检查。
-- **普通用户**：仅拥有认证通过后的访问权限，受域名作用域限制。
+- **管理员**：拥有完整的管理后台访问权限，可管理用户、IP 名单、WAF 规则等所有功能。管理员始终跳过[授权域](authorized-domains.md)检查。
+- **普通用户**：仅拥有认证通过后的访问权限，受授权域限制。
 
 !!! info "默认用户"
     首次启动时，系统会自动创建默认管理员用户（默认用户名和密码均为 `defender`）。请在首次登录后立即修改密码。
@@ -31,24 +31,21 @@ Website Defender 提供完整的用户管理功能，支持通过管理后台或
 - Token 格式为 `username:token`
 - 支持一键复制到剪贴板
 - 通过 `Defender-Git-Token` 请求头使用（请求头名称可配置）
-- Git Token 支持[域名作用域](domain-scopes.md)检查
+- Git Token 支持[授权域](authorized-domains.md)检查
 
 !!! tip "使用场景"
     Git Token 适合用于 CI/CD 管道、自动化脚本、Git 客户端等需要非交互式认证的场景。
 
-## 授权域作用域
+## 授权域
 
 为每个用户配置可访问的受保护域名：
 
 - 从[授权域管理](authorized-domains.md)注册表中通过多选下拉选择器选取域名
 - 也可以手动输入自定义模式（如 `*.internal.org`）
-- 作用域为空表示不限制访问
-- 管理员用户始终跳过作用域检查
+- 授权域为空表示不限制访问
+- 管理员用户始终跳过授权域检查
 
-!!! info "级联清理"
-    当授权域从注册表中删除时，该域名会自动从所有用户的作用域列表中移除。详见[授权域管理](authorized-domains.md)。
-
-详细的作用域匹配规则请参阅[域名作用域](domain-scopes.md)。
+详细的授权域匹配规则请参阅[授权域管理](authorized-domains.md)。
 
 ## 许可证管理
 
@@ -93,5 +90,5 @@ Website Defender 提供完整的用户管理功能，支持通过管理后台或
 
 - [授权域管理](authorized-domains.md) - 集中管理受保护域名
 - [认证与访问控制](authentication.md) - 各种认证方式详解
-- [域名作用域](domain-scopes.md) - 多租户访问控制
+- [授权域管理](authorized-domains.md) - 多租户访问控制
 - [API 参考](../api-reference/index.md) - 完整的 API 接口文档

@@ -31,7 +31,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function login(username: string, password: string): Promise<void> {
     try {
-      const res = await request.post<any, LoginResponse>('/login', { username, password })
+      const res = await request.post<any, LoginResponse>('/admin-login', { username, password })
       // Since our request interceptor returns data.data directly on success
       // we should expect res to be LoginResponse directly
       

@@ -37,7 +37,7 @@ server {
         internal;
         proxy_pass http://127.0.0.1:9999/wall/auth;
 
-        # Pass the original domain for scope checking
+        # Pass the original domain for authorized domain checking
         proxy_set_header X-Forwarded-Host $host;
 
         # Pass the real client IP for IP list checks and rate limiting
@@ -74,13 +74,13 @@ location = /auth {
 |-----------|---------|
 | `internal` | Ensures this location can only be accessed via internal subrequests, not directly by clients |
 | `proxy_pass` | Forwards the auth check to Website Defender's `/auth` endpoint |
-| `X-Forwarded-Host` | Passes the original requested domain so Defender can perform [domain scope](../features/domain-scopes.md) checks |
+| `X-Forwarded-Host` | Passes the original requested domain so Defender can perform [authorized domain](../features/authorized-domains.md) checks |
 | `X-Forwarded-For` | Passes the real client IP for [IP list](../features/ip-lists.md) checks and [rate limiting](../features/rate-limiting.md) |
 | `proxy_pass_request_body off` | The auth check does not need the request body -- this improves performance |
 | `Content-Length ""` | Required when disabling request body forwarding |
 
-!!! warning "X-Forwarded-Host is Required for Domain Scopes"
-    If you use [domain scopes](../features/domain-scopes.md), the `proxy_set_header X-Forwarded-Host $host;` directive is essential. Without it, Defender cannot determine which domain the user is trying to access.
+!!! warning "X-Forwarded-Host is Required for Authorized Domain Checks"
+    If you use [authorized domain](../features/authorized-domains.md) access control, the `proxy_set_header X-Forwarded-Host $host;` directive is essential. Without it, Defender cannot determine which domain the user is trying to access.
 
 ### The auth_request Directive
 
@@ -137,8 +137,8 @@ server {
 }
 ```
 
-!!! tip "Use Domain Scopes"
-    When protecting multiple applications, use [domain scopes](../features/domain-scopes.md) to control which users can access which services. For example, you can restrict a developer to `gitea.example.com` while giving an admin access to `*.example.com`.
+!!! tip "Use Authorized Domain Access Control"
+    When protecting multiple applications, use [authorized domains](../features/authorized-domains.md) to control which users can access which services. For example, you can restrict a developer to `gitea.example.com` while giving an admin access to `*.example.com`.
 
 ## Defender Admin and Guard Pages
 

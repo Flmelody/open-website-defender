@@ -59,6 +59,7 @@ func (s *AuthService) Login(input *LoginInputDTO) (*LoginOutputDTO, error) {
 		User: &UserInfoDTO{
 			ID:       user.ID,
 			Username: user.Username,
+			IsAdmin:  user.IsAdmin,
 		},
 	}, nil
 }

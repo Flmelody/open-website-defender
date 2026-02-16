@@ -51,26 +51,28 @@ graph TD
     Request[Incoming Request] --> BlacklistCheck{IP Blacklist?}
     BlacklistCheck -->|Blocked| Deny[403 Deny]
     BlacklistCheck -->|Not Blocked| WhitelistCheck{IP Whitelist?}
-    WhitelistCheck -->|Whitelisted| Allow[200 Allow]
+    WhitelistCheck -->|Matched| WLDomainCheck{Authorized Domain?}
+    WLDomainCheck -->|Pass| Allow[200 Allow]
+    WLDomainCheck -->|Fail| JWTCheck
     WhitelistCheck -->|Not Listed| JWTCheck{JWT Token Valid?}
-    JWTCheck -->|Valid| ScopeCheck1{Domain Scope OK?}
-    ScopeCheck1 -->|Pass| Allow
-    ScopeCheck1 -->|Fail| Deny
+    JWTCheck -->|Valid| DomainCheck1{Authorized Domain?}
+    DomainCheck1 -->|Pass| Allow
+    DomainCheck1 -->|Fail| Deny
     JWTCheck -->|Invalid| GitTokenCheck{Git Token Valid?}
-    GitTokenCheck -->|Valid| ScopeCheck2{Domain Scope OK?}
-    ScopeCheck2 -->|Pass| Allow
-    ScopeCheck2 -->|Fail| Deny
+    GitTokenCheck -->|Valid| DomainCheck2{Authorized Domain?}
+    DomainCheck2 -->|Pass| Allow
+    DomainCheck2 -->|Fail| Deny
     GitTokenCheck -->|Invalid| LicenseCheck{License Token Valid?}
     LicenseCheck -->|Valid| Allow
     LicenseCheck -->|Invalid| Deny
 ```
 
 ```
-IP Blacklist → IP Whitelist → JWT Token (+ Scope Check) → Git Token (+ Scope Check) → License Token → Deny
+IP Blacklist → IP Whitelist (+ Authorized Domain Check) → JWT Token (+ Authorized Domain Check) → Git Token (+ Authorized Domain Check) → License Token → Deny
 ```
 
 !!! note "Short-Circuit Evaluation"
-    The auth flow short-circuits at the first definitive result. A blacklisted IP is immediately denied. A whitelisted IP is immediately allowed without any token checks.
+    The auth flow short-circuits at the first definitive result. A blacklisted IP is immediately denied. A whitelisted IP is allowed only if its bound domain matches the requested domain (or if no domain is bound); otherwise the request falls through to token-based authentication.
 
 ## Single-Binary Deployment
 
@@ -81,3 +83,12 @@ Website Defender compiles into a **single binary** with all frontend assets embe
 - Both the admin dashboard and guard page are served directly by the Go backend
 
 For more details, see [Deployment](../deployment/index.md).
+
+## Data Model
+
+The core data entities and their relationships:
+
+- **Authorized Domains** -- central registry of all protected domains
+- **IP Whitelist** -- entries can be bound to an authorized domain; only grants access when the requested domain matches the bound domain
+- **Users** -- authorized domains restrict which protected services each user can access
+- **IP Blacklist**, **WAF Rules**, **Geo-Block Rules**, **Licenses** -- independent entities managed via the admin dashboard

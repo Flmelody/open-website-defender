@@ -17,6 +17,11 @@ type CreateIpWhiteListDto struct {
 	Domain string `json:"domain" binding:"required"`
 }
 
+type UpdateIpWhiteListDto struct {
+	Ip     string `json:"ip"`
+	Domain string `json:"domain"`
+}
+
 type IpWhiteListDto struct {
 	ID        uint      `json:"id"`
 	Ip        string    `json:"ip"`

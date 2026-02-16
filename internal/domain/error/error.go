@@ -9,5 +9,6 @@ var (
 	ErrUserAlreadyActive   = errors.New("user already active")
 	ErrUserAlreadyInactive = errors.New("user already inactive")
 	ErrInvalidCredentials  = errors.New("invalid credentials")
+	ErrAdminRequired       = errors.New("admin privileges required")
 	ErrScopeDenied         = errors.New("domain not in user scope")
 )

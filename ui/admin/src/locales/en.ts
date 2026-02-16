@@ -72,6 +72,7 @@ export default {
     authorized_domains: 'AUTHORIZED_DOMAINS',
     authorized_domains_placeholder: 'e.g. gitea.com, *.internal.org',
     authorized_domains_hint: 'Comma-separated domain patterns. Wildcards supported (*.example.com). Leave empty for unrestricted access.',
+    authorized_domains_invalid: 'Invalid domain format (e.g. example.com or *.example.com)',
     unrestricted: '<UNRESTRICTED>'
   },
   ip_list: {
@@ -85,6 +86,7 @@ export default {
     use_my_ip: '[ MY_IP ]',
     ip_hint: 'Supports exact IP, CIDR (192.168.0.0/24), and wildcards (192.168.1.*)',
     ip_invalid: 'Invalid IP address format',
+    domain_invalid: 'Invalid domain format (e.g. example.com or *.example.com)',
   },
   dashboard: {
     total_requests: 'TOTAL_REQUESTS',
@@ -145,6 +147,7 @@ export default {
     new_domain: '[ NEW_DOMAIN ]',
     name: 'DOMAIN_NAME',
     name_placeholder: 'e.g. example.com',
+    name_invalid: 'Invalid domain format (e.g. example.com or *.example.com)',
     delete_confirm: 'DELETE DOMAIN {name}?',
     title_create: 'Add Authorized Domain'
   },

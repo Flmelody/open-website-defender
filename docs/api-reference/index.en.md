@@ -9,7 +9,7 @@ Protected endpoints (marked **Yes** in the Auth column) require one of the follo
 - `Defender-Authorization` header with a valid JWT token
 - `flmelody.token` cookie with a valid JWT token
 
-Obtain a token by calling `POST /login`.
+Obtain a token by calling `POST /login` (or `POST /admin-login` for admin-only access).
 
 ## Endpoints
 
@@ -18,7 +18,8 @@ Obtain a token by calling `POST /login`.
 | Method | Path | Description | Auth |
 |--------|------|-------------|------|
 | `POST` | `/login` | User authentication. Returns a JWT token. | No |
-| `GET` | `/auth` | Verify credentials (IP lists + token + scope check). Used by Nginx `auth_request`. | No |
+| `POST` | `/admin-login` | Admin-only authentication. Rejects non-admin users with 403. | No |
+| `GET` | `/auth` | Verify credentials (IP lists + token + authorized domain check). Used by Nginx `auth_request`. | No |
 | `GET` | `/health` | Health check endpoint. | No |
 
 ### Dashboard
@@ -50,6 +51,7 @@ Obtain a token by calling `POST /login`.
 |--------|------|-------------|------|
 | `GET` | `/ip-white-list` | List all whitelist entries | Yes |
 | `POST` | `/ip-white-list` | Add an IP to the whitelist | Yes |
+| `PUT` | `/ip-white-list/:id` | Update a whitelist entry | Yes |
 | `DELETE` | `/ip-white-list/:id` | Remove a whitelist entry | Yes |
 
 ### WAF Rules
@@ -74,7 +76,7 @@ Obtain a token by calling `POST /login`.
 |--------|------|-------------|------|
 | `GET` | `/authorized-domains` | List authorized domains (paginated, or `?all=true` for all) | Yes |
 | `POST` | `/authorized-domains` | Register a new authorized domain | Yes |
-| `DELETE` | `/authorized-domains/:id` | Remove an authorized domain (cascades to whitelist and user scopes) | Yes |
+| `DELETE` | `/authorized-domains/:id` | Remove an authorized domain | Yes |
 
 ### Geo-Blocking
 
@@ -109,7 +111,7 @@ The `GET /auth` endpoint is the core of Website Defender's Nginx integration. It
 | Header | Purpose |
 |--------|---------|
 | `X-Forwarded-For` | Client IP address (from trusted proxy) |
-| `X-Forwarded-Host` | Original requested domain (for scope checking) |
+| `X-Forwarded-Host` | Original requested domain (for authorized domain checking) |
 | `Defender-Authorization` | JWT token |
 | `Defender-Git-Token` | Git token (`username:token` format) |
 | `Defender-License` | License token |
@@ -121,6 +123,6 @@ The `GET /auth` endpoint is the core of Website Defender's Nginx integration. It
 |------|---------|
 | `200` | Access granted |
 | `401` | Authentication required (redirect to guard page) |
-| `403` | Access denied (blacklisted, scope mismatch, etc.) |
+| `403` | Access denied (blacklisted, authorized domain mismatch, etc.) |
 
 For the auth verification flow, see [Authentication](../features/authentication.md).

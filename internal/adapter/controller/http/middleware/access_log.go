@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"open-website-defender/internal/pkg"
 	"open-website-defender/internal/usecase/accesslog"
 	"time"
 
@@ -16,7 +15,7 @@ func AccessLog() gin.HandlerFunc {
 		c.Next()
 
 		latency := time.Since(start).Microseconds()
-		clientIP := pkg.GetClientIP(c)
+		clientIP := c.ClientIP()
 
 		action := "allowed"
 		ruleName := ""

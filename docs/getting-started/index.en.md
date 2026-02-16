@@ -60,4 +60,4 @@ The application starts with default configuration and is immediately ready to us
 - **[Configure Nginx](../deployment/nginx-setup.md)** to use Website Defender as an auth provider
 - **[Review the configuration](../configuration/index.md)** to customize runtime settings
 - **[Set up the WAF](../features/waf.md)** and review built-in filtering rules
-- **[Manage users](../features/user-management.md)** and assign domain scopes
+- **[Register authorized domains](../features/authorized-domains.md)** and **[manage users](../features/user-management.md)** with authorized domain assignment

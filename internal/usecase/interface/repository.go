@@ -16,8 +16,10 @@ type UserRepository interface {
 
 type IpWhiteListRepository interface {
 	Create(ip *entity.IpWhiteList) error
+	Update(ip *entity.IpWhiteList) error
 	Delete(id uint) error
 	DeleteByDomain(domain string) error
+	FindByID(id uint) (*entity.IpWhiteList, error)
 	List(limit, offset int) ([]*entity.IpWhiteList, int64, error)
 	FindByIP(ip string) (*entity.IpWhiteList, error)
 }

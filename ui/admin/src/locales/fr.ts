@@ -66,6 +66,7 @@ export default {
     authorized_domains: 'DOMAINES_AUTORISÉS',
     authorized_domains_placeholder: 'ex. gitea.com, *.internal.org',
     authorized_domains_hint: 'Modèles de domaines séparés par des virgules. Wildcards supportés (*.example.com). Laisser vide pour un accès illimité.',
+    authorized_domains_invalid: 'Format de domaine invalide (ex. example.com ou *.example.com)',
     unrestricted: '<ILLIMITÉ>'
   },
   ip_list: {
@@ -79,6 +80,7 @@ export default {
     use_my_ip: '[ MON_IP ]',
     ip_hint: 'Supporte IP exacte, CIDR (192.168.0.0/24) et wildcards (192.168.1.*)',
     ip_invalid: 'Format d\'adresse IP invalide',
+    domain_invalid: 'Format de domaine invalide (ex. example.com ou *.example.com)',
   },
   dashboard: {
     total_requests: 'REQUÊTES_TOTALES',
@@ -139,6 +141,7 @@ export default {
     new_domain: '[ NOUVEAU_DOMAINE ]',
     name: 'NOM_DOMAINE',
     name_placeholder: 'ex. example.com',
+    name_invalid: 'Format de domaine invalide (ex. example.com ou *.example.com)',
     delete_confirm: 'SUPPRIMER DOMAINE {name} ?',
     title_create: 'Ajouter domaine autorisé'
   },

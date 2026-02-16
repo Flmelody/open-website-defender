@@ -4,6 +4,7 @@ import (
 	"open-website-defender/internal/adapter/controller/http/request"
 	"open-website-defender/internal/adapter/controller/http/response"
 	"open-website-defender/internal/infrastructure/logging"
+	"open-website-defender/internal/pkg"
 	"open-website-defender/internal/usecase/iplist"
 	"strconv"
 	"strings"
@@ -99,6 +100,11 @@ func CreateIpWhiteList(c *gin.Context) {
 		return
 	}
 
+	if req.Domain != "" && !pkg.ValidateDomainPattern(req.Domain) {
+		response.BadRequest(c, "Invalid domain format")
+		return
+	}
+
 	input := &iplist.CreateIpWhiteListDto{
 		Ip:     req.Ip,
 		Domain: req.Domain,
@@ -116,6 +122,51 @@ func CreateIpWhiteList(c *gin.Context) {
 	}
 
 	response.Created(c, dto)
+}
+
+func UpdateIpWhiteList(c *gin.Context) {
+	service := iplist.GetIpWhiteListService()
+
+	idParam := c.Param("id")
+	id, err := strconv.ParseUint(idParam, 10, 32)
+	if err != nil {
+		response.BadRequest(c, "Invalid ID")
+		return
+	}
+
+	var req request.UpdateIpWhiteListRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logging.Sugar.Errorf("Invalid request format: %v", err)
+		response.BadRequest(c, "Invalid request format: "+err.Error())
+		return
+	}
+
+	if req.Domain != "" && !pkg.ValidateDomainPattern(req.Domain) {
+		response.BadRequest(c, "Invalid domain format")
+		return
+	}
+
+	input := &iplist.UpdateIpWhiteListDto{
+		Ip:     req.Ip,
+		Domain: req.Domain,
+	}
+
+	dto, err := service.Update(uint(id), input)
+	if err != nil {
+		logging.Sugar.Errorf("Failed to update whitelist item: %v", err)
+		if strings.Contains(err.Error(), "not found") {
+			response.NotFound(c, "Whitelist item not found")
+			return
+		}
+		if strings.Contains(err.Error(), "already exists") {
+			response.Conflict(c, err.Error())
+			return
+		}
+		response.InternalServerError(c, "Failed to update whitelist item")
+		return
+	}
+
+	response.Success(c, dto)
 }
 
 func DeleteIpWhiteList(c *gin.Context) {

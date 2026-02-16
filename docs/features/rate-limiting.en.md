@@ -21,7 +21,7 @@ rate-limit:
 
 ## Login Rate Limiting
 
-The login endpoint (`/login`) has a **stricter** dedicated rate limit to prevent credential brute-force attacks. When a client exceeds the login rate limit, their IP is automatically locked out for a configurable duration.
+The login endpoints (`/login` and `/admin-login`) have a **stricter** dedicated rate limit to prevent credential brute-force attacks. When a client exceeds the login rate limit, their IP is automatically locked out for a configurable duration.
 
 | Setting | Default | Description |
 |---------|---------|-------------|

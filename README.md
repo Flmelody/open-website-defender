@@ -34,25 +34,25 @@ graph LR
 - **IP Whitelist**: Allow specific IPs or CIDR ranges (e.g. `192.168.1.0/24`) to bypass authentication.
 - **IP Blacklist**: Block malicious IPs by exact match or CIDR range.
 
-- **Authorized Domains**: Centrally manage protected domains. Used as the data source for IP whitelist domain binding and user access scopes. Deleting an authorized domain cascades to remove related IP whitelist entries and user scope references.
-- **Domain Scope Access Control**: Restrict users to specific authorized domains using comma-separated patterns (e.g. `gitea.com, *.internal.org`). Empty scopes grant unrestricted access. Admin users bypass scope checks. Domain is determined from `X-Forwarded-Host` header with fallback to `Host`.
+- **Authorized Domains**: Centrally manage protected domains. Used as the data source for IP whitelist domain binding and user access control.
+- **Authorized Domain Access Control**: Restrict users to specific authorized domains using comma-separated patterns (e.g. `gitea.com, *.internal.org`). Empty authorized domains grant unrestricted access. Admin users bypass authorized domain checks. Domain is determined from `X-Forwarded-Host` header with fallback to `Host`.
 
 **Auth verification flow:**
 ```
-IP Blacklist → IP Whitelist → JWT Token (+ Scope Check) → Git Token (+ Scope Check) → License Token → Deny
+IP Blacklist → IP Whitelist (+ Authorized Domain Check) → JWT Token (+ Authorized Domain Check) → Git Token (+ Authorized Domain Check) → License Token → Deny
 ```
 
-### Domain Scopes
+### Authorized Domain Access Control
 
-Domain scopes enable multi-tenant access control, allowing different users to access different protected services behind the same Defender instance.
+Authorized domains enable multi-tenant access control, allowing different users to access different protected services behind the same Defender instance.
 
 **How it works:**
 
 1. When a request hits `/auth`, Defender reads the domain from `X-Forwarded-Host` (fallback: `Host` header)
-2. After successful token/git-token authentication, the user's scopes are checked against the requested domain
-3. If the domain doesn't match any scope pattern, a `403 Forbidden` is returned
+2. After successful token/git-token authentication, the user's authorized domains are checked against the requested domain
+3. If the domain doesn't match any authorized domain pattern, a `403 Forbidden` is returned
 
-**Scope patterns:**
+**Authorized domain patterns:**
 
 | Pattern | Matches | Does Not Match |
 |---------|---------|----------------|
@@ -63,10 +63,10 @@ Domain scopes enable multi-tenant access control, allowing different users to ac
 
 **Rules:**
 
-- **Empty scopes** = unrestricted access (backwards compatible with existing users)
-- **Admin users** always bypass scope checks regardless of their scopes value
+- **Empty authorized domains** = unrestricted access (backwards compatible with existing users)
+- **Admin users** always bypass authorized domain checks regardless of their configuration
 - Matching is **case-insensitive**
-- Ports are stripped before matching (`gitea.com:3000` matches scope `gitea.com`)
+- Ports are stripped before matching (`gitea.com:3000` matches `gitea.com`)
 
 **Nginx configuration:**
 
@@ -79,7 +79,7 @@ server {
     location / {
         auth_request /auth;
 
-        # Pass the original host to Defender for scope checking
+        # Pass the original host to Defender for authorized domain checking
         proxy_pass http://gitea-backend;
     }
 
@@ -143,15 +143,15 @@ All requests are logged with client IP, method, path, status code, latency, User
 ### Authorized Domain Management
 
 - Centrally register and manage all protected domains
-- Serves as data source for IP whitelist domain binding and user scope selection
-- **Cascade delete**: removing an authorized domain automatically cleans up related IP whitelist entries and user scope references
+- Serves as data source for IP whitelist domain binding and user access control
+- Deleting an authorized domain automatically cleans up related IP whitelist entries and user authorized domain references
 
 ### User Management
 
 - Create, edit, and delete admin users
 - Role-based access (admin privilege flag)
 - Auto-generate Git tokens with one-click copy
-- **Authorized domain scopes**: restrict which protected domains each user can access (selectable from registered authorized domains)
+- **Authorized domains**: restrict which protected domains each user can access (selectable from registered authorized domains)
 
 ### License Management
 
@@ -271,12 +271,13 @@ All routes are prefixed with the configurable `ROOT_PATH` (default `/wall`).
 | Method | Path | Description | Auth |
 |--------|------|-------------|------|
 | `POST` | `/login` | User authentication | No |
+| `POST` | `/admin-login` | Admin-only authentication (rejects non-admin users with 403) | No |
 | `GET` | `/auth` | Verify credentials (IP lists + token) | No |
 | `GET` | `/health` | Health check | No |
 | `GET` | `/dashboard/stats` | Dashboard statistics | Yes |
 | `POST/GET/PUT/DELETE` | `/users[/:id]` | User CRUD | Yes |
 | `POST/GET/DELETE` | `/ip-black-list[/:id]` | IP blacklist management | Yes |
-| `POST/GET/DELETE` | `/ip-white-list[/:id]` | IP whitelist management | Yes |
+| `POST/GET/PUT/DELETE` | `/ip-white-list[/:id]` | IP whitelist management | Yes |
 | `POST/GET/PUT/DELETE` | `/waf-rules[/:id]` | WAF rule management | Yes |
 | `GET` | `/access-logs` | Access log query | Yes |
 | `GET` | `/access-logs/stats` | Access log statistics | Yes |

@@ -234,9 +234,22 @@ watch(scopesArray, (val) => {
   form.scopes = val.join(', ')
 })
 
+const domainPattern = /^(\*\.)?([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/
+
+const scopesValidator = (_rule: any, _value: string, callback: (err?: Error) => void) => {
+  for (const item of scopesArray.value) {
+    if (item && !domainPattern.test(item)) {
+      callback(new Error(t('user.authorized_domains_invalid')))
+      return
+    }
+  }
+  callback()
+}
+
 const rules = computed(() => ({
   username: [{ required: true, message: t('login.required'), trigger: 'blur' }],
-  password: [{ required: !isEditMode.value, message: t('login.required'), trigger: 'blur' }]
+  password: [{ required: !isEditMode.value, message: t('login.required'), trigger: 'blur' }],
+  scopes: [{ validator: scopesValidator, trigger: ['blur', 'change'] }]
 }))
 
 const fetchDomainOptions = async () => {

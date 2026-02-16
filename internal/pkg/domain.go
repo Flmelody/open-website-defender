@@ -2,6 +2,7 @@ package pkg
 
 import (
 	"net"
+	"regexp"
 	"strings"
 )
 
@@ -39,6 +40,20 @@ func StripPort(host string) string {
 		return host
 	}
 	return h
+}
+
+// domainPattern matches valid domain names with optional wildcard prefix.
+// Supports: example.com, sub.example.com, *.example.com
+var domainPattern = regexp.MustCompile(`^(\*\.)?([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$`)
+
+// ValidateDomainPattern checks if a string is a valid domain pattern.
+// Accepts exact domains (example.com) and wildcard patterns (*.example.com).
+func ValidateDomainPattern(pattern string) bool {
+	pattern = strings.TrimSpace(pattern)
+	if pattern == "" {
+		return false
+	}
+	return domainPattern.MatchString(pattern)
 }
 
 // CheckDomainScope checks if a domain is allowed by a comma-separated list of scope patterns.

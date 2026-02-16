@@ -74,6 +74,7 @@ With the default configuration, the application serves at:
 | API Root | `http://localhost:9999/wall/` |
 | Auth Endpoint | `http://localhost:9999/wall/auth` |
 | Login Endpoint | `http://localhost:9999/wall/login` |
+| Admin Login Endpoint | `http://localhost:9999/wall/admin-login` |
 
 !!! tip "Custom Path Example"
     If you set `ROOT_PATH=/defender` and `ADMIN_PATH=/dashboard`, the admin URL becomes `http://localhost:9999/defender/dashboard/`.

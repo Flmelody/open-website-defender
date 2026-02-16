@@ -19,7 +19,7 @@ func RateLimiter(keyPrefix string, requestsPerMinute int) gin.HandlerFunc {
 			return
 		}
 
-		clientIP := pkg.GetClientIP(c)
+		clientIP := c.ClientIP()
 		key := []byte(keyPrefix + ":" + clientIP)
 		cache := pkg.Cacher()
 
@@ -55,7 +55,7 @@ func LoginRateLimiter(requestsPerMinute int, lockoutDuration int) gin.HandlerFun
 			return
 		}
 
-		clientIP := pkg.GetClientIP(c)
+		clientIP := c.ClientIP()
 		cache := pkg.Cacher()
 
 		// Check lockout first

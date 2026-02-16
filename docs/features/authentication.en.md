@@ -4,7 +4,7 @@ Website Defender supports multiple authentication methods to accommodate differe
 
 ## JWT Token Authentication
 
-The primary authentication method. Users authenticate via the `/login` endpoint and receive a JWT token.
+The primary authentication method. Users authenticate via the `/login` endpoint (or `/admin-login` for admin-only access) and receive a JWT token.
 
 - Tokens are issued in the `Defender-Authorization` response header
 - Token expiration is configurable (default: 24 hours)
@@ -44,7 +44,7 @@ API access via a configurable HTTP header (default: `Defender-License`). License
 - Can be activated or revoked via the admin dashboard
 
 !!! note "License vs Git Tokens"
-    License tokens do not carry user identity and are not subject to domain scope checks. Use Git tokens when you need per-user access control and scope restrictions.
+    License tokens do not carry user identity and are not subject to authorized domain checks. Use Git tokens when you need per-user access control and authorized domain restrictions.
 
 ## IP Whitelist
 
@@ -58,18 +58,21 @@ Malicious or unwanted IP addresses can be blacklisted by exact match or CIDR ran
 
 For details, see [IP Lists](ip-lists.md).
 
-## Domain Scope Access Control
+## Authorized Domains & Access Control
 
-Users can be restricted to specific protected domains using scope patterns. This enables multi-tenant access control where different users access different services behind the same Defender instance.
+Protected domains are centrally registered in the [Authorized Domains](authorized-domains.md) registry. Users can then be restricted to specific authorized domains using domain patterns, enabling multi-tenant access control where different users access different services behind the same Defender instance.
 
-For details, see [Domain Scopes](domain-scopes.md).
+- **Authorized Domains**: register and manage all protected domains in one place.
+- **Domain Patterns**: comma-separated patterns assigned per user, typically selected from authorized domains (e.g., `gitea.com, *.internal.org`).
+
+For details, see [Authorized Domains](authorized-domains.md).
 
 ## Auth Verification Flow
 
 When the `/auth` endpoint receives a request, it evaluates the following checks in order:
 
 ```
-IP Blacklist → IP Whitelist → JWT Token (+ Scope Check) → Git Token (+ Scope Check) → License Token → Deny
+IP Blacklist → IP Whitelist (+ Authorized Domain Check) → JWT Token (+ Authorized Domain Check) → Git Token (+ Authorized Domain Check) → License Token → Deny
 ```
 
 ```mermaid
@@ -77,18 +80,20 @@ graph TD
     Request[Incoming Request] --> BlacklistCheck{IP Blacklist?}
     BlacklistCheck -->|Blocked| Deny[403 Deny]
     BlacklistCheck -->|Not Blocked| WhitelistCheck{IP Whitelist?}
-    WhitelistCheck -->|Whitelisted| Allow[200 Allow]
+    WhitelistCheck -->|Matched| WLDomainCheck{Authorized Domain?}
+    WLDomainCheck -->|Pass| Allow[200 Allow]
+    WLDomainCheck -->|Fail| JWTCheck
     WhitelistCheck -->|Not Listed| JWTCheck{JWT Token?}
-    JWTCheck -->|Valid| ScopeCheck1{Scope OK?}
-    ScopeCheck1 -->|Pass| Allow
-    ScopeCheck1 -->|Fail| Deny
+    JWTCheck -->|Valid| DomainCheck1{Authorized Domain?}
+    DomainCheck1 -->|Pass| Allow
+    DomainCheck1 -->|Fail| Deny
     JWTCheck -->|Invalid| GitTokenCheck{Git Token?}
-    GitTokenCheck -->|Valid| ScopeCheck2{Scope OK?}
-    ScopeCheck2 -->|Pass| Allow
-    ScopeCheck2 -->|Fail| Deny
+    GitTokenCheck -->|Valid| DomainCheck2{Authorized Domain?}
+    DomainCheck2 -->|Pass| Allow
+    DomainCheck2 -->|Fail| Deny
     GitTokenCheck -->|Invalid| LicenseCheck{License Token?}
     LicenseCheck -->|Valid| Allow
     LicenseCheck -->|Invalid| Deny
 ```
 
-The flow short-circuits at the first definitive result. A blacklisted IP is immediately denied; a whitelisted IP is immediately allowed without token checks.
+The flow short-circuits at the first definitive result. A blacklisted IP is immediately denied. A whitelisted IP is allowed only if its bound domain matches the requested domain (or if no domain is bound); otherwise the request falls through to token-based authentication.

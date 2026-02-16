@@ -68,7 +68,7 @@ Each rule can `block` (return 403) or `log` (allow but record). Add your own rul
 ### Access Control
 
 - **IP Whitelist / Blacklist** -- allow or block by exact IP or CIDR range (e.g. `192.168.1.0/24`)
-- **Domain Scopes** -- multi-tenant control restricting users to specific protected domains (e.g. `gitea.com, *.internal.org`)
+- **Authorized Domains** -- centrally register protected domains; serves as data source for IP whitelist binding and user access control; enables multi-tenant access control restricting users to specific domains (e.g. `gitea.com, *.internal.org`)
 - **Geo-IP Blocking** -- country-level blocking using MaxMind GeoLite2
 - **Rate Limiting** -- global (default 100 req/min) and login-specific (default 5/min with auto-lockout)
 

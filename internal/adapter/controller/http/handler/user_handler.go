@@ -4,12 +4,31 @@ import (
 	"open-website-defender/internal/adapter/controller/http/request"
 	"open-website-defender/internal/adapter/controller/http/response"
 	"open-website-defender/internal/infrastructure/logging"
+	"open-website-defender/internal/pkg"
 	"open-website-defender/internal/usecase/user"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
+
+// validateScopes checks that each comma-separated domain pattern in scopes is valid.
+func validateScopes(scopes string) bool {
+	scopes = strings.TrimSpace(scopes)
+	if scopes == "" {
+		return true
+	}
+	for _, pattern := range strings.Split(scopes, ",") {
+		pattern = strings.TrimSpace(pattern)
+		if pattern == "" {
+			continue
+		}
+		if !pkg.ValidateDomainPattern(pattern) {
+			return false
+		}
+	}
+	return true
+}
 
 func CreateUser(c *gin.Context) {
 	service := user.GetUserService()
@@ -18,6 +37,11 @@ func CreateUser(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		logging.Sugar.Errorf("Invalid request format: %v", err)
 		response.BadRequest(c, "Invalid request format: "+err.Error())
+		return
+	}
+
+	if !validateScopes(req.Scopes) {
+		response.BadRequest(c, "Invalid domain format in authorized domains")
 		return
 	}
 
@@ -58,6 +82,11 @@ func UpdateUser(c *gin.Context) {
 	if err := c.ShouldBindJSON(&req); err != nil {
 		logging.Sugar.Errorf("Invalid request format: %v", err)
 		response.BadRequest(c, "Invalid request format: "+err.Error())
+		return
+	}
+
+	if !validateScopes(req.Scopes) {
+		response.BadRequest(c, "Invalid domain format in authorized domains")
 		return
 	}
 

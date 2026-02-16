@@ -70,7 +70,7 @@ func AuthMiddleware(c *gin.Context) {
 // It checks Blacklist -> Whitelist -> Token and returns status.
 func Auth(c *gin.Context) {
 	// 1. Get Client IP
-	clientIP := pkg.GetClientIP(c)
+	clientIP := c.ClientIP()
 
 	// 2. Check Blacklist
 	blackListService := iplist.GetIpBlackListService()
@@ -81,14 +81,18 @@ func Auth(c *gin.Context) {
 	}
 
 	// 3. Check Whitelist
+	requestedDomain := getRequestedDomain(c)
 	whiteListService := iplist.GetIpWhiteListService()
 	if whiteListItem, _ := whiteListService.FindByIP(clientIP); whiteListItem != nil {
-		logging.Sugar.Infof("Access granted for whitelisted IP: %s", clientIP)
-		response.Success(c, gin.H{
-			"message": "Access granted via IP whitelist",
-			"ip":      clientIP,
-		})
-		return
+		if whiteListItem.Domain == "" || pkg.MatchDomain(whiteListItem.Domain, requestedDomain) {
+			logging.Sugar.Infof("Access granted for whitelisted IP: %s (domain: %s)", clientIP, whiteListItem.Domain)
+			response.Success(c, gin.H{
+				"message": "Access granted via IP whitelist",
+				"ip":      clientIP,
+			})
+			return
+		}
+		logging.Sugar.Infof("Whitelist IP %s matched but domain '%s' not in bound domain '%s', falling through to token auth", clientIP, requestedDomain, whiteListItem.Domain)
 	}
 
 	// 4. Check Token
@@ -110,8 +114,6 @@ func Auth(c *gin.Context) {
 			}
 		}
 	}
-
-	requestedDomain := getRequestedDomain(c)
 
 	if clientToken != "" {
 		tokenString := strings.TrimPrefix(clientToken, "Bearer ")
@@ -220,7 +222,6 @@ func Login(c *gin.Context) {
 			response.Unauthorized(c, "Invalid username or password")
 			return
 		}
-
 		logging.Sugar.Errorf("Login failed for user '%s': %v", req.Username, err)
 		response.InternalServerError(c, "Login failed, please try again later")
 		return
@@ -235,5 +236,79 @@ func Login(c *gin.Context) {
 	}
 
 	logging.Sugar.Infof("User '%s' logged in successfully", req.Username)
+	response.SuccessWithMessage(c, "Login successful", loginResponse)
+}
+
+// AdminLogin wraps Login with an additional admin privilege check.
+func AdminLogin(c *gin.Context) {
+	service := user.GetAuthService()
+
+	startTime := time.Now()
+	defer func() {
+		logging.Sugar.Infof("Admin login request processed in %v", time.Since(startTime))
+	}()
+
+	// Check if already logged in
+	authHeader := c.GetHeader("Defender-Authorization")
+	if authHeader != "" {
+		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+		userInfo, err := service.ValidateToken(tokenString)
+		if err == nil && userInfo != nil {
+			if !userInfo.IsAdmin {
+				logging.Sugar.Warnf("Admin login denied for user '%s': not an admin", userInfo.Username)
+				response.Forbidden(c, "Admin privileges required")
+				return
+			}
+			logging.Sugar.Infof("Admin user '%s' already logged in", userInfo.Username)
+			response.SuccessWithMessage(c, "Already logged in", LoginResponse{
+				Token: tokenString,
+				User: &UserInfoResponse{
+					ID:       userInfo.ID,
+					Username: userInfo.Username,
+				},
+			})
+			return
+		}
+	}
+
+	var req request.LoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logging.Sugar.Errorf("Invalid request format: %v", err)
+		response.BadRequest(c, "Invalid request format: "+err.Error())
+		return
+	}
+
+	input := &user.LoginInputDTO{
+		Username: req.Username,
+		Password: req.Password,
+	}
+
+	output, err := service.Login(input)
+	if err != nil {
+		if errors.Is(err, domainError.ErrInvalidCredentials) {
+			logging.Sugar.Warnf("Admin login failed for user '%s': invalid credentials", req.Username)
+			response.Unauthorized(c, "Invalid username or password")
+			return
+		}
+		logging.Sugar.Errorf("Admin login failed for user '%s': %v", req.Username, err)
+		response.InternalServerError(c, "Login failed, please try again later")
+		return
+	}
+
+	if !output.User.IsAdmin {
+		logging.Sugar.Warnf("Admin login denied for user '%s': not an admin", req.Username)
+		response.Forbidden(c, "Admin privileges required")
+		return
+	}
+
+	loginResponse := LoginResponse{
+		Token: output.Token,
+		User: &UserInfoResponse{
+			ID:       output.User.ID,
+			Username: output.User.Username,
+		},
+	}
+
+	logging.Sugar.Infof("Admin user '%s' logged in successfully", req.Username)
 	response.SuccessWithMessage(c, "Login successful", loginResponse)
 }

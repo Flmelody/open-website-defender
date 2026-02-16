@@ -33,7 +33,7 @@ server {
         # 转发认证请求到 Defender
         proxy_pass http://127.0.0.1:9999/wall/auth;
 
-        # 传递原始域名（用于域名作用域检查）
+        # 传递原始域名（用于授权域检查）
         proxy_set_header X-Forwarded-Host $host;
 
         # 传递客户端真实 IP（用于 IP 黑白名单和访问日志）
@@ -80,10 +80,10 @@ internal;
 proxy_set_header X-Forwarded-Host $host;
 ```
 
-将客户端请求的原始域名（`Host` 请求头）传递给 Defender。Defender 使用此信息进行[域名作用域](../features/domain-scopes.md)检查。
+将客户端请求的原始域名（`Host` 请求头）传递给 Defender。Defender 使用此信息进行[授权域](../features/authorized-domains.md)检查。
 
 !!! warning "必须配置"
-    如果使用了域名作用域功能，此配置项是必需的。没有此配置，Defender 将无法正确判断请求的目标域名。
+    如果使用了授权域访问控制功能，此配置项是必需的。没有此配置，Defender 将无法正确判断请求的目标域名。
 
 ### X-Forwarded-For
 
@@ -154,13 +154,13 @@ server {
 }
 ```
 
-!!! tip "域名作用域"
-    配合[域名作用域](../features/domain-scopes.md)功能，您可以精确控制每个用户可以访问哪些受保护的服务。
+!!! tip "授权域访问控制"
+    配合[授权域](../features/authorized-domains.md)访问控制功能，您可以精确控制每个用户可以访问哪些受保护的服务。
 
 ---
 
 ## 相关页面
 
 - [架构说明](../architecture/index.md) - 了解 Defender 与 Nginx 的集成架构
-- [域名作用域](../features/domain-scopes.md) - 多租户访问控制
+- [授权域管理](../features/authorized-domains.md) - 多租户访问控制
 - [部署指南](index.md) - 部署概述和检查清单

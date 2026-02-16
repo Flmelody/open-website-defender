@@ -121,6 +121,11 @@ func main() {
 		viper.GetInt("security.token-expiration-hours"),
 	)
 
+	// Initialize RSA key for OIDC token signing
+	if viper.GetBool("oauth.enabled") {
+		pkg.InitRSAKey(viper.GetString("oauth.rsa-private-key-path"))
+	}
+
 	err = database.InitDB()
 	if err != nil {
 		logging.Sugar.Fatalf("Error initializing database: %s", err)

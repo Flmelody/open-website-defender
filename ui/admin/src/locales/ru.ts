@@ -31,6 +31,7 @@ export default {
     geo_block: './ГЕО_БЛОКИРОВКА',
     authorized_domains: './АВТОРИЗОВАННЫЕ_ДОМЕНЫ',
     licenses: './ЛИЦЕНЗИИ',
+    oauth_clients: './OAUTH_КЛИЕНТЫ',
     system_settings: './НАСТРОЙКИ_СИСТЕМЫ'
   },
   layout: {
@@ -63,11 +64,20 @@ export default {
     title_edit: 'Редактировать пользователя',
     undefined: '<НЕ_ОПРЕДЕЛЕНО>',
     unchanged: '<БЕЗ_ИЗМЕНЕНИЙ>',
+    email: 'ЭЛЕКТРОННАЯ_ПОЧТА',
+    email_placeholder: "user{'@'}example.com",
     authorized_domains: 'АВТОРИЗОВАННЫЕ_ДОМЕНЫ',
-    authorized_domains_placeholder: 'напр. gitea.com, *.internal.org',
+    authorized_domains_placeholder: 'напр. app.example.com, *.internal.org',
     authorized_domains_hint: 'Шаблоны доменов через запятую. Поддержка подстановок (*.example.com). Оставьте пустым для неограниченного доступа.',
     authorized_domains_invalid: 'Неверный формат домена (напр. example.com или *.example.com)',
-    unrestricted: '<БЕЗ_ОГРАНИЧЕНИЙ>'
+    unrestricted: '<БЕЗ_ОГРАНИЧЕНИЙ>',
+    oauth_authorizations: 'OAUTH',
+    no_authorizations: 'НЕТ_АКТИВНЫХ_АВТОРИЗАЦИЙ',
+    auth_scope: 'ОБЛАСТЬ',
+    auth_since: 'С',
+    auth_revoke: 'ОТОЗВАТЬ',
+    auth_revoke_confirm: 'ОТОЗВАТЬ АВТОРИЗАЦИЮ ДЛЯ {name}?',
+    auth_revoked: 'АВТОРИЗАЦИЯ_ОТОЗВАНА'
   },
   ip_list: {
     ip_address: 'IP_АДРЕС',
@@ -144,6 +154,32 @@ export default {
     name_invalid: 'Неверный формат домена (напр. example.com или *.example.com)',
     delete_confirm: 'УДАЛИТЬ ДОМЕН {name}?',
     title_create: 'Добавить авторизованный домен'
+  },
+  oauth: {
+    new_client: '[ НОВЫЙ_КЛИЕНТ ]',
+    name: 'ИМЯ',
+    name_placeholder: 'напр. My App, Internal Tool',
+    client_id: 'ID_КЛИЕНТА',
+    trusted: 'ДОВЕРЕННЫЙ',
+    status: 'СТАТУС',
+    active: 'АКТИВЕН',
+    inactive: 'НЕАКТИВЕН',
+    yes: 'ДА',
+    no: 'НЕТ',
+    scopes: 'ОБЛАСТИ',
+    redirect_uris: 'URI_ПЕРЕНАПРАВЛЕНИЯ',
+    redirect_uris_placeholder: 'https://app1.example.com/oauth2/callback\nhttps://app2.example.com/callback',
+    redirect_uris_hint: 'Один URI перенаправления на строку. Требуется точное совпадение.',
+    redirect_uris_required: 'Требуется хотя бы один URI перенаправления',
+    trusted_label: 'Доверенный клиент (пропустить согласие пользователя)',
+    active_label: 'Активен',
+    delete_confirm: 'УДАЛИТЬ OAUTH КЛИЕНТ {name}?',
+    title_create: 'Создать OAuth клиент',
+    title_edit: 'Редактировать OAuth клиент',
+    secret_generated: 'OAUTH КЛИЕНТ СОЗДАН',
+    secret_warning: 'Секрет клиента будет показан только ОДИН РАЗ. Скопируйте его сейчас — позже его невозможно будет получить.',
+    copied: 'Скопировано в буфер обмена',
+    understood: 'Я СКОПИРОВАЛ УЧЁТНЫЕ ДАННЫЕ'
   },
   system: {
     section_headers: 'ПОЛЬЗОВАТЕЛЬСКИЕ HTTP-ЗАГОЛОВКИ',

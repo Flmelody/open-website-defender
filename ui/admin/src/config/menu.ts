@@ -1,4 +1,4 @@
-import { DataBoard, Moon, Sunny, User, Lock, Document, Location, Key, Setting, Link } from '@element-plus/icons-vue'
+import { DataBoard, Moon, Sunny, User, Lock, Document, Location, Key, Setting, Link, Connection } from '@element-plus/icons-vue'
 import type { Component } from 'vue'
 
 export interface MenuItem {
@@ -47,6 +47,11 @@ export const menuItems: MenuItem[] = [
     index: '/licenses',
     icon: Key,
     label: 'menu.licenses'
+  },
+  {
+    index: '/oauth-clients',
+    icon: Connection,
+    label: 'menu.oauth_clients'
   },
   {
     index: '/users',

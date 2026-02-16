@@ -30,6 +30,12 @@
               <el-tag v-if="scope.row.is_admin" size="small" type="success" class="admin-tag">ADMIN</el-tag>
             </template>
           </el-table-column>
+          <el-table-column prop="email" :label="t('user.email')" show-overflow-tooltip>
+            <template #default="scope">
+              <span v-if="scope.row.email" class="dim-text">{{ scope.row.email }}</span>
+              <span v-else class="null-value">{{ t('user.undefined') }}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="git_token" :label="t('user.git_token')" show-overflow-tooltip>
             <template #default="scope">
               <span v-if="scope.row.git_token" class="token-mask">****************</span>
@@ -42,22 +48,31 @@
               <span v-else class="null-value">{{ t('user.unrestricted') }}</span>
             </template>
           </el-table-column>
-          <el-table-column :label="t('common.actions')" width="200" align="right">
+          <el-table-column :label="t('common.actions')" width="250" align="right">
             <template #default="scope">
               <div class="ops-cell">
-                <el-button 
-                  type="primary" 
-                  link 
-                  size="small" 
+                <el-button
+                  type="primary"
+                  link
+                  size="small"
                   @click="handleEdit(scope.row)"
                   class="action-link"
                 >
                   {{ t('common.edit') }}
                 </el-button>
-                <el-button 
-                  type="danger" 
-                  link 
-                  size="small" 
+                <el-button
+                  type="warning"
+                  link
+                  size="small"
+                  @click="handleViewAuthorizations(scope.row)"
+                  class="action-link oauth-btn"
+                >
+                  {{ t('user.oauth_authorizations') }}
+                </el-button>
+                <el-button
+                  type="danger"
+                  link
+                  size="small"
                   v-if="!scope.row.is_admin"
                   @click="handleDelete(scope.row)"
                   class="action-link delete"
@@ -108,6 +123,9 @@
             show-password
             :placeholder="form.id ? t('user.unchanged') : '_'"
           />
+        </el-form-item>
+        <el-form-item :label="'> ' + t('user.email')" prop="email">
+          <el-input v-model="form.email" :placeholder="t('user.email_placeholder')" />
         </el-form-item>
         <el-form-item :label="'> ' + t('user.git_token')" prop="git_token">
           <div class="git-token-row">
@@ -174,6 +192,40 @@
         </div>
       </template>
     </el-dialog>
+    <!-- OAuth Authorizations Dialog -->
+    <el-dialog
+      v-model="authDialogVisible"
+      :title="authDialogTitle"
+      width="650px"
+      destroy-on-close
+    >
+      <div class="auth-list">
+        <div v-if="authLoading" class="auth-loading">
+          <el-icon class="is-loading"><Loading /></el-icon>
+        </div>
+        <div v-else-if="authorizations.length === 0" class="auth-empty">
+          <span class="dim-text">{{ t('user.no_authorizations') }}</span>
+        </div>
+        <div v-else>
+          <div v-for="auth in authorizations" :key="auth.client_id" class="auth-item">
+            <div class="auth-info">
+              <div class="auth-client-name">{{ auth.client_name }}</div>
+              <div class="auth-meta">
+                <span class="dim-text">{{ t('user.auth_scope') }}: {{ auth.scope }}</span>
+                <span class="dim-text"> | {{ t('user.auth_since') }}: {{ formatTime(auth.authorized_at) }}</span>
+              </div>
+            </div>
+            <el-button
+              type="danger"
+              size="small"
+              @click="handleRevokeAuthorization(auth)"
+            >
+              {{ t('user.auth_revoke') }}
+            </el-button>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -181,12 +233,13 @@
 import { ref, onMounted, reactive, computed, watch } from 'vue'
 import request from '@/utils/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { CopyDocument, WarningFilled } from '@element-plus/icons-vue'
+import { CopyDocument, WarningFilled, Loading } from '@element-plus/icons-vue'
 import { useI18n } from 'vue-i18n'
 
 interface User {
   id: number
   username: string
+  email?: string
   git_token?: string
   is_admin?: boolean
   scopes?: string
@@ -218,6 +271,7 @@ const form = reactive({
   id: 0,
   username: '',
   password: '',
+  email: '',
   git_token: '',
   is_admin: false,
   scopes: ''
@@ -279,6 +333,7 @@ const handleAdd = () => {
   form.id = 0
   form.username = ''
   form.password = ''
+  form.email = ''
   form.git_token = ''
   form.is_admin = false
   form.scopes = ''
@@ -293,6 +348,7 @@ const handleEdit = (row: User) => {
   form.id = row.id
   form.username = row.username
   form.password = ''
+  form.email = row.email || ''
   form.git_token = ''
   form.is_admin = row.is_admin || false
   form.scopes = row.scopes || ''
@@ -388,6 +444,61 @@ const closeTokenDialog = () => {
   generatedToken.value = ''
 }
 
+// OAuth Authorizations
+interface OAuthAuthorization {
+  client_id: string
+  client_name: string
+  scope: string
+  authorized_at: string
+}
+
+const authDialogVisible = ref(false)
+const authDialogTitle = ref('')
+const authLoading = ref(false)
+const authorizations = ref<OAuthAuthorization[]>([])
+const authUserId = ref(0)
+
+const formatTime = (isoStr: string) => {
+  return new Date(isoStr).toLocaleString()
+}
+
+const handleViewAuthorizations = async (row: User) => {
+  authUserId.value = row.id
+  authDialogTitle.value = `OAUTH > ${row.username}`
+  authDialogVisible.value = true
+  authLoading.value = true
+  try {
+    const res: any = await request.get(`/users/${row.id}/oauth-authorizations`)
+    authorizations.value = res || []
+  } catch {
+    authorizations.value = []
+  } finally {
+    authLoading.value = false
+  }
+}
+
+const handleRevokeAuthorization = (auth: OAuthAuthorization) => {
+  ElMessageBox.confirm(
+    t('user.auth_revoke_confirm', { name: auth.client_name }),
+    t('common.warning'),
+    {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
+      type: 'warning',
+    }
+  ).then(async () => {
+    try {
+      await request.delete(`/users/${authUserId.value}/oauth-authorizations/${auth.client_id}`)
+      ElMessage.success(t('user.auth_revoked'))
+      // Refresh the list
+      const res: any = await request.get(`/users/${authUserId.value}/oauth-authorizations`)
+      authorizations.value = res || []
+    } catch {
+      // handled
+    }
+  })
+}
+
 const handleSizeChange = (val: number) => {
   queryParams.size = val
   fetchData()
@@ -477,9 +588,22 @@ onMounted(() => {
   font-style: italic;
 }
 
+.ops-cell {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
 .action-link {
   font-weight: bold;
   text-decoration: underline;
+}
+
+.oauth-btn {
+  text-decoration: none !important;
+  border: 1px solid rgba(230, 162, 60, 0.5) !important;
+  border-radius: 3px !important;
+  padding: 2px 8px !important;
 }
 
 .card-footer {
@@ -590,6 +714,45 @@ onMounted(() => {
   font-size: 12px;
   margin-top: 4px;
   font-family: 'Courier New', monospace;
+}
+
+/* OAuth Authorization dialog */
+.auth-list {
+  font-family: 'Courier New', monospace;
+}
+
+.auth-loading {
+  text-align: center;
+  padding: 30px;
+  color: #0F0;
+}
+
+.auth-empty {
+  text-align: center;
+  padding: 30px;
+}
+
+.auth-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border: 1px solid #005000;
+  border-radius: 4px;
+  background: rgba(0, 40, 0, 0.4);
+  margin-bottom: 10px;
+}
+
+.auth-client-name {
+  color: #0F0;
+  font-weight: bold;
+  font-size: 15px;
+  margin-bottom: 4px;
+  text-shadow: 0 0 5px rgba(0, 255, 0, 0.2);
+}
+
+.auth-meta {
+  font-size: 12px;
 }
 
 </style>

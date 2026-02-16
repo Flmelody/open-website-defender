@@ -60,6 +60,7 @@ func (s *AuthService) Login(input *LoginInputDTO) (*LoginOutputDTO, error) {
 			ID:       user.ID,
 			Username: user.Username,
 			IsAdmin:  user.IsAdmin,
+			Email:    user.Email,
 		},
 	}, nil
 }
@@ -83,6 +84,7 @@ func (s *AuthService) ValidateToken(tokenString string) (*UserInfoDTO, error) {
 		Username: user.Username,
 		Scopes:   user.Scopes,
 		IsAdmin:  user.IsAdmin,
+		Email:    user.Email,
 	}, nil
 }
 
@@ -108,5 +110,6 @@ func (s *AuthService) ValidateGitToken(username, token string) (*UserInfoDTO, er
 		Username: user.Username,
 		Scopes:   user.Scopes,
 		IsAdmin:  user.IsAdmin,
+		Email:    user.Email,
 	}, nil
 }

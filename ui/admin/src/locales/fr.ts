@@ -31,6 +31,7 @@ export default {
     geo_block: './BLOCAGE_GÉO',
     authorized_domains: './DOMAINES_AUTORISÉS',
     licenses: './LICENCES',
+    oauth_clients: './CLIENTS_OAUTH',
     system_settings: './PARAMÈTRES_SYSTÈME'
   },
   layout: {
@@ -63,11 +64,20 @@ export default {
     title_edit: 'Modifier l\'utilisateur',
     undefined: '<INDÉFINI>',
     unchanged: '<INCHANGÉ>',
+    email: 'E-MAIL',
+    email_placeholder: "user{'@'}example.com",
     authorized_domains: 'DOMAINES_AUTORISÉS',
-    authorized_domains_placeholder: 'ex. gitea.com, *.internal.org',
+    authorized_domains_placeholder: 'ex. app.example.com, *.internal.org',
     authorized_domains_hint: 'Modèles de domaines séparés par des virgules. Wildcards supportés (*.example.com). Laisser vide pour un accès illimité.',
     authorized_domains_invalid: 'Format de domaine invalide (ex. example.com ou *.example.com)',
-    unrestricted: '<ILLIMITÉ>'
+    unrestricted: '<ILLIMITÉ>',
+    oauth_authorizations: 'OAUTH',
+    no_authorizations: 'AUCUNE_AUTORISATION_ACTIVE',
+    auth_scope: 'PORTÉE',
+    auth_since: 'DEPUIS',
+    auth_revoke: 'RÉVOQUER',
+    auth_revoke_confirm: 'RÉVOQUER L\'AUTORISATION POUR {name} ?',
+    auth_revoked: 'AUTORISATION_RÉVOQUÉE'
   },
   ip_list: {
     ip_address: 'ADRESSE_IP',
@@ -144,6 +154,32 @@ export default {
     name_invalid: 'Format de domaine invalide (ex. example.com ou *.example.com)',
     delete_confirm: 'SUPPRIMER DOMAINE {name} ?',
     title_create: 'Ajouter domaine autorisé'
+  },
+  oauth: {
+    new_client: '[ NOUVEAU_CLIENT ]',
+    name: 'NOM',
+    name_placeholder: 'ex. My App, Internal Tool',
+    client_id: 'ID_CLIENT',
+    trusted: 'FIABLE',
+    status: 'STATUT',
+    active: 'ACTIF',
+    inactive: 'INACTIF',
+    yes: 'OUI',
+    no: 'NON',
+    scopes: 'PORTÉES',
+    redirect_uris: 'URIS_REDIRECTION',
+    redirect_uris_placeholder: 'https://app1.example.com/oauth2/callback\nhttps://app2.example.com/callback',
+    redirect_uris_hint: 'Une URI de redirection par ligne. Correspondance exacte requise.',
+    redirect_uris_required: 'Au moins une URI de redirection requise',
+    trusted_label: 'Client de confiance (ignorer le consentement utilisateur)',
+    active_label: 'Actif',
+    delete_confirm: 'SUPPRIMER LE CLIENT OAUTH {name} ?',
+    title_create: 'Créer un client OAuth',
+    title_edit: 'Modifier le client OAuth',
+    secret_generated: 'CLIENT OAUTH CRÉÉ',
+    secret_warning: 'Le secret client ne sera affiché qu\'UNE SEULE FOIS. Copiez-le maintenant — il ne pourra plus être récupéré.',
+    copied: 'Copié dans le presse-papiers',
+    understood: 'J\'AI COPIÉ LES IDENTIFIANTS'
   },
   system: {
     section_headers: 'EN-TÊTES HTTP PERSONNALISÉS',

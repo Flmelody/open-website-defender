@@ -63,7 +63,7 @@ For details, see [IP Lists](ip-lists.md).
 Protected domains are centrally registered in the [Authorized Domains](authorized-domains.md) registry. Users can then be restricted to specific authorized domains using domain patterns, enabling multi-tenant access control where different users access different services behind the same Defender instance.
 
 - **Authorized Domains**: register and manage all protected domains in one place.
-- **Domain Patterns**: comma-separated patterns assigned per user, typically selected from authorized domains (e.g., `gitea.com, *.internal.org`).
+- **Domain Patterns**: comma-separated patterns assigned per user, typically selected from authorized domains (e.g., `app.example.com, *.internal.org`).
 
 For details, see [Authorized Domains](authorized-domains.md).
 

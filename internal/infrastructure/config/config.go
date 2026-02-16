@@ -9,6 +9,17 @@ type Config struct {
 	Whitelist        WhitelistConfig        `mapstructure:"whitelist" json:"-"`
 	Blacklist        BlacklistConfig        `mapstructure:"blacklist" json:"-"`
 	Wall             AppConfig              `mapstructure:"wall"`
+	OAuth            OAuthConfig            `mapstructure:"oauth"`
+}
+
+type OAuthConfig struct {
+	Enabled                   bool   `mapstructure:"enabled"`
+	Issuer                    string `mapstructure:"issuer"`
+	RSAPrivateKeyPath         string `mapstructure:"rsa-private-key-path"`
+	AuthorizationCodeLifetime int    `mapstructure:"authorization-code-lifetime"`
+	AccessTokenLifetime       int    `mapstructure:"access-token-lifetime"`
+	RefreshTokenLifetime      int    `mapstructure:"refresh-token-lifetime"`
+	IDTokenLifetime           int    `mapstructure:"id-token-lifetime"`
 }
 
 type RequestFilteringConfig struct {

@@ -11,6 +11,7 @@ type CreateUserDTO struct {
 	GitToken string
 	IsAdmin  bool
 	Scopes   string
+	Email    string
 }
 
 type UpdateUserDTO struct {
@@ -19,6 +20,7 @@ type UpdateUserDTO struct {
 	GitToken string
 	IsAdmin  bool
 	Scopes   string
+	Email    string
 }
 
 type UserDTO struct {
@@ -27,6 +29,7 @@ type UserDTO struct {
 	GitToken string `json:"git_token,omitempty"`
 	IsAdmin  bool   `json:"is_admin"`
 	Scopes   string `json:"scopes"`
+	Email    string `json:"email"`
 }
 
 type LoginInputDTO struct {
@@ -44,4 +47,5 @@ type UserInfoDTO struct {
 	Username string
 	Scopes   string
 	IsAdmin  bool
+	Email    string
 }

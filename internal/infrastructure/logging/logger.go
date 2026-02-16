@@ -1,8 +1,9 @@
 package logging
 
-import "go.uber.org/zap"
-
 import (
+	"os"
+
+	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -25,6 +26,7 @@ func InitLoggerWithEnv(env string) error {
 		config.EncoderConfig.EncodeLevel = zapcore.CapitalColorLevelEncoder
 	}
 
+	os.MkdirAll("./logs", 0755)
 	config.OutputPaths = []string{"stdout", "./logs/app.log"}
 	config.ErrorOutputPaths = []string{"stderr", "./logs/error.log"}
 

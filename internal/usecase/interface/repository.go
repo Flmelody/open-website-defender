@@ -51,3 +51,28 @@ type SystemRepository interface {
 	Get() (*entity.System, error)
 	Save(system *entity.System) error
 }
+
+type OAuthClientRepository interface {
+	Create(client *entity.OAuthClient) error
+	Update(client *entity.OAuthClient) error
+	Delete(id uint) error
+	FindByID(id uint) (*entity.OAuthClient, error)
+	FindByClientID(clientID string) (*entity.OAuthClient, error)
+	List(limit, offset int) ([]*entity.OAuthClient, int64, error)
+}
+
+type OAuthAuthorizationCodeRepository interface {
+	Create(code *entity.OAuthAuthorizationCode) error
+	FindByCode(code string) (*entity.OAuthAuthorizationCode, error)
+	MarkUsed(id uint) error
+	DeleteExpired() error
+}
+
+type OAuthRefreshTokenRepository interface {
+	Create(token *entity.OAuthRefreshToken) error
+	FindByToken(token string) (*entity.OAuthRefreshToken, error)
+	Revoke(id uint) error
+	RevokeByClientAndUser(clientID string, userID uint) error
+	FindActiveByUserID(userID uint) ([]*entity.OAuthRefreshToken, error)
+	DeleteExpired() error
+}

@@ -16,7 +16,7 @@
 ### 通过管理后台
 
 1. 进入**授权域管理**页面
-2. 输入域名（如 `gitea.example.com`）添加新的授权域
+2. 输入域名（如 `app.example.com`）添加新的授权域
 3. 查看所有已注册的授权域及创建时间
 4. 删除不再需要的授权域
 
@@ -43,15 +43,15 @@
 3. 如果域名不匹配任何授权域模式，返回 `403 Forbidden`
 
 !!! info "适用场景"
-    当您使用同一个 Defender 实例保护多个内部服务时，授权域访问控制可以限制每个用户只能访问被授权的服务。例如，开发人员只能访问 `gitea.example.com`，而运维人员可以同时访问 `gitea.example.com` 和 `jenkins.example.com`。
+    当您使用同一个 Defender 实例保护多个内部服务时，授权域访问控制可以限制每个用户只能访问被授权的服务。例如，开发人员只能访问 `app.example.com`，而运维人员可以同时访问 `app.example.com` 和 `app2.example.com`。
 
 ### 授权域模式
 
 | 模式 | 匹配 | 不匹配 |
 |------|------|--------|
-| `gitea.com` | `gitea.com` | `gitlab.com`、`sub.gitea.com` |
+| `app.example.com` | `app.example.com` | `other.example.com`、`sub.app.example.com` |
 | `*.example.com` | `app.example.com`、`dev.example.com` | `example.com` |
-| `gitea.com, *.internal.org` | `gitea.com`、`app.internal.org` | `gitlab.com` |
+| `app.example.com, *.internal.org` | `app.example.com`、`svc.internal.org` | `other.example.com` |
 | *（空）* | 所有域名（不限制） | - |
 
 ### 规则说明
@@ -59,7 +59,7 @@
 - **授权域为空** = 不限制访问（向后兼容已有用户）
 - **管理员用户** 始终跳过授权域检查，无论其配置如何
 - 匹配**不区分大小写**
-- 匹配前会自动剥离端口号（`gitea.com:3000` 匹配 `gitea.com`）
+- 匹配前会自动剥离端口号（`app.example.com:3000` 匹配 `app.example.com`）
 
 !!! tip "通配符匹配"
     通配符 `*` 仅匹配一级子域名。例如 `*.example.com` 匹配 `app.example.com`，但不匹配 `example.com` 本身，也不匹配 `sub.app.example.com`。
@@ -73,13 +73,13 @@
 
 ```nginx
 server {
-    server_name gitea.example.com;
+    server_name app.example.com;
 
     location / {
         auth_request /auth;
 
         # 将原始域名传递给 Defender 用于授权域检查
-        proxy_pass http://gitea-backend;
+        proxy_pass http://app-backend;
     }
 
     location = /auth {
@@ -104,17 +104,17 @@ server {
 
 | 服务 | 域名 |
 |------|------|
-| Gitea | `gitea.internal.org` |
-| Jenkins | `jenkins.internal.org` |
-| Grafana | `grafana.internal.org` |
+| 应用 1 | `app1.internal.org` |
+| 应用 2 | `app2.internal.org` |
+| 应用 3 | `app3.internal.org` |
 
 可以这样配置用户的授权域：
 
 | 用户 | 授权域 | 可访问 |
 |------|--------|--------|
 | `alice` | `*.internal.org` | 所有服务 |
-| `bob` | `gitea.internal.org, jenkins.internal.org` | 仅 Gitea 和 Jenkins |
-| `charlie` | `grafana.internal.org` | 仅 Grafana |
+| `bob` | `app1.internal.org, app2.internal.org` | 仅应用 1 和应用 2 |
+| `charlie` | `app3.internal.org` | 仅应用 3 |
 | `admin` | *（任意）* | 所有服务（管理员跳过检查） |
 
 ## 与其他功能的集成

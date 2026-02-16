@@ -80,6 +80,24 @@ default-user:
   username: defender
   password: defender
 
+# OAuth2/OIDC Provider configuration
+oauth:
+  enabled: true
+  # Issuer URL - must match the public-facing URL of OWD (including root path)
+  # Example: https://auth.example.com/wall
+  issuer: "https://auth.example.com/wall"
+  # Path to RSA private key (PEM format) for signing ID tokens.
+  # If empty, a key is generated on each restart (tokens invalidated on restart).
+  rsa-private-key-path: ""
+  # Authorization code lifetime in seconds (default: 300 = 5 minutes)
+  authorization-code-lifetime: 300
+  # Access token lifetime in seconds (default: 3600 = 1 hour)
+  access-token-lifetime: 3600
+  # Refresh token lifetime in seconds (default: 2592000 = 30 days)
+  refresh-token-lifetime: 2592000
+  # ID token lifetime in seconds (default: 3600 = 1 hour)
+  id-token-lifetime: 3600
+
 trustedProxies:
   - "127.0.0.1"
   - "::1"

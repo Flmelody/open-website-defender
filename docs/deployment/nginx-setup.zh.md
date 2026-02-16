@@ -9,7 +9,7 @@ Website Defender 设计为配合 Nginx 的 `auth_request` 模块使用。本页�
 ```nginx
 server {
     listen 80;
-    server_name gitea.example.com;
+    server_name app.example.com;
 
     location / {
         # 在转发请求之前，先向 Defender 发起认证子请求
@@ -22,7 +22,7 @@ server {
         error_page 403 = @forbidden;
 
         # 认证通过后，将请求代理到实际的内部应用
-        proxy_pass http://gitea-backend;
+        proxy_pass http://app-backend;
     }
 
     # Defender 认证端点（内部子请求）
@@ -115,13 +115,13 @@ proxy_set_header Content-Length "";
 如果您使用同一个 Defender 实例保护多个内部服务，可以为每个域名配置独立的 server 块：
 
 ```nginx
-# 服务 1：Gitea
+# 服务 1
 server {
-    server_name gitea.example.com;
+    server_name app.example.com;
 
     location / {
         auth_request /auth;
-        proxy_pass http://gitea-backend;
+        proxy_pass http://app-backend;
     }
 
     location = /auth {
@@ -134,13 +134,13 @@ server {
     }
 }
 
-# 服务 2：Jenkins
+# 服务 2
 server {
-    server_name jenkins.example.com;
+    server_name app2.example.com;
 
     location / {
         auth_request /auth;
-        proxy_pass http://jenkins-backend;
+        proxy_pass http://app2-backend;
     }
 
     location = /auth {

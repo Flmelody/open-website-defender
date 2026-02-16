@@ -31,6 +31,7 @@ export default {
     geo_block: './地域封锁',
     authorized_domains: './授权域管理',
     licenses: './许可证',
+    oauth_clients: './OAuth客户端',
     system_settings: './系统设置'
   },
   layout: {
@@ -69,11 +70,20 @@ export default {
     copy: '复制',
     copied: '已复制到剪贴板',
     understood: '我已复制令牌',
+    email: '邮箱',
+    email_placeholder: "user{'@'}example.com",
     authorized_domains: '授权域',
-    authorized_domains_placeholder: '例如: gitea.com, *.internal.org',
+    authorized_domains_placeholder: '例如: app.example.com, *.internal.org',
     authorized_domains_hint: '逗号分隔的域名模式。支持通配符 (*.example.com)。留空表示不限制访问。',
     authorized_domains_invalid: '域名格式无效（例如 example.com 或 *.example.com）',
-    unrestricted: '<不限制>'
+    unrestricted: '<不限制>',
+    oauth_authorizations: 'OAUTH',
+    no_authorizations: '暂无活跃授权',
+    auth_scope: '权限范围',
+    auth_since: '授权时间',
+    auth_revoke: '撤销',
+    auth_revoke_confirm: '撤销 {name} 的授权？',
+    auth_revoked: '授权已撤销'
   },
   ip_list: {
     ip_address: 'IP地址',
@@ -150,6 +160,32 @@ export default {
     name_invalid: '域名格式无效（例如 example.com 或 *.example.com）',
     delete_confirm: '删除授权域 {name}?',
     title_create: '添加授权域'
+  },
+  oauth: {
+    new_client: '[ 新建客户端 ]',
+    name: '名称',
+    name_placeholder: '例如 My App、Internal Tool',
+    client_id: '客户端ID',
+    trusted: '信任',
+    status: '状态',
+    active: '启用',
+    inactive: '禁用',
+    yes: '是',
+    no: '否',
+    scopes: '权限范围',
+    redirect_uris: '回调地址',
+    redirect_uris_placeholder: 'https://app1.example.com/oauth2/callback\nhttps://app2.example.com/callback',
+    redirect_uris_hint: '每行一个回调地址，必须精确匹配。',
+    redirect_uris_required: '至少需要一个回调地址',
+    trusted_label: '信任客户端（跳过用户授权确认）',
+    active_label: '启用',
+    delete_confirm: '删除 OAuth 客户端 {name}？',
+    title_create: '创建 OAuth 客户端',
+    title_edit: '编辑 OAuth 客户端',
+    secret_generated: 'OAUTH 客户端已创建',
+    secret_warning: '客户端密钥仅显示一次，请立即复制 — 之后无法再次查看。',
+    copied: '已复制到剪贴板',
+    understood: '我已复制凭据'
   },
   system: {
     section_headers: '自定义 HTTP 请求头',

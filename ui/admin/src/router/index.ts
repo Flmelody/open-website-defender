@@ -12,6 +12,7 @@ import GeoBlockView from '@/views/GeoBlockView.vue'
 import AuthorizedDomainView from '@/views/AuthorizedDomainView.vue'
 import LicenseView from '@/views/LicenseView.vue'
 import SystemSettingsView from '@/views/SystemSettingsView.vue'
+import OAuthClientView from '@/views/OAuthClientView.vue'
 
 const config = getAppConfig()
 // Clean up double slashes if any
@@ -79,6 +80,11 @@ const router = createRouter({
           path: 'licenses',
           name: 'licenses',
           component: LicenseView
+        },
+        {
+          path: 'oauth-clients',
+          name: 'oauth-clients',
+          component: OAuthClientView
         },
         {
           path: 'system-settings',

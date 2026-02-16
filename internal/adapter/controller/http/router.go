@@ -36,6 +36,20 @@ func Setup(appConfig *config.AppConfig) *gin.Engine {
 		adminLoginHandlers = append(adminLoginHandlers, handler.AdminLogin)
 		api.POST("/admin-login", adminLoginHandlers...)
 
+		// OIDC Discovery (public, no auth)
+		api.GET("/.well-known/openid-configuration", handler.OIDCDiscovery)
+		api.GET("/.well-known/jwks.json", handler.JWKS)
+
+		// OAuth2/OIDC endpoints (authenticated via OWD session cookie, not admin middleware)
+		if viper.GetBool("oauth.enabled") {
+			api.GET("/oauth/authorize", handler.OAuthAuthorize)
+			api.POST("/oauth/consent", handler.OAuthConsent)
+			api.POST("/oauth/token", handler.OAuthToken)
+			api.GET("/oauth/userinfo", handler.OAuthUserInfo)
+			api.POST("/oauth/userinfo", handler.OAuthUserInfo)
+			api.POST("/oauth/revoke", handler.OAuthRevoke)
+		}
+
 		authorized := api.Group("")
 		// Middleware for route protection
 		authorized.Use(handler.AuthMiddleware)
@@ -45,6 +59,10 @@ func Setup(appConfig *config.AppConfig) *gin.Engine {
 			authorized.GET("/users/:id", handler.GetUser)
 			authorized.PUT("/users/:id", handler.UpdateUser)
 			authorized.DELETE("/users/:id", handler.DeleteUser)
+
+			// User OAuth Authorizations
+			authorized.GET("/users/:id/oauth-authorizations", handler.ListUserOAuthAuthorizations)
+			authorized.DELETE("/users/:id/oauth-authorizations/:clientId", handler.RevokeUserOAuthAuthorization)
 
 			// IP Blacklist
 			authorized.POST("/ip-black-list", handler.CreateIpBlackList)
@@ -81,6 +99,13 @@ func Setup(appConfig *config.AppConfig) *gin.Engine {
 			authorized.POST("/authorized-domains", handler.CreateAuthorizedDomain)
 			authorized.GET("/authorized-domains", handler.ListAuthorizedDomains)
 			authorized.DELETE("/authorized-domains/:id", handler.DeleteAuthorizedDomain)
+
+			// OAuth Clients (admin management)
+			authorized.POST("/oauth-clients", handler.CreateOAuthClient)
+			authorized.GET("/oauth-clients", handler.ListOAuthClients)
+			authorized.GET("/oauth-clients/:id", handler.GetOAuthClient)
+			authorized.PUT("/oauth-clients/:id", handler.UpdateOAuthClient)
+			authorized.DELETE("/oauth-clients/:id", handler.DeleteOAuthClient)
 
 			// Dashboard & System
 			authorized.GET("/dashboard/stats", handler.GetDashboardStats)

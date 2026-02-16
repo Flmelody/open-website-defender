@@ -117,6 +117,9 @@ func InitDB() error {
 		&entity.License{},
 		&entity.AuthorizedDomain{},
 		&entity.System{},
+		&entity.OAuthClient{},
+		&entity.OAuthAuthorizationCode{},
+		&entity.OAuthRefreshToken{},
 	)
 	if err != nil {
 		return err

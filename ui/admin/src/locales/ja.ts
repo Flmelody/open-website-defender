@@ -31,6 +31,7 @@ export default {
     geo_block: './地域ブロック',
     authorized_domains: './認可ドメイン管理',
     licenses: './ライセンス',
+    oauth_clients: './OAUTHクライアント',
     system_settings: './システム設定'
   },
   layout: {
@@ -63,11 +64,20 @@ export default {
     title_edit: 'ユーザー編集',
     undefined: '<未定義>',
     unchanged: '<変更なし>',
+    email: 'メールアドレス',
+    email_placeholder: "user{'@'}example.com",
     authorized_domains: '認可ドメイン',
-    authorized_domains_placeholder: '例: gitea.com, *.internal.org',
+    authorized_domains_placeholder: '例: app.example.com, *.internal.org',
     authorized_domains_hint: 'カンマ区切りのドメインパターン。ワイルドカード対応 (*.example.com)。空欄で無制限アクセス。',
     authorized_domains_invalid: 'ドメイン形式が無効です（例: example.com または *.example.com）',
-    unrestricted: '<無制限>'
+    unrestricted: '<無制限>',
+    oauth_authorizations: 'OAUTH',
+    no_authorizations: 'アクティブな認可なし',
+    auth_scope: 'スコープ',
+    auth_since: '認可日時',
+    auth_revoke: '取消',
+    auth_revoke_confirm: '{name} の認可を取り消しますか？',
+    auth_revoked: '認可を取り消しました'
   },
   ip_list: {
     ip_address: 'IPアドレス',
@@ -144,6 +154,32 @@ export default {
     name_invalid: 'ドメイン形式が無効です（例: example.com または *.example.com）',
     delete_confirm: '認可ドメイン {name} を削除しますか？',
     title_create: '認可ドメイン追加'
+  },
+  oauth: {
+    new_client: '[ 新規クライアント ]',
+    name: '名前',
+    name_placeholder: '例: My App、Internal Tool',
+    client_id: 'クライアントID',
+    trusted: '信頼済み',
+    status: 'ステータス',
+    active: '有効',
+    inactive: '無効',
+    yes: 'はい',
+    no: 'いいえ',
+    scopes: 'スコープ',
+    redirect_uris: 'リダイレクトURI',
+    redirect_uris_placeholder: 'https://app1.example.com/oauth2/callback\nhttps://app2.example.com/callback',
+    redirect_uris_hint: '1行に1つのリダイレクトURI。完全一致が必要です。',
+    redirect_uris_required: '少なくとも1つのリダイレクトURIが必要です',
+    trusted_label: '信頼済みクライアント（ユーザー同意をスキップ）',
+    active_label: '有効',
+    delete_confirm: 'OAuthクライアント {name} を削除しますか？',
+    title_create: 'OAuthクライアント作成',
+    title_edit: 'OAuthクライアント編集',
+    secret_generated: 'OAUTHクライアント作成完了',
+    secret_warning: 'クライアントシークレットは一度しか表示されません。今すぐコピーしてください — 後で取得することはできません。',
+    copied: 'クリップボードにコピーしました',
+    understood: '認証情報をコピーしました'
   },
   system: {
     section_headers: 'カスタムHTTPヘッダー',

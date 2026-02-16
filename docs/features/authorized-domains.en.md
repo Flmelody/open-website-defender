@@ -18,7 +18,7 @@ Without Authorized Domains, users must manually type domain names when configuri
 Manage authorized domains through the admin dashboard:
 
 1. Navigate to the **Authorized Domains** page
-2. Add domains by entering the domain name (e.g., `gitea.example.com`)
+2. Add domains by entering the domain name (e.g., `app.example.com`)
 3. View all registered domains with creation timestamps
 4. Delete domains when they are no longer needed
 
@@ -53,17 +53,17 @@ Authorized domains are defined as comma-separated patterns on each user, typical
 
 | Pattern | Matches | Does Not Match |
 |---------|---------|----------------|
-| `gitea.com` | `gitea.com` | `gitlab.com`, `sub.gitea.com` |
+| `app.example.com` | `app.example.com` | `other.example.com`, `sub.app.example.com` |
 | `*.example.com` | `app.example.com`, `dev.example.com` | `example.com` |
-| `gitea.com, *.internal.org` | `gitea.com`, `app.internal.org` | `gitlab.com` |
+| `app.example.com, *.internal.org` | `app.example.com`, `svc.internal.org` | `other.example.com` |
 | *(empty)* | Everything (unrestricted) | - |
 
 ### Rules
 
 - **Empty authorized domains** grant unrestricted access -- this maintains backward compatibility with existing users who have no domains configured
 - **Admin users** always bypass authorized domain checks, regardless of their configuration
-- Matching is **case-insensitive** (`Gitea.COM` matches `gitea.com`)
-- **Ports are stripped** before matching (`gitea.com:3000` matches `gitea.com`)
+- Matching is **case-insensitive** (`App.Example.COM` matches `app.example.com`)
+- **Ports are stripped** before matching (`app.example.com:3000` matches `app.example.com`)
 
 !!! tip "Start with Empty Domains"
     When migrating an existing deployment to use authorized domain access control, all existing users will continue to have unrestricted access since their authorized domains are empty. You can then progressively restrict users as needed.
@@ -74,13 +74,13 @@ To pass the domain information to Defender for access control, configure Nginx t
 
 ```nginx
 server {
-    server_name gitea.example.com;
+    server_name app.example.com;
 
     location / {
         auth_request /auth;
 
         # Pass the original host to Defender for authorized domain checking
-        proxy_pass http://gitea-backend;
+        proxy_pass http://app-backend;
     }
 
     location = /auth {
@@ -105,17 +105,17 @@ Consider an organization with the following protected services:
 
 | Service | Domain |
 |---------|--------|
-| Gitea | `gitea.internal.org` |
-| Jenkins | `jenkins.internal.org` |
-| Grafana | `grafana.internal.org` |
+| App 1 | `app1.internal.org` |
+| App 2 | `app2.internal.org` |
+| App 3 | `app3.internal.org` |
 
 You could configure users as follows:
 
 | User | Authorized Domains | Access |
 |------|-------------------|--------|
 | `alice` | `*.internal.org` | All services |
-| `bob` | `gitea.internal.org, jenkins.internal.org` | Gitea and Jenkins only |
-| `charlie` | `grafana.internal.org` | Grafana only |
+| `bob` | `app1.internal.org, app2.internal.org` | App 1 and App 2 only |
+| `charlie` | `app3.internal.org` | App 3 only |
 | `admin` | *(any)* | All services (admin bypass) |
 
 ## Integration with Other Features

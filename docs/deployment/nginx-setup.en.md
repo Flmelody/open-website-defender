@@ -15,7 +15,7 @@ The Nginx `auth_request` module makes an internal subrequest to Website Defender
 ```nginx
 server {
     listen 80;
-    server_name gitea.example.com;
+    server_name app.example.com;
 
     # All requests require authentication via Website Defender
     location / {
@@ -25,7 +25,7 @@ server {
         error_page 401 = @login_redirect;
 
         # Proxy to the actual application
-        proxy_pass http://gitea-backend;
+        proxy_pass http://app-backend;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -98,13 +98,13 @@ This tells Nginx to check with Website Defender before serving any content. The 
 To protect multiple applications behind the same Defender instance, create a server block for each:
 
 ```nginx
-# Gitea
+# Application 1
 server {
-    server_name gitea.example.com;
+    server_name app.example.com;
 
     location / {
         auth_request /auth;
-        proxy_pass http://gitea-backend;
+        proxy_pass http://app-backend;
     }
 
     location = /auth {
@@ -117,13 +117,13 @@ server {
     }
 }
 
-# Jenkins
+# Application 2
 server {
-    server_name jenkins.example.com;
+    server_name app2.example.com;
 
     location / {
         auth_request /auth;
-        proxy_pass http://jenkins-backend;
+        proxy_pass http://app2-backend;
     }
 
     location = /auth {
@@ -138,7 +138,7 @@ server {
 ```
 
 !!! tip "Use Authorized Domain Access Control"
-    When protecting multiple applications, use [authorized domains](../features/authorized-domains.md) to control which users can access which services. For example, you can restrict a developer to `gitea.example.com` while giving an admin access to `*.example.com`.
+    When protecting multiple applications, use [authorized domains](../features/authorized-domains.md) to control which users can access which services. For example, you can restrict a developer to `app.example.com` while giving an operations engineer access to `*.example.com`.
 
 ## Defender Admin and Guard Pages
 

@@ -31,6 +31,7 @@ export default {
     geo_block: './GEO_BLOCK',
     authorized_domains: './AUTHORIZED_DOMAINS',
     licenses: './LICENSES',
+    oauth_clients: './OAUTH_CLIENTS',
     system_settings: './SYSTEM_SETTINGS'
   },
   layout: {
@@ -69,11 +70,20 @@ export default {
     copy: 'COPY',
     copied: 'Copied to clipboard',
     understood: 'I HAVE COPIED THE TOKEN',
+    email: 'EMAIL',
+    email_placeholder: "user{'@'}example.com",
     authorized_domains: 'AUTHORIZED_DOMAINS',
-    authorized_domains_placeholder: 'e.g. gitea.com, *.internal.org',
+    authorized_domains_placeholder: 'e.g. app.example.com, *.internal.org',
     authorized_domains_hint: 'Comma-separated domain patterns. Wildcards supported (*.example.com). Leave empty for unrestricted access.',
     authorized_domains_invalid: 'Invalid domain format (e.g. example.com or *.example.com)',
-    unrestricted: '<UNRESTRICTED>'
+    unrestricted: '<UNRESTRICTED>',
+    oauth_authorizations: 'OAUTH',
+    no_authorizations: 'NO_ACTIVE_AUTHORIZATIONS',
+    auth_scope: 'SCOPE',
+    auth_since: 'SINCE',
+    auth_revoke: 'REVOKE',
+    auth_revoke_confirm: 'REVOKE AUTHORIZATION FOR {name}?',
+    auth_revoked: 'AUTHORIZATION_REVOKED'
   },
   ip_list: {
     ip_address: 'IP_ADDRESS',
@@ -150,6 +160,32 @@ export default {
     name_invalid: 'Invalid domain format (e.g. example.com or *.example.com)',
     delete_confirm: 'DELETE DOMAIN {name}?',
     title_create: 'Add Authorized Domain'
+  },
+  oauth: {
+    new_client: '[ NEW_CLIENT ]',
+    name: 'NAME',
+    name_placeholder: 'e.g. My App, Internal Tool',
+    client_id: 'CLIENT_ID',
+    trusted: 'TRUSTED',
+    status: 'STATUS',
+    active: 'ACTIVE',
+    inactive: 'INACTIVE',
+    yes: 'YES',
+    no: 'NO',
+    scopes: 'SCOPES',
+    redirect_uris: 'REDIRECT_URIS',
+    redirect_uris_placeholder: 'https://app1.example.com/oauth2/callback\nhttps://app2.example.com/callback',
+    redirect_uris_hint: 'One redirect URI per line. Must be exact match.',
+    redirect_uris_required: 'At least one redirect URI is required',
+    trusted_label: 'Trusted client (skip user consent)',
+    active_label: 'Active',
+    delete_confirm: 'DELETE OAUTH CLIENT {name}?',
+    title_create: 'Create OAuth Client',
+    title_edit: 'Edit OAuth Client',
+    secret_generated: 'OAUTH CLIENT CREATED',
+    secret_warning: 'The client secret will only be shown ONCE. Copy it now — it cannot be retrieved later.',
+    copied: 'Copied to clipboard',
+    understood: 'I HAVE COPIED THE CREDENTIALS'
   },
   system: {
     section_headers: 'CUSTOM HTTP HEADERS',

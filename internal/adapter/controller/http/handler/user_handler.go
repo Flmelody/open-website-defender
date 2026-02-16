@@ -5,6 +5,7 @@ import (
 	"open-website-defender/internal/adapter/controller/http/response"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
+	"open-website-defender/internal/usecase/oauth"
 	"open-website-defender/internal/usecase/user"
 	"strconv"
 	"strings"
@@ -51,6 +52,7 @@ func CreateUser(c *gin.Context) {
 		GitToken: req.GitToken,
 		IsAdmin:  req.IsAdmin,
 		Scopes:   req.Scopes,
+		Email:    req.Email,
 	}
 
 	userDto, err := service.CreateUser(input)
@@ -96,6 +98,7 @@ func UpdateUser(c *gin.Context) {
 		GitToken: req.GitToken,
 		IsAdmin:  req.IsAdmin,
 		Scopes:   req.Scopes,
+		Email:    req.Email,
 	}
 
 	userDto, err := service.UpdateUser(uint(id), input)
@@ -163,6 +166,52 @@ func GetUser(c *gin.Context) {
 	}
 
 	response.Success(c, userDto)
+}
+
+func ListUserOAuthAuthorizations(c *gin.Context) {
+	service := oauth.GetOAuthService()
+
+	idParam := c.Param("id")
+	id, err := strconv.ParseUint(idParam, 10, 32)
+	if err != nil {
+		response.BadRequest(c, "Invalid user ID")
+		return
+	}
+
+	list, err := service.ListUserAuthorizations(uint(id))
+	if err != nil {
+		logging.Sugar.Errorf("Failed to list user OAuth authorizations: %v", err)
+		response.InternalServerError(c, "Failed to list authorizations")
+		return
+	}
+
+	response.Success(c, list)
+}
+
+func RevokeUserOAuthAuthorization(c *gin.Context) {
+	service := oauth.GetOAuthService()
+
+	idParam := c.Param("id")
+	id, err := strconv.ParseUint(idParam, 10, 32)
+	if err != nil {
+		response.BadRequest(c, "Invalid user ID")
+		return
+	}
+
+	clientID := c.Param("clientId")
+	if clientID == "" {
+		response.BadRequest(c, "Client ID is required")
+		return
+	}
+
+	if err := service.RevokeUserAuthorization(uint(id), clientID); err != nil {
+		logging.Sugar.Errorf("Failed to revoke user OAuth authorization: %v", err)
+		response.InternalServerError(c, "Failed to revoke authorization")
+		return
+	}
+
+	logging.Sugar.Infof("User OAuth authorization revoked: user=%d client=%s", id, clientID)
+	response.NoContent(c)
 }
 
 func ListUser(c *gin.Context) {

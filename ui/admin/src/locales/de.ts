@@ -31,6 +31,7 @@ export default {
     geo_block: './GEO_SPERRE',
     authorized_domains: './AUTORISIERTE_DOMÄNEN',
     licenses: './LIZENZEN',
+    oauth_clients: './OAUTH_CLIENTS',
     system_settings: './SYSTEMEINSTELLUNGEN'
   },
   layout: {
@@ -63,11 +64,20 @@ export default {
     title_edit: 'Benutzer bearbeiten',
     undefined: '<UNDEFINIERT>',
     unchanged: '<UNVERÄNDERT>',
+    email: 'E-MAIL',
+    email_placeholder: "user{'@'}example.com",
     authorized_domains: 'AUTORISIERTE_DOMÄNEN',
-    authorized_domains_placeholder: 'z.B. gitea.com, *.internal.org',
+    authorized_domains_placeholder: 'z.B. app.example.com, *.internal.org',
     authorized_domains_hint: 'Kommagetrennte Domain-Muster. Wildcards unterstützt (*.example.com). Leer lassen für uneingeschränkten Zugriff.',
     authorized_domains_invalid: 'Ungültiges Domain-Format (z.B. example.com oder *.example.com)',
-    unrestricted: '<UNEINGESCHRÄNKT>'
+    unrestricted: '<UNEINGESCHRÄNKT>',
+    oauth_authorizations: 'OAUTH',
+    no_authorizations: 'KEINE_AKTIVEN_AUTORISIERUNGEN',
+    auth_scope: 'BEREICHE',
+    auth_since: 'SEIT',
+    auth_revoke: 'WIDERRUFEN',
+    auth_revoke_confirm: 'AUTORISIERUNG FÜR {name} WIDERRUFEN?',
+    auth_revoked: 'AUTORISIERUNG_WIDERRUFEN'
   },
   ip_list: {
     ip_address: 'IP_ADRESSE',
@@ -144,6 +154,32 @@ export default {
     name_invalid: 'Ungültiges Domain-Format (z.B. example.com oder *.example.com)',
     delete_confirm: 'DOMÄNE {name} LÖSCHEN?',
     title_create: 'Autorisierte Domäne hinzufügen'
+  },
+  oauth: {
+    new_client: '[ NEUER_CLIENT ]',
+    name: 'NAME',
+    name_placeholder: 'z.B. My App, Internal Tool',
+    client_id: 'CLIENT_ID',
+    trusted: 'VERTRAUT',
+    status: 'STATUS',
+    active: 'AKTIV',
+    inactive: 'INAKTIV',
+    yes: 'JA',
+    no: 'NEIN',
+    scopes: 'BEREICHE',
+    redirect_uris: 'WEITERLEITUNGS_URIS',
+    redirect_uris_placeholder: 'https://app1.example.com/oauth2/callback\nhttps://app2.example.com/callback',
+    redirect_uris_hint: 'Eine Weiterleitungs-URI pro Zeile. Muss exakt übereinstimmen.',
+    redirect_uris_required: 'Mindestens eine Weiterleitungs-URI erforderlich',
+    trusted_label: 'Vertrauenswürdiger Client (Benutzereinwilligung überspringen)',
+    active_label: 'Aktiv',
+    delete_confirm: 'OAUTH CLIENT {name} LÖSCHEN?',
+    title_create: 'OAuth Client erstellen',
+    title_edit: 'OAuth Client bearbeiten',
+    secret_generated: 'OAUTH CLIENT ERSTELLT',
+    secret_warning: 'Das Client-Geheimnis wird nur EINMAL angezeigt. Kopieren Sie es jetzt — es kann später nicht abgerufen werden.',
+    copied: 'In Zwischenablage kopiert',
+    understood: 'ICH HABE DIE ZUGANGSDATEN KOPIERT'
   },
   system: {
     section_headers: 'BENUTZERDEFINIERTE HTTP-HEADER',

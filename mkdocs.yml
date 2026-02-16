@@ -45,7 +45,7 @@ plugins:
             Features: 功能特性
             Authentication: 认证与访问控制
             Authorized Domains: 授权域管理
-
+            OAuth2 / OIDC SSO: OAuth2 / OIDC 单点登录
             WAF Rules: WAF 规则
             IP Lists: IP 黑白名单
             Geo-IP Blocking: 地域封锁
@@ -69,7 +69,7 @@ nav:
   - Features:
       - Authentication: features/authentication.md
       - Authorized Domains: features/authorized-domains.md
-
+      - OAuth2 / OIDC SSO: features/oauth-oidc.md
       - WAF Rules: features/waf.md
       - IP Lists: features/ip-lists.md
       - Geo-IP Blocking: features/geo-blocking.md

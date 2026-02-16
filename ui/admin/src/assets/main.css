@@ -105,6 +105,16 @@ body {
   color: #4a6a4a !important;
 }
 
+.el-input__inner:-webkit-autofill,
+.el-input__inner:-webkit-autofill:hover,
+.el-input__inner:-webkit-autofill:focus,
+.el-input__inner:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(0, 20, 0, 0.9) inset !important;
+  -webkit-text-fill-color: #0F0 !important;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: #0F0;
+}
+
 /* Textarea */
 .el-textarea__inner {
   background-color: rgba(0, 20, 0, 0.6) !important;

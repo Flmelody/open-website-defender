@@ -309,6 +309,16 @@ onUnmounted(() => {
   height: 45px;
 }
 
+:deep(.glass-input .el-input__inner:-webkit-autofill),
+:deep(.glass-input .el-input__inner:-webkit-autofill:hover),
+:deep(.glass-input .el-input__inner:-webkit-autofill:focus),
+:deep(.glass-input .el-input__inner:-webkit-autofill:active) {
+  -webkit-box-shadow: 0 0 0 1000px rgba(0, 20, 0, 0.8) inset !important;
+  -webkit-text-fill-color: #fff !important;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: #fff;
+}
+
 .action-area {
   margin-top: 40px;
   text-align: right;

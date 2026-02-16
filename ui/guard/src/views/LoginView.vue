@@ -325,6 +325,16 @@ input.error {
   color: #F00;
 }
 
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.9) inset !important;
+  -webkit-text-fill-color: #0F0 !important;
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: #0F0;
+}
+
 .error-text {
   color: #F00;
   text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);

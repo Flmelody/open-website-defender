@@ -115,6 +115,8 @@ func (s *UserService) UpdateUser(id uint, input *UpdateUserDTO) (*UserDTO, error
 		return nil, fmt.Errorf("failed to update user: %w", err)
 	}
 
+	InvalidateUserCache(id)
+
 	return &UserDTO{
 		ID:       user.ID,
 		Username: user.Username,
@@ -140,6 +142,8 @@ func (s *UserService) DeleteUser(id uint) error {
 	if err := s.userRepo.Delete(strconv.FormatUint(uint64(id), 10)); err != nil {
 		return fmt.Errorf("failed to delete user: %w", err)
 	}
+
+	InvalidateUserCache(id)
 
 	return nil
 }

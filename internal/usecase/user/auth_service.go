@@ -1,6 +1,7 @@
 package user
 
 import (
+	"encoding/json"
 	"fmt"
 	"sync"
 
@@ -10,6 +11,14 @@ import (
 	"open-website-defender/internal/pkg"
 	_interface "open-website-defender/internal/usecase/interface"
 )
+
+const cacheKeyUserPrefix = "user:info:"
+
+// InvalidateUserCache removes the cached user info for the given user ID.
+// Call this on user update, delete, or any permission change.
+func InvalidateUserCache(userID uint) {
+	pkg.Cacher().Del([]byte(fmt.Sprintf("%s%d", cacheKeyUserPrefix, userID)))
+}
 
 type AuthService struct {
 	userRepo _interface.UserRepository
@@ -71,6 +80,16 @@ func (s *AuthService) ValidateToken(tokenString string) (*UserInfoDTO, error) {
 		return nil, err
 	}
 
+	// Check user info cache
+	cache := pkg.Cacher()
+	cacheKey := []byte(fmt.Sprintf("%s%d", cacheKeyUserPrefix, claims.UserID))
+	if data, err := cache.Get(cacheKey); err == nil {
+		var userInfo UserInfoDTO
+		if json.Unmarshal(data, &userInfo) == nil {
+			return &userInfo, nil
+		}
+	}
+
 	user, err := s.userRepo.FindByID(fmt.Sprintf("%d", claims.UserID))
 	if err != nil {
 		return nil, err
@@ -79,13 +98,20 @@ func (s *AuthService) ValidateToken(tokenString string) (*UserInfoDTO, error) {
 		return nil, domainError.ErrUserNotFound
 	}
 
-	return &UserInfoDTO{
+	userInfo := &UserInfoDTO{
 		ID:       user.ID,
 		Username: user.Username,
 		Scopes:   user.Scopes,
 		IsAdmin:  user.IsAdmin,
 		Email:    user.Email,
-	}, nil
+	}
+
+	// Cache user info (10 minutes)
+	if data, err := json.Marshal(userInfo); err == nil {
+		_ = cache.Set(cacheKey, data, 600)
+	}
+
+	return userInfo, nil
 }
 
 func (s *AuthService) ValidateGitToken(username, token string) (*UserInfoDTO, error) {

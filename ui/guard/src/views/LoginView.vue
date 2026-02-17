@@ -115,7 +115,9 @@ const handleLogin = async () => {
       localStorage.setItem('flmelody.token', token)
 
       const expires = new Date(Date.now() + 24 * 60 * 60 * 1000)
-      document.cookie = `flmelody.token=${token}; expires=${expires.toUTCString()}; path=/;domain=` + getAppConfig().guardDomain
+      const guardDomain = getAppConfig().guardDomain
+      const domainPart = guardDomain && guardDomain.includes('.') ? `;domain=${guardDomain}` : ''
+      document.cookie = `flmelody.token=${token}; expires=${expires.toUTCString()}; path=/${domainPart}`
 
       if (formData.rememberMe) {
         localStorage.setItem('rememberMe', 'true')

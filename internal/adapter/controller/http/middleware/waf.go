@@ -3,6 +3,7 @@ package middleware
 import (
 	"bytes"
 	"io"
+	"net/http"
 	"open-website-defender/internal/adapter/controller/http/response"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/usecase/waf"
@@ -21,9 +22,11 @@ func WAF() gin.HandlerFunc {
 		queryString := c.Request.URL.RawQuery
 		userAgent := c.GetHeader("User-Agent")
 
-		// Read body for inspection (with size limit)
+		// Read body for inspection (only for methods that carry a body)
 		var bodyStr string
-		if c.Request.Body != nil && c.Request.ContentLength > 0 {
+		if c.Request.Body != nil && c.Request.ContentLength > 0 &&
+			c.Request.Method != http.MethodGet && c.Request.Method != http.MethodHead &&
+			c.Request.Method != http.MethodOptions {
 			bodyBytes, err := io.ReadAll(io.LimitReader(c.Request.Body, maxBodyRead))
 			if err == nil {
 				bodyStr = string(bodyBytes)

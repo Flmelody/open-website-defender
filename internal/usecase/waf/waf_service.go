@@ -1,14 +1,12 @@
 package waf
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"open-website-defender/internal/adapter/repository"
 	"open-website-defender/internal/domain/entity"
 	"open-website-defender/internal/infrastructure/database"
 	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/pkg"
 	"regexp"
 	"sync"
 )
@@ -27,15 +25,15 @@ type compiledRule struct {
 }
 
 type WafService struct {
-	repo *repository.WafRuleRepository
+	repo          *repository.WafRuleRepository
+	compiledRules []compiledRule
+	mu            sync.RWMutex
 }
 
 var (
 	wafService *WafService
 	wafOnce    sync.Once
 )
-
-const cacheKeyWafRules = "waf:compiled_rules"
 
 func GetWafService() *WafService {
 	wafOnce.Do(func() {
@@ -47,42 +45,30 @@ func GetWafService() *WafService {
 }
 
 func (s *WafService) getCompiledRules() ([]compiledRule, error) {
-	cache := pkg.Cacher()
+	// Fast path: return cached compiled rules
+	s.mu.RLock()
+	if s.compiledRules != nil {
+		rules := s.compiledRules
+		s.mu.RUnlock()
+		return rules, nil
+	}
+	s.mu.RUnlock()
 
-	// Try cache
-	data, err := cache.Get([]byte(cacheKeyWafRules))
-	if err == nil {
-		var cached []struct {
-			Name    string `json:"name"`
-			Pattern string `json:"pattern"`
-			Action  string `json:"action"`
-		}
-		if err := json.Unmarshal(data, &cached); err == nil {
-			rules := make([]compiledRule, 0, len(cached))
-			for _, c := range cached {
-				re, err := regexp.Compile(c.Pattern)
-				if err != nil {
-					continue
-				}
-				rules = append(rules, compiledRule{Name: c.Name, Pattern: re, Action: c.Action})
-			}
-			return rules, nil
-		}
+	// Slow path: load from DB and compile
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	// Double-check after acquiring write lock
+	if s.compiledRules != nil {
+		return s.compiledRules, nil
 	}
 
-	// Load from DB
 	dbRules, err := s.repo.FindAllEnabled()
 	if err != nil {
 		return nil, err
 	}
 
 	rules := make([]compiledRule, 0, len(dbRules))
-	cacheData := make([]struct {
-		Name    string `json:"name"`
-		Pattern string `json:"pattern"`
-		Action  string `json:"action"`
-	}, 0, len(dbRules))
-
 	for _, r := range dbRules {
 		re, err := regexp.Compile(r.Pattern)
 		if err != nil {
@@ -90,19 +76,9 @@ func (s *WafService) getCompiledRules() ([]compiledRule, error) {
 			continue
 		}
 		rules = append(rules, compiledRule{Name: r.Name, Pattern: re, Action: r.Action})
-		cacheData = append(cacheData, struct {
-			Name    string `json:"name"`
-			Pattern string `json:"pattern"`
-			Action  string `json:"action"`
-		}{Name: r.Name, Pattern: r.Pattern, Action: r.Action})
 	}
 
-	// Cache compiled rules metadata
-	jsonData, err := json.Marshal(cacheData)
-	if err == nil {
-		cache.Set([]byte(cacheKeyWafRules), jsonData, 3600) // 1 hour TTL
-	}
-
+	s.compiledRules = rules
 	return rules, nil
 }
 
@@ -133,7 +109,9 @@ func (s *WafService) CheckRequest(method, path, queryString, userAgent, body str
 }
 
 func (s *WafService) invalidateCache() {
-	pkg.Cacher().Del([]byte(cacheKeyWafRules))
+	s.mu.Lock()
+	s.compiledRules = nil
+	s.mu.Unlock()
 }
 
 func (s *WafService) Create(input *CreateWafRuleDto) (*WafRuleDto, error) {

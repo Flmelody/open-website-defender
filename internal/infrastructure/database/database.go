@@ -106,6 +106,16 @@ func InitDB() error {
 		return err
 	}
 
+	// Configure connection pool
+	sqlDB, err := DB.DB()
+	if err != nil {
+		return fmt.Errorf("failed to get underlying sql.DB: %w", err)
+	}
+	sqlDB.SetMaxOpenConns(25)
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetConnMaxLifetime(5 * time.Minute)
+	sqlDB.SetConnMaxIdleTime(3 * time.Minute)
+
 	logging.Sugar.Info("Running database migrations...")
 	err = DB.AutoMigrate(
 		&entity.User{},

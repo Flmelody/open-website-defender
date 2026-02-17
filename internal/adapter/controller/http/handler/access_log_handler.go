@@ -58,6 +58,20 @@ func ListAccessLogs(c *gin.Context) {
 	response.PageSuccess(c, list, total, req.Page, req.Size)
 }
 
+func ClearAccessLogs(c *gin.Context) {
+	service := accesslog.GetAccessLogService()
+
+	deleted, err := service.ClearAll()
+	if err != nil {
+		logging.Sugar.Errorf("Failed to clear access logs: %v", err)
+		response.InternalServerError(c, "Failed to clear access logs")
+		return
+	}
+
+	logging.Sugar.Infof("Cleared %d access logs", deleted)
+	response.Success(c, gin.H{"deleted": deleted})
+}
+
 func GetAccessLogStats(c *gin.Context) {
 	service := accesslog.GetAccessLogService()
 

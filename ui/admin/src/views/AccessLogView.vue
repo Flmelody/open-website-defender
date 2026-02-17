@@ -7,6 +7,7 @@
           <span class="command blink-cursor">./access_log.sh</span>
         </div>
         <div class="header-right">
+          <el-button type="danger" size="small" @click="handleClear">{{ t('access_log.clear_all') }}</el-button>
           <el-button size="small" @click="fetchData">{{ t('common.refresh') }}</el-button>
         </div>
       </div>
@@ -92,6 +93,7 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from 'vue'
 import request from '@/utils/request'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
@@ -123,6 +125,26 @@ const fetchData = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const handleClear = () => {
+  ElMessageBox.confirm(
+    t('access_log.clear_confirm'),
+    t('common.warning'),
+    {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
+      type: 'warning',
+    }
+  ).then(async () => {
+    try {
+      const res: any = await request.delete('/access-logs')
+      ElMessage.success(t('access_log.cleared', { count: res?.deleted || 0 }))
+      fetchData()
+    } catch {
+      // handled
+    }
+  })
 }
 
 const handleSizeChange = (val: number) => { queryParams.size = val; fetchData() }

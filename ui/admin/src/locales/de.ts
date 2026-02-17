@@ -129,7 +129,10 @@ export default {
     rule: 'REGEL',
     filter_ip: 'Nach IP filtern',
     filter_action: 'Nach Aktion filtern',
-    search: '[ SUCHEN ]'
+    search: '[ SUCHEN ]',
+    clear_all: '[ ALLE_LÖSCHEN ]',
+    clear_confirm: 'Alle Zugriffsprotokolle werden dauerhaft gelöscht. Fortfahren?',
+    cleared: '{count} Zugriffsprotokolleinträge gelöscht'
   },
   geo: {
     new_rule: '[ NEUE_REGEL ]',
@@ -193,6 +196,11 @@ export default {
     git_token_header: 'GIT_TOKEN_HEADER',
     license_header: 'LIZENZ_HEADER',
     save: '[ SPEICHERN ]',
-    reset: '[ ZURÜCKSETZEN ]'
+    reset: '[ ZURÜCKSETZEN ]',
+    section_cache: 'CACHE-VERWALTUNG',
+    cache_desc: 'Alle serverseitigen Caches leeren. Verwenden Sie dies, wenn nach Konfigurationsänderungen veraltete Daten angezeigt werden.',
+    clear_cache: '[ CACHE_LEEREN ]',
+    clear_cache_confirm: 'Alle serverseitigen Caches werden geleert. Dienste bauen Caches bei der nächsten Anfrage neu auf. Fortfahren?',
+    cache_cleared: 'Alle Caches geleert'
   }
 }

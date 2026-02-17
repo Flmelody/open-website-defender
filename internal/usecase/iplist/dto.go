@@ -28,3 +28,8 @@ type IpWhiteListDto struct {
 	Domain    string    `json:"domain"`
 	CreatedAt time.Time `json:"created_at"`
 }
+
+type whiteListRule struct {
+	IP     string `json:"ip"`
+	Domain string `json:"domain"`
+}

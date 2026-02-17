@@ -129,7 +129,10 @@ export default {
     rule: 'RULE',
     filter_ip: 'Filter by IP',
     filter_action: 'Filter by Action',
-    search: '[ SEARCH ]'
+    search: '[ SEARCH ]',
+    clear_all: '[ CLEAR_ALL ]',
+    clear_confirm: 'This will permanently delete ALL access logs. Continue?',
+    cleared: 'Cleared {count} access log entries'
   },
   geo: {
     new_rule: '[ NEW_RULE ]',
@@ -193,6 +196,11 @@ export default {
     git_token_header: 'GIT_TOKEN_HEADER',
     license_header: 'LICENSE_HEADER',
     save: '[ SAVE ]',
-    reset: '[ RESET ]'
+    reset: '[ RESET ]',
+    section_cache: 'CACHE MANAGEMENT',
+    cache_desc: 'Clear all server-side caches. Use this if you experience stale data after configuration changes.',
+    clear_cache: '[ CLEAR_ALL_CACHE ]',
+    clear_cache_confirm: 'This will clear all server-side caches. Services will rebuild caches on next request. Continue?',
+    cache_cleared: 'All caches cleared'
   }
 }

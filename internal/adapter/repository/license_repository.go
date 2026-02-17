@@ -26,6 +26,18 @@ func (r *LicenseRepository) Delete(id uint) error {
 	return r.db.Delete(&entity.License{}, id).Error
 }
 
+func (r *LicenseRepository) FindByID(id uint) (*entity.License, error) {
+	var license entity.License
+	result := r.db.First(&license, id)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return nil, nil
+		}
+		return nil, result.Error
+	}
+	return &license, nil
+}
+
 func (r *LicenseRepository) List(limit, offset int) ([]*entity.License, int64, error) {
 	var licenses []*entity.License
 	var total int64

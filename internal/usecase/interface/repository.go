@@ -34,6 +34,7 @@ type IpBlackListRepository interface {
 type LicenseRepository interface {
 	Create(license *entity.License) error
 	Delete(id uint) error
+	FindByID(id uint) (*entity.License, error)
 	List(limit, offset int) ([]*entity.License, int64, error)
 	FindByTokenHash(tokenHash string) (*entity.License, error)
 }

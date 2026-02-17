@@ -174,6 +174,10 @@ func (s *AccessLogService) GetTopBlockedIPs(limit int) ([]repository.TopBlockedI
 	return s.repo.GetTopBlockedIPs(limit)
 }
 
+func (s *AccessLogService) ClearAll() (int64, error) {
+	return s.repo.DeleteAll()
+}
+
 // Stop gracefully stops the service by flushing remaining logs.
 func (s *AccessLogService) Stop() {
 	close(s.done)

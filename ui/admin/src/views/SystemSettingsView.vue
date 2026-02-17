@@ -39,6 +39,14 @@
             <el-button type="primary" :loading="saving" @click="handleSave">{{ t('system.save') }}</el-button>
           </div>
         </el-form>
+
+        <div class="settings-section cache-section">
+          <div class="section-title no-select">
+            <span class="prefix">&gt;</span> {{ t('system.section_cache') }}
+          </div>
+          <div class="section-desc dim-text">{{ t('system.cache_desc') }}</div>
+          <el-button type="danger" :loading="clearing" @click="handleClearCache">{{ t('system.clear_cache') }}</el-button>
+        </div>
       </div>
     </div>
   </div>
@@ -47,12 +55,13 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed } from 'vue'
 import request from '@/utils/request'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 const loading = ref(false)
 const saving = ref(false)
+const clearing = ref(false)
 const formRef = ref()
 
 const form = reactive({
@@ -105,6 +114,26 @@ const handleSave = async () => {
   })
 }
 
+const handleClearCache = () => {
+  ElMessageBox.confirm(
+    t('system.clear_cache_confirm'),
+    t('common.warning'),
+    {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
+      type: 'warning',
+    }
+  ).then(async () => {
+    clearing.value = true
+    try {
+      await request.post('/system/reload')
+      ElMessage.success(t('system.cache_cleared'))
+    } finally {
+      clearing.value = false
+    }
+  })
+}
+
 onMounted(() => { fetchData() })
 </script>
 
@@ -143,6 +172,12 @@ onMounted(() => { fetchData() })
 }
 
 .dim-text { color: #8a8; }
+
+.cache-section {
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid #005000;
+}
 
 .form-actions {
   display: flex;

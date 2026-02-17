@@ -129,7 +129,10 @@ export default {
     rule: '规则',
     filter_ip: '按IP筛选',
     filter_action: '按动作筛选',
-    search: '[ 搜索 ]'
+    search: '[ 搜索 ]',
+    clear_all: '[ 清空日志 ]',
+    clear_confirm: '此操作将永久删除所有访问日志，是否继续？',
+    cleared: '已清除 {count} 条访问日志'
   },
   geo: {
     new_rule: '[ 新增规则 ]',
@@ -193,6 +196,11 @@ export default {
     git_token_header: 'GIT_TOKEN 请求头',
     license_header: '许可证请求头',
     save: '[ 保存 ]',
-    reset: '[ 重置 ]'
+    reset: '[ 重置 ]',
+    section_cache: '缓存管理',
+    cache_desc: '清除服务端所有缓存。如果修改配置后数据未更新，可使用此功能。',
+    clear_cache: '[ 清除所有缓存 ]',
+    clear_cache_confirm: '将清除服务端所有缓存，服务会在下次请求时自动重建。是否继续？',
+    cache_cleared: '所有缓存已清除'
   }
 }

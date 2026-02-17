@@ -129,7 +129,10 @@ export default {
     rule: 'RÈGLE',
     filter_ip: 'Filtrer par IP',
     filter_action: 'Filtrer par action',
-    search: '[ RECHERCHER ]'
+    search: '[ RECHERCHER ]',
+    clear_all: '[ TOUT_SUPPRIMER ]',
+    clear_confirm: 'Tous les journaux d\'accès seront définitivement supprimés. Continuer ?',
+    cleared: '{count} entrées de journal supprimées'
   },
   geo: {
     new_rule: '[ NOUVELLE_RÈGLE ]',
@@ -193,6 +196,11 @@ export default {
     git_token_header: 'EN-TÊTE_GIT_TOKEN',
     license_header: 'EN-TÊTE_LICENCE',
     save: '[ ENREGISTRER ]',
-    reset: '[ RÉINITIALISER ]'
+    reset: '[ RÉINITIALISER ]',
+    section_cache: 'GESTION DU CACHE',
+    cache_desc: 'Vider tous les caches côté serveur. Utilisez cette option si les données ne sont pas à jour après une modification de configuration.',
+    clear_cache: '[ VIDER_LE_CACHE ]',
+    clear_cache_confirm: 'Tous les caches serveur seront vidés. Les services reconstruiront les caches à la prochaine requête. Continuer ?',
+    cache_cleared: 'Tous les caches ont été vidés'
   }
 }

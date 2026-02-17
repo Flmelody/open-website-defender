@@ -4,14 +4,12 @@ import (
 	"encoding/json"
 	"open-website-defender/internal/adapter/repository"
 	"open-website-defender/internal/domain/entity"
+	"open-website-defender/internal/infrastructure/cache"
 	"open-website-defender/internal/infrastructure/database"
+	"open-website-defender/internal/infrastructure/event"
 	"open-website-defender/internal/pkg"
 	_interface "open-website-defender/internal/usecase/interface"
 	"sync"
-)
-
-const (
-	cacheKeyLicenseToken = "license:token:"
 )
 
 var (
@@ -62,11 +60,15 @@ func (s *LicenseService) Create(input *CreateLicenseDTO) (*LicenseCreatedDTO, er
 }
 
 func (s *LicenseService) Delete(id uint) error {
+	lic, _ := s.licenseRepo.FindByID(id)
+
 	if err := s.licenseRepo.Delete(id); err != nil {
 		return err
 	}
-	// Invalidate all license caches by prefix is not possible with freecache,
-	// but individual tokens will expire naturally. This is acceptable.
+
+	if lic != nil {
+		event.Bus().Publish(event.LicenseChanged, lic.TokenHash)
+	}
 	return nil
 }
 
@@ -99,7 +101,7 @@ func (s *LicenseService) List(page, size int) ([]*LicenseDTO, int64, error) {
 
 func (s *LicenseService) ValidateToken(token string) (bool, error) {
 	tokenHash := pkg.SHA256Hash(token)
-	cacheKey := cacheKeyLicenseToken + tokenHash
+	cacheKey := cache.KeyLicenseToken + tokenHash
 
 	// Check cache
 	if cached, err := pkg.Cacher().Get([]byte(cacheKey)); err == nil {

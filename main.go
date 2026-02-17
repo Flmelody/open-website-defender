@@ -7,6 +7,7 @@ import (
 	"net/http"
 	_http "open-website-defender/internal/adapter/controller/http"
 	"open-website-defender/internal/adapter/controller/http/middleware"
+	"open-website-defender/internal/infrastructure/cache"
 	"open-website-defender/internal/infrastructure/config"
 	"open-website-defender/internal/infrastructure/database"
 	"open-website-defender/internal/infrastructure/logging"
@@ -131,6 +132,9 @@ func main() {
 		logging.Sugar.Fatalf("Error initializing database: %s", err)
 		return
 	}
+
+	// Initialize event-driven cache invalidation
+	cache.Init()
 
 	appConfig := getAppConfig()
 

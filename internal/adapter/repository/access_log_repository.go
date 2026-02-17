@@ -61,6 +61,11 @@ func (r *AccessLogRepository) DeleteBefore(before time.Time) (int64, error) {
 	return result.RowsAffected, result.Error
 }
 
+func (r *AccessLogRepository) DeleteAll() (int64, error) {
+	result := r.db.Where("1 = 1").Delete(&entity.AccessLog{})
+	return result.RowsAffected, result.Error
+}
+
 func (r *AccessLogRepository) GetStats() (map[string]int64, error) {
 	stats := make(map[string]int64)
 

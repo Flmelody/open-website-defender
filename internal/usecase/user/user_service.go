@@ -6,6 +6,7 @@ import (
 	"open-website-defender/internal/adapter/repository"
 	"open-website-defender/internal/domain/entity"
 	"open-website-defender/internal/infrastructure/database"
+	"open-website-defender/internal/infrastructure/event"
 	_interface "open-website-defender/internal/usecase/interface"
 	"strconv"
 	"sync"
@@ -115,7 +116,7 @@ func (s *UserService) UpdateUser(id uint, input *UpdateUserDTO) (*UserDTO, error
 		return nil, fmt.Errorf("failed to update user: %w", err)
 	}
 
-	InvalidateUserCache(id)
+	event.Bus().Publish(event.UserChanged, id)
 
 	return &UserDTO{
 		ID:       user.ID,
@@ -143,7 +144,7 @@ func (s *UserService) DeleteUser(id uint) error {
 		return fmt.Errorf("failed to delete user: %w", err)
 	}
 
-	InvalidateUserCache(id)
+	event.Bus().Publish(event.UserChanged, id)
 
 	return nil
 }

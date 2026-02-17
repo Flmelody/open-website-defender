@@ -129,7 +129,10 @@ export default {
     rule: 'ルール',
     filter_ip: 'IPで絞り込み',
     filter_action: 'アクションで絞り込み',
-    search: '[ 検索 ]'
+    search: '[ 検索 ]',
+    clear_all: '[ 全件削除 ]',
+    clear_confirm: 'すべてのアクセスログが完全に削除されます。続行しますか？',
+    cleared: '{count} 件のアクセスログを削除しました'
   },
   geo: {
     new_rule: '[ 新規ルール ]',
@@ -193,6 +196,11 @@ export default {
     git_token_header: 'GIT_TOKEN_ヘッダー',
     license_header: 'ライセンス_ヘッダー',
     save: '[ 保存 ]',
-    reset: '[ リセット ]'
+    reset: '[ リセット ]',
+    section_cache: 'キャッシュ管理',
+    cache_desc: 'サーバー側のすべてのキャッシュをクリアします。設定変更後にデータが更新されない場合に使用してください。',
+    clear_cache: '[ キャッシュ全削除 ]',
+    clear_cache_confirm: 'サーバー側のすべてのキャッシュがクリアされます。サービスは次のリクエスト時にキャッシュを再構築します。続行しますか？',
+    cache_cleared: 'すべてのキャッシュをクリアしました'
   }
 }

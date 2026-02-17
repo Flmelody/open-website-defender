@@ -7,18 +7,11 @@ import (
 
 	"open-website-defender/internal/adapter/repository"
 	domainError "open-website-defender/internal/domain/error"
+	"open-website-defender/internal/infrastructure/cache"
 	"open-website-defender/internal/infrastructure/database"
 	"open-website-defender/internal/pkg"
 	_interface "open-website-defender/internal/usecase/interface"
 )
-
-const cacheKeyUserPrefix = "user:info:"
-
-// InvalidateUserCache removes the cached user info for the given user ID.
-// Call this on user update, delete, or any permission change.
-func InvalidateUserCache(userID uint) {
-	pkg.Cacher().Del([]byte(fmt.Sprintf("%s%d", cacheKeyUserPrefix, userID)))
-}
 
 type AuthService struct {
 	userRepo _interface.UserRepository
@@ -81,9 +74,9 @@ func (s *AuthService) ValidateToken(tokenString string) (*UserInfoDTO, error) {
 	}
 
 	// Check user info cache
-	cache := pkg.Cacher()
-	cacheKey := []byte(fmt.Sprintf("%s%d", cacheKeyUserPrefix, claims.UserID))
-	if data, err := cache.Get(cacheKey); err == nil {
+	c := pkg.Cacher()
+	cacheKey := []byte(fmt.Sprintf("%s%d", cache.KeyUserInfo, claims.UserID))
+	if data, err := c.Get(cacheKey); err == nil {
 		var userInfo UserInfoDTO
 		if json.Unmarshal(data, &userInfo) == nil {
 			return &userInfo, nil
@@ -108,7 +101,7 @@ func (s *AuthService) ValidateToken(tokenString string) (*UserInfoDTO, error) {
 
 	// Cache user info (10 minutes)
 	if data, err := json.Marshal(userInfo); err == nil {
-		_ = cache.Set(cacheKey, data, 600)
+		_ = c.Set(cacheKey, data, 600)
 	}
 
 	return userInfo, nil

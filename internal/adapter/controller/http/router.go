@@ -82,6 +82,7 @@ func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 			// Access Logs
 			authorized.GET("/access-logs", handler.ListAccessLogs)
 			authorized.GET("/access-logs/stats", handler.GetAccessLogStats)
+			authorized.DELETE("/access-logs", handler.ClearAccessLogs)
 
 			// Geo-blocking
 			authorized.POST("/geo-block-rules", handler.CreateGeoBlockRule)

@@ -4,16 +4,17 @@ import (
 	"encoding/json"
 	"open-website-defender/internal/adapter/repository"
 	"open-website-defender/internal/domain/entity"
+	"open-website-defender/internal/infrastructure/cache"
 	"open-website-defender/internal/infrastructure/database"
+	"open-website-defender/internal/infrastructure/event"
 	"open-website-defender/internal/pkg"
 	_interface "open-website-defender/internal/usecase/interface"
 	"sync"
 )
 
 const (
-	cacheKeySystemSettings = "system:settings"
-	defaultGitTokenHeader  = "Defender-Git-Token"
-	defaultLicenseHeader   = "Defender-License"
+	defaultGitTokenHeader = "Defender-Git-Token"
+	defaultLicenseHeader  = "Defender-License"
 )
 
 var (
@@ -40,7 +41,7 @@ func NewSystemService(systemRepo _interface.SystemRepository) *SystemService {
 
 func (s *SystemService) GetSettings() (*SystemSettingsDTO, error) {
 	// Check cache
-	if cached, err := pkg.Cacher().Get([]byte(cacheKeySystemSettings)); err == nil {
+	if cached, err := pkg.Cacher().Get([]byte(cache.KeySystemSettings)); err == nil {
 		var dto SystemSettingsDTO
 		if json.Unmarshal(cached, &dto) == nil {
 			return &dto, nil
@@ -68,7 +69,7 @@ func (s *SystemService) GetSettings() (*SystemSettingsDTO, error) {
 
 	// Cache for 10 minutes
 	data, _ := json.Marshal(dto)
-	_ = pkg.Cacher().Set([]byte(cacheKeySystemSettings), data, 600)
+	_ = pkg.Cacher().Set([]byte(cache.KeySystemSettings), data, 600)
 
 	return dto, nil
 }
@@ -90,8 +91,7 @@ func (s *SystemService) UpdateSettings(input *UpdateSystemSettingsDTO) error {
 		return err
 	}
 
-	// Invalidate cache
-	pkg.Cacher().Del([]byte(cacheKeySystemSettings))
+	event.Bus().Publish(event.SystemSettingsChanged)
 
 	return nil
 }

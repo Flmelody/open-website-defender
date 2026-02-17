@@ -5,7 +5,9 @@ import (
 	"errors"
 	"open-website-defender/internal/adapter/repository"
 	"open-website-defender/internal/domain/entity"
+	"open-website-defender/internal/infrastructure/cache"
 	"open-website-defender/internal/infrastructure/database"
+	"open-website-defender/internal/infrastructure/event"
 	"open-website-defender/internal/pkg"
 	"strings"
 	"sync"
@@ -20,8 +22,6 @@ var (
 	geoBlockService *GeoBlockService
 	geoBlockOnce    sync.Once
 )
-
-const cacheKeyGeoBlockCodes = "geoblock:codes"
 
 func GetGeoBlockService() *GeoBlockService {
 	geoBlockOnce.Do(func() {
@@ -53,9 +53,9 @@ func (s *GeoBlockService) IsBlocked(ip string) (bool, string) {
 }
 
 func (s *GeoBlockService) getBlockedCodes() ([]string, error) {
-	cache := pkg.Cacher()
+	c := pkg.Cacher()
 
-	data, err := cache.Get([]byte(cacheKeyGeoBlockCodes))
+	data, err := c.Get([]byte(cache.KeyGeoBlockCodes))
 	if err == nil {
 		var codes []string
 		if err := json.Unmarshal(data, &codes); err == nil {
@@ -69,13 +69,9 @@ func (s *GeoBlockService) getBlockedCodes() ([]string, error) {
 	}
 
 	jsonData, _ := json.Marshal(codes)
-	cache.Set([]byte(cacheKeyGeoBlockCodes), jsonData, 3600)
+	c.Set([]byte(cache.KeyGeoBlockCodes), jsonData, 3600)
 
 	return codes, nil
-}
-
-func (s *GeoBlockService) invalidateCache() {
-	pkg.Cacher().Del([]byte(cacheKeyGeoBlockCodes))
 }
 
 type GeoBlockRuleDto struct {
@@ -108,7 +104,7 @@ func (s *GeoBlockService) Create(countryCode, countryName string) (*GeoBlockRule
 		return nil, err
 	}
 
-	s.invalidateCache()
+	event.Bus().Publish(event.GeoBlockChanged)
 
 	return &GeoBlockRuleDto{
 		ID:          rule.ID,
@@ -122,7 +118,7 @@ func (s *GeoBlockService) Delete(id uint) error {
 	if err := s.repo.Delete(id); err != nil {
 		return err
 	}
-	s.invalidateCache()
+	event.Bus().Publish(event.GeoBlockChanged)
 	return nil
 }
 

@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"open-website-defender/internal/adapter/repository"
 	"open-website-defender/internal/domain/entity"
+	"open-website-defender/internal/infrastructure/cache"
 	"open-website-defender/internal/infrastructure/database"
+	"open-website-defender/internal/infrastructure/event"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
 	_interface "open-website-defender/internal/usecase/interface"
@@ -22,11 +24,6 @@ var (
 	ipBlackListOnce    sync.Once
 )
 
-const (
-	cacheKeyBlackListRules = "blacklist:rules"
-	cacheKeyBlackListIP    = "blacklist:ip:"
-)
-
 func GetIpBlackListService() *IpBlackListService {
 	ipBlackListOnce.Do(func() {
 		ipBlackListService = &IpBlackListService{
@@ -37,10 +34,9 @@ func GetIpBlackListService() *IpBlackListService {
 }
 
 func (s *IpBlackListService) getRules() ([]string, error) {
-	cache := pkg.Cacher()
+	c := pkg.Cacher()
 
-	// Try to get from cache
-	data, err := cache.Get([]byte(cacheKeyBlackListRules))
+	data, err := c.Get([]byte(cache.KeyBlackListRules))
 	if err == nil {
 		var rules []string
 		if err := json.Unmarshal(data, &rules); err == nil {
@@ -48,8 +44,6 @@ func (s *IpBlackListService) getRules() ([]string, error) {
 		}
 	}
 
-	// Load from DB
-	// Assuming reasonable count for now.
 	list, _, err := s.repo.List(10000, 0)
 	if err != nil {
 		return nil, err
@@ -60,10 +54,9 @@ func (s *IpBlackListService) getRules() ([]string, error) {
 		rules = append(rules, item.Ip)
 	}
 
-	// Cache it
 	data, err = json.Marshal(rules)
 	if err == nil {
-		cache.Set([]byte(cacheKeyBlackListRules), data, 3600) // 1 hour TTL for rules list
+		c.Set([]byte(cache.KeyBlackListRules), data, 3600)
 	}
 
 	return rules, nil
@@ -90,9 +83,7 @@ func (s *IpBlackListService) Create(input *CreateIpBlackListDto) (*IpBlackListDt
 		return nil, fmt.Errorf("failed to create blacklist item: %w", err)
 	}
 
-	// Invalidate cache
-	pkg.Cacher().Del([]byte(cacheKeyBlackListRules))
-	// Note: individual IP decisions might still be cached for a short time
+	event.Bus().Publish(event.BlackListChanged)
 
 	return &IpBlackListDto{
 		ID:        item.ID,
@@ -105,7 +96,7 @@ func (s *IpBlackListService) Delete(id uint) error {
 	if err := s.repo.Delete(id); err != nil {
 		return err
 	}
-	pkg.Cacher().Del([]byte(cacheKeyBlackListRules))
+	event.Bus().Publish(event.BlackListChanged)
 	return nil
 }
 
@@ -135,18 +126,6 @@ func (s *IpBlackListService) List(page, size int) ([]*IpBlackListDto, int64, err
 }
 
 func (s *IpBlackListService) FindByIP(ip string) (*IpBlackListDto, error) {
-	cache := pkg.Cacher()
-	cacheKey := []byte(cacheKeyBlackListIP + ip)
-
-	// Try to get cached decision for this IP
-	if val, err := cache.Get(cacheKey); err == nil {
-		if len(val) == 0 {
-			return nil, nil // Cached as "not found"
-		}
-		return &IpBlackListDto{Ip: string(val)}, nil // Cached as "found", val is the rule
-	}
-
-	// Slow path: match against rules
 	rules, err := s.getRules()
 	if err != nil {
 		logging.Sugar.Errorf("Failed to get blacklist rules: %v", err)
@@ -155,13 +134,9 @@ func (s *IpBlackListService) FindByIP(ip string) (*IpBlackListDto, error) {
 
 	for _, rule := range rules {
 		if pkg.MatchIP(rule, ip) {
-			cache.Set(cacheKey, []byte(rule), 600) // 10 min TTL for IP check
 			return &IpBlackListDto{Ip: rule}, nil
 		}
 	}
-
-	// Cache negative result (empty byte slice)
-	cache.Set(cacheKey, []byte{}, 600)
 
 	return nil, nil
 }

@@ -4,11 +4,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"open-website-defender/internal/adapter/repository"
 	"open-website-defender/internal/domain/entity"
+	"open-website-defender/internal/infrastructure/cache"
 	"open-website-defender/internal/infrastructure/database"
+	"open-website-defender/internal/infrastructure/event"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
+
+	"open-website-defender/internal/adapter/repository"
 	_interface "open-website-defender/internal/usecase/interface"
 	"sync"
 )
@@ -22,16 +25,6 @@ var (
 	ipWhiteListOnce    sync.Once
 )
 
-const (
-	cacheKeyWhiteListRules = "whitelist:rules"
-	cacheKeyWhiteListIP    = "whitelist:ip:"
-)
-
-type whiteListRule struct {
-	IP     string `json:"ip"`
-	Domain string `json:"domain"`
-}
-
 func GetIpWhiteListService() *IpWhiteListService {
 	ipWhiteListOnce.Do(func() {
 		ipWhiteListService = &IpWhiteListService{
@@ -42,9 +35,9 @@ func GetIpWhiteListService() *IpWhiteListService {
 }
 
 func (s *IpWhiteListService) getRules() ([]*whiteListRule, error) {
-	cache := pkg.Cacher()
+	c := pkg.Cacher()
 
-	data, err := cache.Get([]byte(cacheKeyWhiteListRules))
+	data, err := c.Get([]byte(cache.KeyWhiteListRules))
 	if err == nil {
 		var rules []*whiteListRule
 		if err := json.Unmarshal(data, &rules); err == nil {
@@ -64,7 +57,7 @@ func (s *IpWhiteListService) getRules() ([]*whiteListRule, error) {
 
 	data, err = json.Marshal(rules)
 	if err == nil {
-		cache.Set([]byte(cacheKeyWhiteListRules), data, 3600)
+		c.Set([]byte(cache.KeyWhiteListRules), data, 3600)
 	}
 
 	return rules, nil
@@ -92,7 +85,7 @@ func (s *IpWhiteListService) Create(input *CreateIpWhiteListDto) (*IpWhiteListDt
 		return nil, fmt.Errorf("failed to create whitelist item: %w", err)
 	}
 
-	pkg.Cacher().Del([]byte(cacheKeyWhiteListRules))
+	event.Bus().Publish(event.WhiteListChanged)
 
 	return &IpWhiteListDto{
 		ID:        item.ID,
@@ -128,7 +121,7 @@ func (s *IpWhiteListService) Update(id uint, input *UpdateIpWhiteListDto) (*IpWh
 		return nil, fmt.Errorf("failed to update whitelist item: %w", err)
 	}
 
-	pkg.Cacher().Del([]byte(cacheKeyWhiteListRules))
+	event.Bus().Publish(event.WhiteListChanged)
 
 	return &IpWhiteListDto{
 		ID:        item.ID,
@@ -142,7 +135,7 @@ func (s *IpWhiteListService) Delete(id uint) error {
 	if err := s.repo.Delete(id); err != nil {
 		return err
 	}
-	pkg.Cacher().Del([]byte(cacheKeyWhiteListRules))
+	event.Bus().Publish(event.WhiteListChanged)
 	return nil
 }
 
@@ -173,19 +166,6 @@ func (s *IpWhiteListService) List(page, size int) ([]*IpWhiteListDto, int64, err
 }
 
 func (s *IpWhiteListService) FindByIP(ip string) (*IpWhiteListDto, error) {
-	cache := pkg.Cacher()
-	cacheKey := []byte(cacheKeyWhiteListIP + ip)
-
-	if val, err := cache.Get(cacheKey); err == nil {
-		if len(val) == 0 {
-			return nil, nil
-		}
-		var dto IpWhiteListDto
-		if err := json.Unmarshal(val, &dto); err == nil {
-			return &dto, nil
-		}
-	}
-
 	rules, err := s.getRules()
 	if err != nil {
 		logging.Sugar.Errorf("Failed to get whitelist rules: %v", err)
@@ -194,14 +174,9 @@ func (s *IpWhiteListService) FindByIP(ip string) (*IpWhiteListDto, error) {
 
 	for _, rule := range rules {
 		if pkg.MatchIP(rule.IP, ip) {
-			dto := &IpWhiteListDto{Ip: rule.IP, Domain: rule.Domain}
-			data, _ := json.Marshal(dto)
-			cache.Set(cacheKey, data, 600)
-			return dto, nil
+			return &IpWhiteListDto{Ip: rule.IP, Domain: rule.Domain}, nil
 		}
 	}
-
-	cache.Set(cacheKey, []byte{}, 600)
 
 	return nil, nil
 }

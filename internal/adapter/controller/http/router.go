@@ -9,16 +9,14 @@ import (
 	"github.com/spf13/viper"
 )
 
-func Setup(appConfig *config.AppConfig) *gin.Engine {
-	router := gin.Default()
-
+func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 	api := router.Group(appConfig.RootPath)
 	{
 		// Standalone auth check endpoint
 		api.GET("/auth", handler.Auth)
 
 		// Login with optional rate limiting
-		loginHandlers := []gin.HandlerFunc{}
+		var loginHandlers []gin.HandlerFunc
 		if viper.GetBool("rate-limit.enabled") {
 			loginRPM := viper.GetInt("rate-limit.login.requests-per-minute")
 			if loginRPM <= 0 {
@@ -118,6 +116,4 @@ func Setup(appConfig *config.AppConfig) *gin.Engine {
 	router.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
-
-	return router
 }

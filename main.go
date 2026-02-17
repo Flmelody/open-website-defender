@@ -134,8 +134,7 @@ func main() {
 
 	appConfig := getAppConfig()
 
-	r := _http.Setup(appConfig)
-
+	r := gin.Default()
 	r.RedirectTrailingSlash = true
 	trustedProxies := viper.GetStringSlice("trustedProxies")
 	err = r.SetTrustedProxies(trustedProxies)
@@ -212,6 +211,9 @@ func main() {
 		r.Use(middleware.RateLimiter("global", globalRPM))
 		logging.Sugar.Infof("Global rate limiter enabled: %d requests/minute per IP", globalRPM)
 	}
+
+	// Register routes AFTER all middleware so they are included in the handler chain
+	_http.Setup(r, appConfig)
 
 	// Server configuration with timeouts
 	port := os.Getenv("PORT")

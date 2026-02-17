@@ -43,6 +43,9 @@ server {
         # Pass the real client IP for IP list checks and rate limiting
         proxy_set_header X-Forwarded-For $remote_addr;
 
+        # Pass the original URI for git request detection
+        proxy_set_header X-Original-URI $request_uri;
+
         # Do not send the request body to the auth endpoint
         proxy_pass_request_body off;
         proxy_set_header Content-Length "";
@@ -65,6 +68,7 @@ location = /auth {
     proxy_pass http://127.0.0.1:9999/wall/auth;
     proxy_set_header X-Forwarded-Host $host;
     proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Original-URI $request_uri;
     proxy_pass_request_body off;
     proxy_set_header Content-Length "";
 }
@@ -76,6 +80,7 @@ location = /auth {
 | `proxy_pass` | Forwards the auth check to Website Defender's `/auth` endpoint |
 | `X-Forwarded-Host` | Passes the original requested domain so Defender can perform [authorized domain](../features/authorized-domains.md) checks |
 | `X-Forwarded-For` | Passes the real client IP for [IP list](../features/ip-lists.md) checks and [rate limiting](../features/rate-limiting.md) |
+| `X-Original-URI` | Passes the original request URI so Defender can detect git requests for git token authentication |
 | `proxy_pass_request_body off` | The auth check does not need the request body -- this improves performance |
 | `Content-Length ""` | Required when disabling request body forwarding |
 
@@ -112,6 +117,7 @@ server {
         proxy_pass http://127.0.0.1:9999/wall/auth;
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Original-URI $request_uri;
         proxy_pass_request_body off;
         proxy_set_header Content-Length "";
     }
@@ -131,6 +137,7 @@ server {
         proxy_pass http://127.0.0.1:9999/wall/auth;
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Original-URI $request_uri;
         proxy_pass_request_body off;
         proxy_set_header Content-Length "";
     }

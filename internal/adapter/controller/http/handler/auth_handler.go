@@ -17,6 +17,25 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func isGitRequest(c *gin.Context) bool {
+	if !strings.HasPrefix(c.GetHeader("User-Agent"), "git/") {
+		return false
+	}
+	uri := c.GetHeader("X-Original-URI")
+	if uri == "" {
+		return false
+	}
+	// Strip query string
+	if idx := strings.IndexByte(uri, '?'); idx != -1 {
+		uri = uri[:idx]
+	}
+	return strings.HasSuffix(uri, "/info/refs") ||
+		strings.HasSuffix(uri, "/git-upload-pack") ||
+		strings.HasSuffix(uri, "/git-receive-pack") ||
+		strings.HasSuffix(uri, "/HEAD") ||
+		strings.Contains(uri, "/objects/")
+}
+
 func getRequestedDomain(c *gin.Context) string {
 	host := c.GetHeader("X-Forwarded-Host")
 	if host == "" {
@@ -130,26 +149,28 @@ func Auth(c *gin.Context) {
 		logging.Sugar.Warnf("Token validation failed: %v", err)
 	}
 
-	// 5. Check Git Token header (configurable)
+	// 5. Check Git Token header (configurable, only for git requests)
 	systemService := system.GetSystemService()
 	gitHeaderName, licenseHeaderName := systemService.GetHeaderNames()
 
-	gitTokenHeader := c.GetHeader(gitHeaderName)
-	if gitTokenHeader != "" {
-		parts := strings.SplitN(gitTokenHeader, ":", 2)
-		if len(parts) == 2 {
-			userInfo, err := service.ValidateGitToken(parts[0], parts[1])
-			if err == nil {
-				if !checkUserScope(userInfo, requestedDomain) {
-					logging.Sugar.Warnf("Scope denied for user '%s': domain '%s' not in scopes '%s'", userInfo.Username, requestedDomain, userInfo.Scopes)
-					response.Forbidden(c, "Domain not in user scope")
+	if isGitRequest(c) {
+		gitTokenHeader := c.GetHeader(gitHeaderName)
+		if gitTokenHeader != "" {
+			parts := strings.SplitN(gitTokenHeader, ":", 2)
+			if len(parts) == 2 {
+				userInfo, err := service.ValidateGitToken(parts[0], parts[1])
+				if err == nil {
+					if !checkUserScope(userInfo, requestedDomain) {
+						logging.Sugar.Warnf("Scope denied for user '%s': domain '%s' not in scopes '%s'", userInfo.Username, requestedDomain, userInfo.Scopes)
+						response.Forbidden(c, "Domain not in user scope")
+						return
+					}
+					logging.Sugar.Infof("Access granted via git token for user: %s", parts[0])
+					response.Success(c, userInfo)
 					return
 				}
-				logging.Sugar.Infof("Access granted via git token for user: %s", parts[0])
-				response.Success(c, userInfo)
-				return
+				logging.Sugar.Warnf("Git token validation failed for user '%s': %v", parts[0], err)
 			}
-			logging.Sugar.Warnf("Git token validation failed for user '%s': %v", parts[0], err)
 		}
 	}
 

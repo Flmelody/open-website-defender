@@ -39,6 +39,9 @@ server {
         # 传递客户端真实 IP（用于 IP 黑白名单和访问日志）
         proxy_set_header X-Forwarded-For $remote_addr;
 
+        # 传递原始请求 URI（用于识别 Git 请求）
+        proxy_set_header X-Original-URI $request_uri;
+
         # auth_request 不需要请求体
         proxy_pass_request_body off;
         proxy_set_header Content-Length "";
@@ -101,6 +104,14 @@ proxy_set_header X-Forwarded-For $remote_addr;
 !!! warning "真实 IP 重要性"
     如果不配置此项，Defender 看到的将是 Nginx 的 IP 地址（通常是 `127.0.0.1`），导致 IP 相关的安全功能全部失效。
 
+### X-Original-URI
+
+```nginx
+proxy_set_header X-Original-URI $request_uri;
+```
+
+将客户端的原始请求 URI 传递给 Defender。Defender 使用此信息识别 Git HTTP 请求，仅对 Git 请求进行 Git Token 认证。
+
 ### proxy_pass_request_body off
 
 ```nginx
@@ -129,6 +140,7 @@ server {
         proxy_pass http://127.0.0.1:9999/wall/auth;
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Original-URI $request_uri;
         proxy_pass_request_body off;
         proxy_set_header Content-Length "";
     }
@@ -148,6 +160,7 @@ server {
         proxy_pass http://127.0.0.1:9999/wall/auth;
         proxy_set_header X-Forwarded-Host $host;
         proxy_set_header X-Forwarded-For $remote_addr;
+        proxy_set_header X-Original-URI $request_uri;
         proxy_pass_request_body off;
         proxy_set_header Content-Length "";
     }

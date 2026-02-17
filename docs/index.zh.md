@@ -134,6 +134,7 @@ location = /auth {
     proxy_pass http://127.0.0.1:9999/wall/auth;
     proxy_set_header X-Forwarded-Host $host;
     proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Original-URI $request_uri;
     proxy_pass_request_body off;
     proxy_set_header Content-Length "";
 }

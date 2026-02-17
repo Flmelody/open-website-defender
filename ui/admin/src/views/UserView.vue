@@ -117,12 +117,20 @@
           <el-input v-model="form.username" placeholder="_" />
         </el-form-item>
         <el-form-item :label="'> ' + t('user.password')" prop="password">
-          <el-input
-            v-model="form.password"
-            type="password"
-            show-password
-            :placeholder="form.id ? t('user.unchanged') : '_'"
-          />
+          <div class="password-row">
+            <el-input
+              v-model="form.password"
+              type="password"
+              show-password
+              :placeholder="form.id ? t('user.unchanged') : '_'"
+            />
+            <el-button type="primary" size="default" @click="generatePassword" class="generate-btn">
+              {{ t('user.generate') }}
+            </el-button>
+            <el-button size="default" @click="copyPassword" :disabled="!form.password" class="copy-pwd-btn">
+              <el-icon><CopyDocument /></el-icon>
+            </el-button>
+          </div>
         </el-form-item>
         <el-form-item :label="'> ' + t('user.email')" prop="email">
           <el-input v-model="form.email" :placeholder="t('user.email_placeholder')" />
@@ -414,6 +422,54 @@ const generateRandomHex = (bytes: number): string => {
   return Array.from(arr, b => b.toString(16).padStart(2, '0')).join('')
 }
 
+const generatePassword = () => {
+  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
+  const lower = 'abcdefghjkmnpqrstuvwxyz'
+  const digits = '23456789'
+  const special = '!@#$%^&*_+-='
+  const all = upper + lower + digits + special
+
+  const pick = (charset: string) => charset[Math.floor(Math.random() * charset.length)]
+
+  // Ensure at least 2 of each category
+  const required = [
+    pick(upper), pick(upper),
+    pick(lower), pick(lower),
+    pick(digits), pick(digits),
+    pick(special), pick(special),
+  ]
+
+  // Fill remaining with random from all
+  const remaining = Array.from({ length: 8 }, () => pick(all))
+  const chars = [...required, ...remaining]
+
+  // Shuffle
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [chars[i], chars[j]] = [chars[j], chars[i]]
+  }
+
+  form.password = chars.join('')
+}
+
+const copyPassword = async () => {
+  if (!form.password) return
+  try {
+    await navigator.clipboard.writeText(form.password)
+    ElMessage.success(t('user.copied'))
+  } catch {
+    const textarea = document.createElement('textarea')
+    textarea.value = form.password
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textarea)
+    ElMessage.success(t('user.copied'))
+  }
+}
+
 const generateGitToken = () => {
   const token = generateRandomHex(32)
   form.git_token = token
@@ -642,18 +698,36 @@ onMounted(() => {
   gap: 12px;
 }
 
+.password-row,
 .git-token-row {
   display: flex;
   gap: 10px;
   width: 100%;
 }
 
+.password-row .el-input,
 .git-token-row .el-input {
   flex: 1;
 }
 
-.generate-btn {
+.generate-btn,
+.copy-pwd-btn {
   flex-shrink: 0;
+}
+
+.copy-pwd-btn {
+  background: transparent !important;
+  border: 1px solid #005000 !important;
+  color: #0F0 !important;
+}
+
+.copy-pwd-btn:hover:not(:disabled) {
+  background: rgba(0, 60, 0, 0.4) !important;
+  border-color: #0F0 !important;
+}
+
+.copy-pwd-btn:disabled {
+  opacity: 0.4;
 }
 
 /* Token result dialog styles */

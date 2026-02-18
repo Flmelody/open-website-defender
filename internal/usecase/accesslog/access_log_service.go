@@ -174,6 +174,17 @@ func (s *AccessLogService) GetTopBlockedIPs(limit int) ([]repository.TopBlockedI
 	return s.repo.GetTopBlockedIPs(limit)
 }
 
+func (s *AccessLogService) GetRequestTrend(hours int) ([]repository.HourlyTrend, error) {
+	if hours <= 0 {
+		hours = 24
+	}
+	return s.repo.GetRequestTrend(hours)
+}
+
+func (s *AccessLogService) GetBlockReasonBreakdown() ([]repository.BlockReasonCount, error) {
+	return s.repo.GetBlockReasonBreakdown()
+}
+
 func (s *AccessLogService) ClearAll() (int64, error) {
 	return s.repo.DeleteAll()
 }

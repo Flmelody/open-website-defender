@@ -28,6 +28,16 @@ func GetDashboardStats(c *gin.Context) {
 		logging.Sugar.Errorf("Failed to get top blocked IPs: %v", err)
 	}
 
+	requestTrend, err := logService.GetRequestTrend(24)
+	if err != nil {
+		logging.Sugar.Errorf("Failed to get request trend: %v", err)
+	}
+
+	blockReasons, err := logService.GetBlockReasonBreakdown()
+	if err != nil {
+		logging.Sugar.Errorf("Failed to get block reason breakdown: %v", err)
+	}
+
 	// Entity counts
 	var blacklistCount, whitelistCount, userCount, wafRuleCount int64
 	database.DB.Model(&entity.IpBlackList{}).Count(&blacklistCount)
@@ -46,6 +56,8 @@ func GetDashboardStats(c *gin.Context) {
 		"user_count":       userCount,
 		"waf_rule_count":   wafRuleCount,
 		"top_blocked_ips":  topBlocked,
+		"request_trend":    requestTrend,
+		"block_reasons":    blockReasons,
 		"uptime_seconds":   int64(uptime.Seconds()),
 	})
 }

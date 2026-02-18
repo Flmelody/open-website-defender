@@ -107,7 +107,11 @@ export default {
     user_count: '用户数量',
     uptime: '运行时间',
     top_blocked_ips: '被拦截最多的IP',
-    block_count: '拦截次数'
+    block_count: '拦截次数',
+    request_trend: '请求趋势 (24小时)',
+    block_reasons: '拦截原因分布',
+    block_rate: '拦截率',
+    no_data: '暂无数据'
   },
   waf: {
     new_rule: '[ 新增规则 ]',

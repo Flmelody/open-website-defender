@@ -107,7 +107,11 @@ export default {
     user_count: 'ПОЛЬЗОВАТЕЛИ',
     uptime: 'ВРЕМЯ_РАБОТЫ',
     top_blocked_ips: 'НАИБОЛЕЕ_БЛОКИРУЕМЫЕ_IP',
-    block_count: 'БЛОКИРОВКИ'
+    block_count: 'БЛОКИРОВКИ',
+    request_trend: 'ТРЕНД_ЗАПРОСОВ (24Ч)',
+    block_reasons: 'ПРИЧИНЫ_БЛОКИРОВКИ',
+    block_rate: 'ПРОЦЕНТ_БЛОКИРОВОК',
+    no_data: 'НЕТ ДАННЫХ'
   },
   waf: {
     new_rule: '[ НОВОЕ_ПРАВИЛО ]',

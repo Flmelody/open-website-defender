@@ -10,7 +10,7 @@
 
 /* semantic color variables for this project */
 :root {
-  --color-background: var(--vt-c-white);
+  --color-background: #051005;
   --color-background-soft: #f8f8f8;
   --color-background-mute: #f2f2f2;
   --color-border: #dedede;

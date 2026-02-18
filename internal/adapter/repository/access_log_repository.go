@@ -96,3 +96,50 @@ func (r *AccessLogRepository) GetTopBlockedIPs(limit int) ([]TopBlockedIP, error
 		Find(&results).Error
 	return results, err
 }
+
+type HourlyTrend struct {
+	Hour    string `json:"hour"`
+	Total   int64  `json:"total"`
+	Blocked int64  `json:"blocked"`
+}
+
+func (r *AccessLogRepository) hourExpr() string {
+	switch r.db.Dialector.Name() {
+	case "mysql":
+		return "DATE_FORMAT(created_at, '%Y-%m-%d %H:00')"
+	case "postgres":
+		return "TO_CHAR(DATE_TRUNC('hour', created_at), 'YYYY-MM-DD HH24:00')"
+	default: // sqlite
+		return "strftime('%Y-%m-%d %H:00', created_at)"
+	}
+}
+
+func (r *AccessLogRepository) GetRequestTrend(hours int) ([]HourlyTrend, error) {
+	since := time.Now().UTC().Add(-time.Duration(hours) * time.Hour)
+	hourExpr := r.hourExpr()
+	var results []HourlyTrend
+	err := r.db.Model(&entity.AccessLog{}).
+		Select(hourExpr+" as hour, count(*) as total, coalesce(sum(case when action LIKE 'blocked_%' then 1 else 0 end), 0) as blocked").
+		Where("created_at >= ?", since).
+		Group("hour").
+		Having("hour IS NOT NULL").
+		Order("hour ASC").
+		Find(&results).Error
+	return results, err
+}
+
+type BlockReasonCount struct {
+	Action string `json:"action"`
+	Count  int64  `json:"count"`
+}
+
+func (r *AccessLogRepository) GetBlockReasonBreakdown() ([]BlockReasonCount, error) {
+	var results []BlockReasonCount
+	err := r.db.Model(&entity.AccessLog{}).
+		Select("action, count(*) as count").
+		Where("action LIKE 'blocked_%'").
+		Group("action").
+		Order("count DESC").
+		Find(&results).Error
+	return results, err
+}

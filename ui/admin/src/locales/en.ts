@@ -107,7 +107,11 @@ export default {
     user_count: 'USER_COUNT',
     uptime: 'UPTIME',
     top_blocked_ips: 'TOP_BLOCKED_IPS',
-    block_count: 'BLOCK_COUNT'
+    block_count: 'BLOCK_COUNT',
+    request_trend: 'REQUEST_TREND (24H)',
+    block_reasons: 'BLOCK_REASONS',
+    block_rate: 'BLOCK_RATE',
+    no_data: 'NO DATA'
   },
   waf: {
     new_rule: '[ NEW_RULE ]',

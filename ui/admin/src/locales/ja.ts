@@ -107,7 +107,11 @@ export default {
     user_count: 'ユーザー数',
     uptime: '稼働時間',
     top_blocked_ips: 'ブロック数上位IP',
-    block_count: 'ブロック数'
+    block_count: 'ブロック数',
+    request_trend: 'リクエスト推移 (24時間)',
+    block_reasons: 'ブロック理由',
+    block_rate: 'ブロック率',
+    no_data: 'データなし'
   },
   waf: {
     new_rule: '[ 新規ルール ]',

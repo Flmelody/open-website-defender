@@ -275,6 +275,132 @@ body {
   font-weight: bold;
 }
 
+/* Dialog Body */
+.el-dialog__body {
+  background: transparent !important;
+  color: #cfc !important;
+}
+
+/* Overlay / Loading Mask */
+.el-overlay {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+.el-loading-mask {
+  background-color: rgba(5, 16, 5, 0.85) !important;
+}
+
+.el-loading-spinner .el-loading-text {
+  color: #0F0 !important;
+}
+
+.el-loading-spinner .path {
+  stroke: #0F0 !important;
+}
+
+/* Checkbox */
+.el-checkbox__label {
+  color: #cfc !important;
+  font-family: var(--font-mono) !important;
+}
+
+.el-checkbox__inner {
+  background-color: rgba(0, 20, 0, 0.6) !important;
+  border-color: #005000 !important;
+}
+
+.el-checkbox__input.is-checked .el-checkbox__inner {
+  background-color: #005000 !important;
+  border-color: #0F0 !important;
+}
+
+.el-checkbox__input.is-checked + .el-checkbox__label {
+  color: #0F0 !important;
+}
+
+/* Switch */
+.el-switch__core {
+  background-color: rgba(0, 30, 0, 0.6) !important;
+  border-color: #004000 !important;
+}
+
+.el-switch.is-checked .el-switch__core {
+  background-color: #005000 !important;
+  border-color: #008000 !important;
+}
+
+/* Tag */
+.el-tag {
+  font-family: var(--font-mono) !important;
+}
+
+/* Message / Notification */
+.el-message {
+  background: rgba(5, 20, 5, 0.95) !important;
+  border: 1px solid #005000 !important;
+  --el-message-text-color: #cfc !important;
+}
+
+.el-message .el-message__content {
+  color: #cfc !important;
+}
+
+.el-message--success .el-message__content { color: #0F0 !important; }
+.el-message--error .el-message__content { color: #f56c6c !important; }
+.el-message--warning .el-message__content { color: #e6a23c !important; }
+
+.el-notification {
+  background: rgba(5, 20, 5, 0.95) !important;
+  border: 1px solid #005000 !important;
+}
+
+.el-notification__title {
+  color: #0F0 !important;
+}
+
+.el-notification__content {
+  color: #cfc !important;
+}
+
+/* Table inner elements */
+.el-table__inner-wrapper,
+.el-table__body-wrapper,
+.el-table__header-wrapper {
+  background-color: transparent !important;
+}
+
+.el-table--enable-row-hover .el-table__body tr:hover > td.el-table__cell {
+  background-color: rgba(0, 255, 0, 0.08) !important;
+}
+
+.el-table__empty-block {
+  background-color: transparent !important;
+}
+
+.el-table__empty-text {
+  color: #8a8 !important;
+}
+
+/* Form */
+.el-form-item__label {
+  color: #0F0 !important;
+  font-family: var(--font-mono) !important;
+}
+
+.el-form-item__error {
+  font-family: var(--font-mono) !important;
+}
+
+/* Pagination total & sizes */
+.el-pagination__total {
+  color: #8a8 !important;
+  font-family: var(--font-mono) !important;
+}
+
+.el-pagination__sizes .el-select .el-select__wrapper {
+  background-color: rgba(0, 20, 0, 0.6) !important;
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;

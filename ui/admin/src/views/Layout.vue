@@ -281,6 +281,7 @@ const handleLangCommand = (command: string) => {
 
 .main-content {
   padding: 40px;
+  background-color: transparent;
 }
 </style>
 

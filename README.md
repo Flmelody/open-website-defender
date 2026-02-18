@@ -4,7 +4,7 @@
 
 `Website Defender` is a lightweight `WAF` (Web Application Firewall) designed to provide additional protection for websites exposed on public networks.
 
-![Website Defender Dashboard](assets/defender-glance.jpg)
+![Website Defender Dashboard](assets/defender-glance-en.png)
 
 Enterprises often deploy many internal applications such as `Gitlab`, `Jenkins`, `Prometheus`, `Nexus`, `Nacos`, etc. When exposed, these services may face security risks like:
 - Lack of unified authentication

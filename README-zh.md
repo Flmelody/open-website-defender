@@ -2,7 +2,7 @@
 
 `Website Defender` 是一个轻量级的 `WAF`（Web 应用防火墙），能够对暴露在公共网络下的网站提供额外的防护。
 
-![Website Defender 仪表盘](assets/defender-glance.jpg)
+![Website Defender 仪表盘](assets/defender-glance-zh.png)
 
 企业通常会部署许多内部应用，例如 `Gitlab`、`Jenkins`、`Prometheus`、`Nexus`、`Nacos` 等。当这些服务暴露在公网时，可能面临以下安全风险：
 - 缺少统一的登录鉴权

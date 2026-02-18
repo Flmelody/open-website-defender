@@ -146,7 +146,7 @@
         <el-form-item prop="is_admin">
           <el-checkbox v-model="form.is_admin" :label="t('user.is_admin')" />
         </el-form-item>
-        <el-form-item :label="'> ' + t('user.authorized_domains')" prop="scopes">
+        <el-form-item v-show="!form.is_admin" :label="'> ' + t('user.authorized_domains')" prop="scopes">
           <el-select
             v-model="scopesArray"
             multiple
@@ -154,7 +154,6 @@
             allow-create
             default-first-option
             :placeholder="t('user.authorized_domains_placeholder')"
-            :disabled="form.is_admin"
             style="width: 100%"
           >
             <el-option v-for="d in domainOptions" :key="d" :label="d" :value="d" />

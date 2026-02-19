@@ -21,6 +21,7 @@
           <el-option label="Blocked (Rate)" value="blocked_ratelimit" />
           <el-option label="Blocked (Geo)" value="blocked_geo" />
         </el-select>
+        <el-date-picker v-model="dateRange" type="datetimerange" size="small" :start-placeholder="t('access_log.filter_time_start')" :end-placeholder="t('access_log.filter_time_end')" value-format="YYYY-MM-DDTHH:mm:ssZ" @change="fetchData" />
         <el-button type="primary" size="small" @click="fetchData">{{ t('access_log.search') }}</el-button>
       </div>
 
@@ -70,6 +71,13 @@
               <span class="dim-text">{{ new Date(scope.row.created_at).toLocaleString() }}</span>
             </template>
           </el-table-column>
+          <el-table-column :label="t('common.actions')" width="90" fixed="right">
+            <template #default="scope">
+              <el-button type="danger" link size="small" class="action-link" @click="handleBlockIp(scope.row)">
+                {{ t('access_log.block_ip') }}
+              </el-button>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
 
@@ -106,6 +114,7 @@ const queryParams = reactive({
   client_ip: '',
   action: ''
 })
+const dateRange = ref<[string, string] | null>(null)
 
 const actionTag = (action: string) => {
   if (action === 'allowed') return 'success'
@@ -119,6 +128,10 @@ const fetchData = async () => {
     const params: any = { page: queryParams.page, size: queryParams.size }
     if (queryParams.client_ip) params.client_ip = queryParams.client_ip
     if (queryParams.action) params.action = queryParams.action
+    if (dateRange.value) {
+      params.start_time = dateRange.value[0]
+      params.end_time = dateRange.value[1]
+    }
     const res: any = await request.get('/access-logs', { params })
     tableData.value = res.list || []
     total.value = res.total || 0
@@ -147,6 +160,26 @@ const handleClear = () => {
   })
 }
 
+const handleBlockIp = (row: any) => {
+  ElMessageBox.confirm(
+    t('access_log.block_ip_confirm', { ip: row.client_ip }),
+    t('common.warning'),
+    {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
+      type: 'warning',
+    }
+  ).then(async () => {
+    try {
+      await request.post('/ip-black-list', { ip: row.client_ip })
+      ElMessage.success(t('access_log.block_ip_success', { ip: row.client_ip }))
+      fetchData()
+    } catch {
+      // handled
+    }
+  })
+}
+
 const handleSizeChange = (val: number) => { queryParams.size = val; fetchData() }
 const handleCurrentChange = (val: number) => { queryParams.page = val; fetchData() }
 
@@ -162,8 +195,9 @@ onMounted(() => { fetchData() })
 .command { color: #fff; }
 .blink-cursor::after { content: '_'; animation: blink 1s step-end infinite; }
 @keyframes blink { 50% { opacity: 0; } }
-.filter-bar { padding: 12px 25px; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #003000; background: rgba(0, 40, 0, 0.2); }
+.filter-bar { padding: 12px 25px; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #003000; background: rgba(0, 40, 0, 0.2); flex-wrap: wrap; }
 .hacker-table { font-family: 'Courier New', monospace; }
+.action-link { font-weight: bold; text-decoration: underline; }
 .dim-text { color: #8a8; }
 .bright-text { color: #fff; font-weight: bold; }
 .card-footer { padding: 12px 25px; border-top: 1px solid #005000; display: flex; justify-content: space-between; align-items: center; background: rgba(0, 60, 0, 0.2); border-radius: 0 0 4px 4px; }

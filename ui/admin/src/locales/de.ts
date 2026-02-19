@@ -135,6 +135,11 @@ export default {
     filter_action: 'Nach Aktion filtern',
     search: '[ SUCHEN ]',
     clear_all: '[ ALLE_LÖSCHEN ]',
+    filter_time_start: 'Startzeit',
+    filter_time_end: 'Endzeit',
+    block_ip: 'SPERREN',
+    block_ip_confirm: '{ip} zur Blacklist hinzufügen?',
+    block_ip_success: 'IP {ip} zur Blacklist hinzugefügt',
     clear_confirm: 'Alle Zugriffsprotokolle werden dauerhaft gelöscht. Fortfahren?',
     cleared: '{count} Zugriffsprotokolleinträge gelöscht'
   },

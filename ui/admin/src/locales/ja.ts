@@ -135,6 +135,11 @@ export default {
     filter_action: 'アクションで絞り込み',
     search: '[ 検索 ]',
     clear_all: '[ 全件削除 ]',
+    filter_time_start: '開始日時',
+    filter_time_end: '終了日時',
+    block_ip: 'ブロック',
+    block_ip_confirm: '{ip} をブラックリストに追加しますか？',
+    block_ip_success: 'IP {ip} をブラックリストに追加しました',
     clear_confirm: 'すべてのアクセスログが完全に削除されます。続行しますか？',
     cleared: '{count} 件のアクセスログを削除しました'
   },

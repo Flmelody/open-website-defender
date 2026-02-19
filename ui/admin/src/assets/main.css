@@ -17,6 +17,7 @@
   --text-main: var(--hacker-text);
   
   --font-mono: 'Courier New', Courier, monospace;
+
 }
 
 * {
@@ -399,6 +400,161 @@ body {
 
 .el-pagination__sizes .el-select .el-select__wrapper {
   background-color: rgba(0, 20, 0, 0.6) !important;
+}
+
+/* Date Picker - Input Bar */
+.el-date-editor.el-range-editor {
+  background-color: rgba(0, 20, 0, 0.6) !important;
+  box-shadow: none !important;
+  border: 1px solid #005000 !important;
+  border-radius: 0 !important;
+}
+
+.el-date-editor.el-range-editor.el-date-editor--datetimerange {
+  flex: 0 0 auto !important;
+}
+
+.el-date-editor .el-range-input {
+  color: #0F0 !important;
+  font-family: var(--font-mono) !important;
+  background: transparent !important;
+}
+
+.el-date-editor .el-range-input::placeholder {
+  color: #4a6a4a !important;
+}
+
+.el-date-editor .el-range-separator {
+  color: #005000 !important;
+}
+
+.el-date-editor .el-range__icon {
+  color: #005000 !important;
+}
+
+/* Date Picker - Popup Panel */
+.el-picker-panel {
+  background: rgba(5, 20, 5, 0.97) !important;
+  border: 1px solid #005000 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  --el-datepicker-inner-border-color: #004000 !important;
+  --el-datepicker-border-color: #004000 !important;
+}
+
+.el-picker-panel__body-wrapper,
+.el-picker-panel__body,
+.el-date-range-picker,
+.el-date-range-picker__content {
+  background: transparent !important;
+}
+
+/* Inputs inside the popup (date & time fields at top) */
+.el-picker-panel .el-input__wrapper {
+  background-color: rgba(0, 20, 0, 0.6) !important;
+  border: 1px solid #005000 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* White line below time inputs */
+.el-date-range-picker__time-header {
+  border-bottom-color: #004000 !important;
+}
+
+/* White line between left/right calendars */
+.el-date-range-picker__content.is-left {
+  border-right-color: #004000 !important;
+}
+
+/* Calendar header */
+.el-date-picker__header-label {
+  font-family: var(--font-mono) !important;
+}
+
+.el-picker-panel__icon-btn {
+  color: #005000 !important;
+}
+
+.el-picker-panel__icon-btn:hover {
+  color: #0F0 !important;
+}
+
+/* Calendar table */
+.el-date-table th {
+  color: #0F0 !important;
+  border-bottom-color: #004000 !important;
+  background: transparent !important;
+}
+
+.el-date-table td .el-date-table-cell {
+  border-radius: 0 !important;
+}
+
+.el-date-table td .el-date-table-cell__text {
+  border-radius: 0 !important;
+}
+
+/* In-range highlight (dates between start and end) */
+.el-date-table td.in-range .el-date-table-cell {
+  background-color: rgba(0, 255, 0, 0.1) !important;
+}
+
+/* Today */
+.el-date-table td.today .el-date-table-cell__text {
+  color: #0F0 !important;
+  font-weight: bold !important;
+}
+
+/* Selected start/end dates */
+.el-date-table td.current:not(.disabled) .el-date-table-cell__text,
+.el-date-table td.start-date .el-date-table-cell__text,
+.el-date-table td.end-date .el-date-table-cell__text {
+  background-color: #005000 !important;
+  color: #0F0 !important;
+}
+
+/* Footer (清空 / 确定 buttons) */
+.el-picker-panel__footer {
+  background: transparent !important;
+  border-top: 1px solid #004000 !important;
+}
+
+.el-picker-panel__link-btn {
+  color: #0F0 !important;
+  font-family: var(--font-mono) !important;
+}
+
+/* Time Picker Panel */
+.el-time-panel {
+  background: rgba(5, 20, 5, 0.97) !important;
+  border: 1px solid #005000 !important;
+}
+
+.el-time-panel__content {
+  background: transparent !important;
+}
+
+.el-time-spinner__item {
+  color: #8a8 !important;
+}
+
+.el-time-spinner__item.is-active {
+  color: #0F0 !important;
+}
+
+.el-time-spinner__item:hover {
+  background-color: rgba(0, 255, 0, 0.1) !important;
+}
+
+.el-time-panel__footer {
+  background: transparent !important;
+  border-top: 1px solid #004000 !important;
+}
+
+.el-time-panel__btn {
+  color: #0F0 !important;
 }
 
 /* Scrollbar */

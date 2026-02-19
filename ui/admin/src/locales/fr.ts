@@ -135,6 +135,11 @@ export default {
     filter_action: 'Filtrer par action',
     search: '[ RECHERCHER ]',
     clear_all: '[ TOUT_SUPPRIMER ]',
+    filter_time_start: 'Date de début',
+    filter_time_end: 'Date de fin',
+    block_ip: 'BLOQUER',
+    block_ip_confirm: 'Ajouter {ip} à la liste noire ?',
+    block_ip_success: 'IP {ip} ajoutée à la liste noire',
     clear_confirm: 'Tous les journaux d\'accès seront définitivement supprimés. Continuer ?',
     cleared: '{count} entrées de journal supprimées'
   },

@@ -135,6 +135,11 @@ export default {
     filter_action: '按动作筛选',
     search: '[ 搜索 ]',
     clear_all: '[ 清空日志 ]',
+    filter_time_start: '开始时间',
+    filter_time_end: '结束时间',
+    block_ip: '拉黑',
+    block_ip_confirm: '将 {ip} 加入黑名单？',
+    block_ip_success: 'IP {ip} 已加入黑名单',
     clear_confirm: '此操作将永久删除所有访问日志，是否继续？',
     cleared: '已清除 {count} 条访问日志'
   },

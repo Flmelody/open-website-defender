@@ -135,6 +135,11 @@ export default {
     filter_action: 'Filter by Action',
     search: '[ SEARCH ]',
     clear_all: '[ CLEAR_ALL ]',
+    filter_time_start: 'Start time',
+    filter_time_end: 'End time',
+    block_ip: 'BLOCK',
+    block_ip_confirm: 'Add {ip} to blacklist?',
+    block_ip_success: 'IP {ip} added to blacklist',
     clear_confirm: 'This will permanently delete ALL access logs. Continue?',
     cleared: 'Cleared {count} access log entries'
   },

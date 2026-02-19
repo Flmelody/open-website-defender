@@ -135,6 +135,11 @@ export default {
     filter_action: 'Фильтр по действию',
     search: '[ ПОИСК ]',
     clear_all: '[ ОЧИСТИТЬ_ВСЕ ]',
+    filter_time_start: 'Начало',
+    filter_time_end: 'Конец',
+    block_ip: 'БЛОКИРОВАТЬ',
+    block_ip_confirm: 'Добавить {ip} в чёрный список?',
+    block_ip_success: 'IP {ip} добавлен в чёрный список',
     clear_confirm: 'Все журналы доступа будут безвозвратно удалены. Продолжить?',
     cleared: 'Удалено {count} записей журнала доступа'
   },

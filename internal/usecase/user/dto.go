@@ -59,6 +59,13 @@ type AdminLoginOutputDTO struct {
 	User           *UserInfoDTO
 }
 
+type GuardLoginOutputDTO struct {
+	RequiresTwoFA  bool
+	ChallengeToken string
+	Token          string
+	User           *UserInfoDTO
+}
+
 type TotpSetupOutputDTO struct {
 	Secret        string
 	QRCodeDataURI string

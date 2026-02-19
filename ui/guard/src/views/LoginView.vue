@@ -1,5 +1,5 @@
 <script setup>
-import {onMounted, reactive, ref} from 'vue'
+import {nextTick, onMounted, reactive, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import request from '@/utils/request'
 import {getAppConfig} from "../utils/config.js";
@@ -7,6 +7,10 @@ import {getAppConfig} from "../utils/config.js";
 const router = useRouter()
 const route = useRoute()
 const loading = ref(false)
+const requires2FA = ref(false)
+const challengeToken = ref('')
+const totpCode = ref('')
+const totpInputRef = ref(null)
 
 const formData = reactive({
   username: '',
@@ -98,6 +102,28 @@ onMounted(async () => {
   })
 })
 
+const completeLogin = (token) => {
+  localStorage.setItem('flmelody.token', token)
+
+  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000)
+  const guardDomain = getAppConfig().guardDomain
+  const domainPart = guardDomain && guardDomain.includes('.') ? `;domain=${guardDomain}` : ''
+  document.cookie = `flmelody.token=${token}; expires=${expires.toUTCString()}; path=/${domainPart}`
+
+  if (formData.rememberMe) {
+    localStorage.setItem('rememberMe', 'true')
+  }
+
+  request.defaults.headers.common['Defender-Authorization'] = `Bearer ${token}`
+
+  if (!route.query.redirect) {
+    errors.general = '无效的访问，请从正确的入口访问'
+    return
+  }
+  const redirectUrl = route.query.redirect
+  window.location.href = decodeURIComponent(redirectUrl)
+}
+
 const handleLogin = async () => {
   if (!validateForm()) return
 
@@ -110,33 +136,53 @@ const handleLogin = async () => {
       password: formData.password
     })
 
-    const {token} = data
-    if (token) {
-      localStorage.setItem('flmelody.token', token)
-
-      const expires = new Date(Date.now() + 24 * 60 * 60 * 1000)
-      const guardDomain = getAppConfig().guardDomain
-      const domainPart = guardDomain && guardDomain.includes('.') ? `;domain=${guardDomain}` : ''
-      document.cookie = `flmelody.token=${token}; expires=${expires.toUTCString()}; path=/${domainPart}`
-
-      if (formData.rememberMe) {
-        localStorage.setItem('rememberMe', 'true')
-      }
-
-      request.defaults.headers.common['Defender-Authorization'] = `Bearer ${token}`
-
-      if (!route.query.redirect) {
-        errors.general = '无效的访问，请从正确的入口访问'
-        return
-      }
-      const redirectUrl = route.query.redirect
-      window.location.href = decodeURIComponent(redirectUrl)
+    if (data.requires_two_fa) {
+      challengeToken.value = data.challenge_token
+      requires2FA.value = true
+      nextTick(() => {
+        totpInputRef.value?.focus()
+      })
+    } else if (data.token) {
+      completeLogin(data.token)
     }
   } catch (error) {
     errors.general = error.message || '登录失败，请重试'
   } finally {
     loading.value = false
   }
+}
+
+const handleVerify2FA = async () => {
+  if (totpCode.value.length !== 6) return
+
+  loading.value = true
+  errors.general = ''
+
+  try {
+    const data = await request.post('/login/2fa', {
+      challenge_token: challengeToken.value,
+      code: totpCode.value
+    })
+
+    if (data.token) {
+      completeLogin(data.token)
+    }
+  } catch (error) {
+    errors.general = error.message || 'Verification failed'
+    totpCode.value = ''
+    nextTick(() => {
+      totpInputRef.value?.focus()
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleCancel2FA = () => {
+  requires2FA.value = false
+  challengeToken.value = ''
+  totpCode.value = ''
+  errors.general = ''
 }
 </script>
 
@@ -156,49 +202,96 @@ const handleLogin = async () => {
       </div>
 
       <div class="terminal-content">
-        <div class="terminal-output">
-          <div class="type-line">> Initializing security protocol...</div>
-          <div class="type-line">> Establishing secure connection...</div>
-          <div class="type-line">> Access point detected...</div>
-          <div class="type-line">> Please authenticate to continue:</div>
-        </div>
-
-        <form @submit.prevent="handleLogin" class="login-form">
-          <div class="input-line">
-            <span class="prompt">> Username:</span>
-            <input
-              type="text"
-              v-model="formData.username"
-              :class="{ 'error': errors.username }"
-              autocomplete="off"
-              spellcheck="false"
-            >
-          </div>
-          <div class="error-text" v-if="errors.username">{{ errors.username }}</div>
-
-          <div class="input-line">
-            <span class="prompt">> Password:</span>
-            <input
-              type="password"
-              v-model="formData.password"
-              :class="{ 'error': errors.password }"
-            >
-          </div>
-          <div class="error-text" v-if="errors.password">{{ errors.password }}</div>
-
-          <div class="error-text system" v-if="errors.general">
-            > ERROR: {{ errors.general }}
+        <!-- Step 1: Username/Password -->
+        <template v-if="!requires2FA">
+          <div class="terminal-output">
+            <div class="type-line">> Initializing security protocol...</div>
+            <div class="type-line">> Establishing secure connection...</div>
+            <div class="type-line">> Access point detected...</div>
+            <div class="type-line">> Please authenticate to continue:</div>
           </div>
 
-          <div class="input-line submit-line">
-            <button
-              type="submit"
-              :disabled="loading"
-            >
-              {{ loading ? 'AUTHENTICATING...' : '[ AUTHENTICATE ]' }}
-            </button>
+          <form @submit.prevent="handleLogin" class="login-form">
+            <div class="input-line">
+              <span class="prompt">> Username:</span>
+              <input
+                type="text"
+                v-model="formData.username"
+                :class="{ 'error': errors.username }"
+                autocomplete="off"
+                spellcheck="false"
+              >
+            </div>
+            <div class="error-text" v-if="errors.username">{{ errors.username }}</div>
+
+            <div class="input-line">
+              <span class="prompt">> Password:</span>
+              <input
+                type="password"
+                v-model="formData.password"
+                :class="{ 'error': errors.password }"
+              >
+            </div>
+            <div class="error-text" v-if="errors.password">{{ errors.password }}</div>
+
+            <div class="error-text system" v-if="errors.general">
+              > ERROR: {{ errors.general }}
+            </div>
+
+            <div class="input-line submit-line">
+              <button
+                type="submit"
+                :disabled="loading"
+              >
+                {{ loading ? 'AUTHENTICATING...' : '[ AUTHENTICATE ]' }}
+              </button>
+            </div>
+          </form>
+        </template>
+
+        <!-- Step 2: 2FA Code -->
+        <template v-else>
+          <div class="terminal-output">
+            <div class="type-line">> Access point detected...</div>
+            <div class="type-line">> Two-factor authentication required:</div>
           </div>
-        </form>
+
+          <form @submit.prevent="handleVerify2FA" class="login-form">
+            <div class="input-line">
+              <span class="prompt">> 2FA Code:</span>
+              <input
+                ref="totpInputRef"
+                type="text"
+                v-model="totpCode"
+                maxlength="6"
+                autocomplete="off"
+                spellcheck="false"
+                class="totp-input"
+                placeholder="000000"
+              >
+            </div>
+
+            <div class="error-text system" v-if="errors.general">
+              > ERROR: {{ errors.general }}
+            </div>
+
+            <div class="input-line submit-line totp-actions">
+              <button
+                type="button"
+                @click="handleCancel2FA"
+                class="back-button"
+              >
+                [ BACK ]
+              </button>
+              <button
+                type="submit"
+                :disabled="loading || totpCode.length !== 6"
+              >
+                {{ loading ? 'VERIFYING...' : '[ VERIFY ]' }}
+              </button>
+            </div>
+          </form>
+        </template>
       </div>
     </div>
 
@@ -405,6 +498,21 @@ button:disabled {
 .submit-line {
   justify-content: flex-end;
   margin-top: 30px;
+}
+
+.totp-actions {
+  justify-content: space-between;
+}
+
+.totp-input {
+  font-size: 22px !important;
+  letter-spacing: 8px;
+  text-align: center;
+}
+
+.back-button {
+  border-color: rgba(0, 255, 0, 0.2);
+  color: rgba(0, 255, 0, 0.6);
 }
 
 @media (max-width: 850px) {

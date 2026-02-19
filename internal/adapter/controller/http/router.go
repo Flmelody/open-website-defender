@@ -28,6 +28,12 @@ func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 		loginHandlers = append(loginHandlers, handler.Login)
 		api.POST("/login", loginHandlers...)
 
+		// Guard 2FA verification (shares same rate limiter as login)
+		login2FAHandlers := make([]gin.HandlerFunc, len(loginHandlers)-1, len(loginHandlers))
+		copy(login2FAHandlers, loginHandlers[:len(loginHandlers)-1])
+		login2FAHandlers = append(login2FAHandlers, handler.Verify2FA)
+		api.POST("/login/2fa", login2FAHandlers...)
+
 		// Admin login with admin privilege check
 		adminLoginHandlers := make([]gin.HandlerFunc, len(loginHandlers)-1, len(loginHandlers))
 		copy(adminLoginHandlers, loginHandlers[:len(loginHandlers)-1])

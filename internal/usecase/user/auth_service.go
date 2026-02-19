@@ -72,6 +72,52 @@ func (s *AuthService) Login(input *LoginInputDTO) (*LoginOutputDTO, error) {
 	}, nil
 }
 
+func (s *AuthService) GuardLogin(input *LoginInputDTO) (*GuardLoginOutputDTO, error) {
+	if input.Username == "" || input.Password == "" {
+		return nil, domainError.ErrInvalidCredentials
+	}
+
+	user, err := s.userRepo.FindByUsernameAndPassword(input.Username, input.Password)
+	if err != nil {
+		return nil, err
+	}
+
+	if user == nil {
+		return nil, domainError.ErrInvalidCredentials
+	}
+
+	userInfo := &UserInfoDTO{
+		ID:          user.ID,
+		Username:    user.Username,
+		IsAdmin:     user.IsAdmin,
+		Email:       user.Email,
+		TotpEnabled: user.TotpEnabled,
+	}
+
+	if user.TotpEnabled {
+		challengeToken, err := pkg.Generate2FAToken(user.Username, user.ID)
+		if err != nil {
+			return nil, err
+		}
+		return &GuardLoginOutputDTO{
+			RequiresTwoFA:  true,
+			ChallengeToken: challengeToken,
+			User:           userInfo,
+		}, nil
+	}
+
+	token, err := pkg.GenerateToken(user.Username, user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &GuardLoginOutputDTO{
+		RequiresTwoFA: false,
+		Token:         token,
+		User:          userInfo,
+	}, nil
+}
+
 func (s *AuthService) AdminLogin(input *LoginInputDTO) (*AdminLoginOutputDTO, error) {
 	if input.Username == "" || input.Password == "" {
 		return nil, domainError.ErrInvalidCredentials

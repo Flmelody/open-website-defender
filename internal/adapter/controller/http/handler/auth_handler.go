@@ -63,6 +63,13 @@ type AdminLoginResponse struct {
 	User              *UserInfoResponse `json:"user"`
 }
 
+type GuardLoginResponse struct {
+	RequiresTwoFA  bool              `json:"requires_two_fa"`
+	ChallengeToken string            `json:"challenge_token,omitempty"`
+	Token          string            `json:"token,omitempty"`
+	User           *UserInfoResponse `json:"user"`
+}
+
 type UserInfoResponse struct {
 	ID       uint   `json:"id"`
 	Username string `json:"username"`
@@ -217,7 +224,7 @@ func Login(c *gin.Context) {
 		userInfo, err := service.ValidateToken(tokenString)
 		if err == nil && userInfo != nil {
 			logging.Sugar.Infof("User '%s' already logged in", userInfo.Username)
-			response.SuccessWithMessage(c, "Already logged in", LoginResponse{
+			response.SuccessWithMessage(c, "Already logged in", GuardLoginResponse{
 				Token: tokenString,
 				User: &UserInfoResponse{
 					ID:       userInfo.ID,
@@ -243,7 +250,7 @@ func Login(c *gin.Context) {
 		Password: req.Password,
 	}
 
-	output, err := service.Login(input)
+	output, err := service.GuardLogin(input)
 	if err != nil {
 		if errors.Is(err, domainError.ErrInvalidCredentials) {
 			logging.Sugar.Warnf("Login failed for user '%s': invalid credentials", req.Username)
@@ -255,16 +262,23 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	loginResponse := LoginResponse{
-		Token: output.Token,
+	guardResponse := GuardLoginResponse{
+		RequiresTwoFA:  output.RequiresTwoFA,
+		ChallengeToken: output.ChallengeToken,
+		Token:          output.Token,
 		User: &UserInfoResponse{
 			ID:       output.User.ID,
 			Username: output.User.Username,
 		},
 	}
 
-	logging.Sugar.Infof("User '%s' logged in successfully", req.Username)
-	response.SuccessWithMessage(c, "Login successful", loginResponse)
+	if output.RequiresTwoFA {
+		logging.Sugar.Infof("User '%s' requires 2FA verification", req.Username)
+		response.SuccessWithMessage(c, "2FA verification required", guardResponse)
+	} else {
+		logging.Sugar.Infof("User '%s' logged in successfully", req.Username)
+		response.SuccessWithMessage(c, "Login successful", guardResponse)
+	}
 }
 
 // AdminLogin wraps Login with an additional admin privilege check.
@@ -383,6 +397,6 @@ func Verify2FA(c *gin.Context) {
 		},
 	}
 
-	logging.Sugar.Infof("Admin user '%s' completed 2FA verification", output.User.Username)
+	logging.Sugar.Infof("User '%s' completed 2FA verification", output.User.Username)
 	response.SuccessWithMessage(c, "Login successful", loginResponse)
 }

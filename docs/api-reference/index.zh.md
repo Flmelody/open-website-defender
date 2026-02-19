@@ -13,8 +13,10 @@ Website Defender 提供 RESTful API 用于管理所有功能。所有路由均�
 
 | 方法 | 路径 | 说明 | 鉴权 |
 |------|------|------|------|
-| `POST` | `/login` | 用户登录，返回 JWT 令牌 | 否 |
-| `POST` | `/admin-login` | 管理后台登录，仅管理员可用，非管理员返回 403 | 否 |
+| `POST` | `/login` | 用户登录，返回 JWT 令牌（启用 2FA 时返回挑战令牌） | 否 |
+| `POST` | `/login/2fa` | Guard 登录的 2FA 验证 | 否 |
+| `POST` | `/admin-login` | 管理后台登录，仅管理员可用（启用 2FA 时返回挑战令牌） | 否 |
+| `POST` | `/admin-login/2fa` | 管理后台登录的 2FA 验证 | 否 |
 | `GET` | `/auth` | 验证凭证（IP 名单 + 令牌），供 Nginx `auth_request` 调用 | 否 |
 | `GET` | `/health` | 健康检查 | 否 |
 
@@ -32,6 +34,9 @@ Website Defender 提供 RESTful API 用于管理所有功能。所有路由均�
 | `GET` | `/users` | 查询用户列表 | 是 |
 | `PUT` | `/users/:id` | 更新用户信息 | 是 |
 | `DELETE` | `/users/:id` | 删除用户 | 是 |
+| `POST` | `/users/:id/totp/setup` | 生成 TOTP 密钥和二维码 | 是 |
+| `POST` | `/users/:id/totp/confirm` | 提交验证码确认 2FA | 是 |
+| `DELETE` | `/users/:id/totp` | 禁用用户 2FA | 是 |
 
 ### IP 黑名单
 

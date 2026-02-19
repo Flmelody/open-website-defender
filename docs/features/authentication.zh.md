@@ -14,6 +14,20 @@ Website Defender 提供多层认证机制，满足不同场景下的访问控制
 !!! warning "生产环境配置"
     在生产环境中，务必设置 `security.jwt-secret`，否则每次重启后已签发的令牌将失效。
 
+## 双因素认证 (2FA)
+
+Website Defender 支持基于 TOTP 的双因素认证，适用于管理后台和 Guard 登录。启用 2FA 后，用户在输入用户名和密码后，还需要提供认证器应用（Google Authenticator、Authy 等）生成的 6 位验证码。
+
+- 支持通过管理后台为每个用户启用 2FA
+- 兼容主流 TOTP 认证器应用（Google Authenticator、Authy、Microsoft Authenticator 等）
+- 同时适用于 `/login`（Guard 登录）和 `/admin-login`（管理后台登录）流程
+- 管理员可以通过管理后台为任何用户重置 2FA
+
+!!! warning "无恢复码"
+    当前版本不提供恢复码。如果用户丢失了认证器应用的访问权限，管理员需要从管理后台重置该用户的 2FA。
+
+2FA 管理的详细操作请参阅[用户管理](user-management.md)。
+
 ## Cookie 认证
 
 支持 `flmelody.token` Cookie，实现无缝的浏览器会话。

@@ -19,6 +19,20 @@ security:
   token-expiration-hours: 24
 ```
 
+## Two-Factor Authentication (2FA)
+
+Website Defender supports TOTP-based two-factor authentication for both admin and guard login flows. When 2FA is enabled for a user, they must provide a 6-digit code from an authenticator app (Google Authenticator, Authy, etc.) after entering their username and password.
+
+- 2FA can be enabled per user through the admin dashboard
+- Supports standard TOTP apps (Google Authenticator, Authy, Microsoft Authenticator, etc.)
+- Applies to both `/login` (guard) and `/admin-login` (admin dashboard) flows
+- Administrators can reset 2FA for any user via the admin dashboard
+
+!!! warning "No Recovery Codes"
+    Currently, there are no recovery codes. If a user loses access to their authenticator app, an administrator must reset their 2FA from the admin dashboard.
+
+For 2FA management details, see [User Management](user-management.md).
+
 ## Cookie-based Authentication
 
 For seamless browser sessions, Website Defender also supports authentication via the `flmelody.token` cookie. This allows users to navigate between protected applications without re-authenticating, as long as they share the same cookie domain.

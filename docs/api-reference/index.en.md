@@ -17,8 +17,10 @@ Obtain a token by calling `POST /login` (or `POST /admin-login` for admin-only a
 
 | Method | Path | Description | Auth |
 |--------|------|-------------|------|
-| `POST` | `/login` | User authentication. Returns a JWT token. | No |
-| `POST` | `/admin-login` | Admin-only authentication. Rejects non-admin users with 403. | No |
+| `POST` | `/login` | User authentication. Returns a JWT token or 2FA challenge token. | No |
+| `POST` | `/login/2fa` | Complete 2FA verification for guard login. | No |
+| `POST` | `/admin-login` | Admin-only authentication. Returns a JWT token or 2FA challenge token. Rejects non-admin users with 403. | No |
+| `POST` | `/admin-login/2fa` | Complete 2FA verification for admin login. | No |
 | `GET` | `/auth` | Verify credentials (IP lists + token + authorized domain check). Used by Nginx `auth_request`. | No |
 | `GET` | `/health` | Health check endpoint. | No |
 
@@ -36,6 +38,9 @@ Obtain a token by calling `POST /login` (or `POST /admin-login` for admin-only a
 | `POST` | `/users` | Create a new user | Yes |
 | `PUT` | `/users/:id` | Update a user | Yes |
 | `DELETE` | `/users/:id` | Delete a user | Yes |
+| `POST` | `/users/:id/totp/setup` | Generate TOTP secret and QR code for 2FA setup | Yes |
+| `POST` | `/users/:id/totp/confirm` | Confirm 2FA setup with a valid TOTP code | Yes |
+| `DELETE` | `/users/:id/totp` | Disable 2FA for a user | Yes |
 
 ### IP Blacklist
 

@@ -48,6 +48,15 @@ Each user can be assigned authorized domains that restrict which protected servi
 
 For full details on how authorized domain matching works, see [Authorized Domains](authorized-domains.md).
 
+## Two-Factor Authentication (2FA)
+
+Administrators can manage TOTP-based two-factor authentication for any user through the admin dashboard. Users with 2FA enabled display a **2FA** badge next to their username in the user list.
+
+- **Setup**: Click the **2FA** button next to the user, scan the QR code with an authenticator app, and enter a verification code to confirm
+- **Reset**: Click the **RESET 2FA** button to disable 2FA for a user. The user will need to set up 2FA again if desired
+
+For details on how 2FA affects the login flow, see [Authentication](authentication.md).
+
 ## License Management
 
 Website Defender also supports license tokens for API and machine access, managed separately from user accounts.

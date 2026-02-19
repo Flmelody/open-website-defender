@@ -108,7 +108,10 @@ export default {
     uptime: 'ВРЕМЯ_РАБОТЫ',
     top_blocked_ips: 'НАИБОЛЕЕ_БЛОКИРУЕМЫЕ_IP',
     block_count: 'БЛОКИРОВКИ',
-    request_trend: 'ТРЕНД_ЗАПРОСОВ (24Ч)',
+    request_trend: 'ТРЕНД_ЗАПРОСОВ',
+    trend_1d: '1Д',
+    trend_7d: '7Д',
+    trend_30d: '30Д',
     block_reasons: 'ПРИЧИНЫ_БЛОКИРОВКИ',
     block_rate: 'ПРОЦЕНТ_БЛОКИРОВОК',
     no_data: 'НЕТ ДАННЫХ'

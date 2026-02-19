@@ -108,7 +108,10 @@ export default {
     uptime: '稼働時間',
     top_blocked_ips: 'ブロック数上位IP',
     block_count: 'ブロック数',
-    request_trend: 'リクエスト推移 (24時間)',
+    request_trend: 'リクエスト推移',
+    trend_1d: '1日',
+    trend_7d: '7日',
+    trend_30d: '30日',
     block_reasons: 'ブロック理由',
     block_rate: 'ブロック率',
     no_data: 'データなし'

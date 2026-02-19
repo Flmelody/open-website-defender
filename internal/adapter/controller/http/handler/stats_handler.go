@@ -6,6 +6,7 @@ import (
 	"open-website-defender/internal/infrastructure/database"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/usecase/accesslog"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -28,7 +29,12 @@ func GetDashboardStats(c *gin.Context) {
 		logging.Sugar.Errorf("Failed to get top blocked IPs: %v", err)
 	}
 
-	requestTrend, err := logService.GetRequestTrend(24)
+	trendHours := 24
+	if h, err := strconv.Atoi(c.Query("hours")); err == nil && h > 0 && h <= 720 {
+		trendHours = h
+	}
+
+	requestTrend, err := logService.GetRequestTrend(trendHours)
 	if err != nil {
 		logging.Sugar.Errorf("Failed to get request trend: %v", err)
 	}

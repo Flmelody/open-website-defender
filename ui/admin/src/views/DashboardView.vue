@@ -58,6 +58,9 @@
             <div class="chart-title no-select">
               <span class="prefix">&gt;</span>
               <span>{{ t('dashboard.request_trend') }}</span>
+              <div class="trend-range-btns">
+                <button v-for="opt in trendRangeOptions" :key="opt.hours" :class="['range-btn', { active: trendHours === opt.hours }]" @click="switchTrendRange(opt.hours)">{{ opt.label }}</button>
+              </div>
             </div>
             <v-chart class="chart" :option="trendOption" autoresize />
           </div>
@@ -129,6 +132,23 @@ const stats = ref<any>({})
 const topBlocked = ref<any[]>([])
 const requestTrend = ref<any[]>([])
 const blockReasons = ref<any[]>([])
+const trendHours = ref(24)
+
+const trendRangeOptions = computed(() => [
+  { hours: 24, label: t('dashboard.trend_1d') },
+  { hours: 168, label: t('dashboard.trend_7d') },
+  { hours: 720, label: t('dashboard.trend_30d') },
+])
+
+const switchTrendRange = async (hours: number) => {
+  trendHours.value = hours
+  try {
+    const res: any = await request.get('/dashboard/stats', { params: { hours } })
+    requestTrend.value = res.request_trend || []
+  } catch {
+    // handled
+  }
+}
 
 const blockRate = computed(() => {
   const total = stats.value.total_requests || 0
@@ -149,7 +169,9 @@ const formatUptime = (seconds: number) => {
 const formatHour = (hourStr: string) => {
   // hourStr is like "2025-01-15 14:00"
   const parts = hourStr.split(' ')
-  return parts.length > 1 ? parts[1] : hourStr
+  if (parts.length < 2) return hourStr
+  if (trendHours.value <= 24) return parts[1]
+  return `${parts[0].slice(5)} ${parts[1]}`
 }
 
 const trendOption = computed(() => ({
@@ -284,7 +306,7 @@ const barOption = computed(() => {
 const fetchData = async () => {
   loading.value = true
   try {
-    const res: any = await request.get('/dashboard/stats')
+    const res: any = await request.get('/dashboard/stats', { params: { hours: trendHours.value } })
     stats.value = res || {}
     topBlocked.value = res.top_blocked_ips || []
     requestTrend.value = res.request_trend || []
@@ -414,7 +436,36 @@ onMounted(() => {
   color: #8a8;
   border-bottom: 1px solid #002800;
   display: flex;
+  align-items: center;
   gap: 8px;
+}
+
+.trend-range-btns {
+  margin-left: auto;
+  display: flex;
+  gap: 4px;
+}
+
+.range-btn {
+  background: transparent;
+  border: 1px solid #005000;
+  color: #8a8;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  padding: 2px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.range-btn:hover {
+  color: #0f0;
+  border-color: #0f0;
+}
+
+.range-btn.active {
+  background: rgba(0, 255, 0, 0.15);
+  color: #0f0;
+  border-color: #0f0;
 }
 
 .chart {

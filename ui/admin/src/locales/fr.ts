@@ -108,7 +108,10 @@ export default {
     uptime: 'TEMPS_ACTIVITÉ',
     top_blocked_ips: 'IPS_LES_PLUS_BLOQUÉES',
     block_count: 'BLOCAGES',
-    request_trend: 'TENDANCE_REQUÊTES (24H)',
+    request_trend: 'TENDANCE_REQUÊTES',
+    trend_1d: '1J',
+    trend_7d: '7J',
+    trend_30d: '30J',
     block_reasons: 'RAISONS_DE_BLOCAGE',
     block_rate: 'TAUX_DE_BLOCAGE',
     no_data: 'AUCUNE DONNÉE'

@@ -108,7 +108,10 @@ export default {
     uptime: '运行时间',
     top_blocked_ips: '被拦截最多的IP',
     block_count: '拦截次数',
-    request_trend: '请求趋势 (24小时)',
+    request_trend: '请求趋势',
+    trend_1d: '近1天',
+    trend_7d: '近7天',
+    trend_30d: '近30天',
     block_reasons: '拦截原因分布',
     block_rate: '拦截率',
     no_data: '暂无数据'

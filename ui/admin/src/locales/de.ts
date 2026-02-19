@@ -52,6 +52,10 @@ export default {
     required: 'ERFORDERLICH',
     access_granted: 'ZUGRIFF GEWÄHRT',
     access_denied: 'ZUGRIFF VERWEIGERT',
+    two_factor_required: '> Zwei-Faktor-Authentifizierung erforderlich:',
+    two_factor_code: '> 2FA-Code:',
+    btn_verify: '[ VERIFIZIEREN ]',
+    back: '[ ZURÜCK ]',
   },
   user: {
     new_user: '[ NEUER_BENUTZER ]',
@@ -83,7 +87,16 @@ export default {
     auth_since: 'SEIT',
     auth_revoke: 'WIDERRUFEN',
     auth_revoke_confirm: 'AUTORISIERUNG FÜR {name} WIDERRUFEN?',
-    auth_revoked: 'AUTORISIERUNG_WIDERRUFEN'
+    auth_revoked: 'AUTORISIERUNG_WIDERRUFEN',
+    setup_2fa: '2FA',
+    reset_2fa: '2FA_ZURÜCKSETZEN',
+    scan_qr: 'Scannen Sie diesen QR-Code mit Ihrer Authenticator-App (Google Authenticator, Authy, etc.)',
+    manual_key: 'MANUELLER_SCHLÜSSEL',
+    verify_code: 'CODE_VERIFIZIEREN',
+    enable_2fa: '[ 2FA_AKTIVIEREN ]',
+    reset_2fa_confirm: '2FA für {name} zurücksetzen? Der Benutzer muss 2FA erneut einrichten.',
+    two_factor_enabled: '2FA erfolgreich aktiviert',
+    two_factor_disabled: '2FA wurde deaktiviert'
   },
   ip_list: {
     ip_address: 'IP_ADRESSE',

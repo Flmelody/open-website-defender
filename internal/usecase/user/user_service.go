@@ -62,12 +62,13 @@ func (s *UserService) CreateUser(input *CreateUserDTO) (*UserDTO, error) {
 	}
 
 	return &UserDTO{
-		ID:       user.ID,
-		Username: user.Username,
-		GitToken: maskGitToken(input.GitToken),
-		IsAdmin:  user.IsAdmin,
-		Scopes:   user.Scopes,
-		Email:    user.Email,
+		ID:          user.ID,
+		Username:    user.Username,
+		GitToken:    maskGitToken(input.GitToken),
+		IsAdmin:     user.IsAdmin,
+		Scopes:      user.Scopes,
+		Email:       user.Email,
+		TotpEnabled: user.TotpEnabled,
 	}, nil
 }
 
@@ -81,12 +82,13 @@ func (s *UserService) GetUser(id uint) (*UserDTO, error) {
 	}
 
 	return &UserDTO{
-		ID:       user.ID,
-		Username: user.Username,
-		GitToken: maskGitToken(user.GitToken),
-		IsAdmin:  user.IsAdmin,
-		Scopes:   user.Scopes,
-		Email:    user.Email,
+		ID:          user.ID,
+		Username:    user.Username,
+		GitToken:    maskGitToken(user.GitToken),
+		IsAdmin:     user.IsAdmin,
+		Scopes:      user.Scopes,
+		Email:       user.Email,
+		TotpEnabled: user.TotpEnabled,
 	}, nil
 }
 
@@ -119,12 +121,13 @@ func (s *UserService) UpdateUser(id uint, input *UpdateUserDTO) (*UserDTO, error
 	event.Bus().Publish(event.UserChanged, id)
 
 	return &UserDTO{
-		ID:       user.ID,
-		Username: user.Username,
-		GitToken: maskGitToken(user.GitToken),
-		IsAdmin:  user.IsAdmin,
-		Scopes:   user.Scopes,
-		Email:    user.Email,
+		ID:          user.ID,
+		Username:    user.Username,
+		GitToken:    maskGitToken(user.GitToken),
+		IsAdmin:     user.IsAdmin,
+		Scopes:      user.Scopes,
+		Email:       user.Email,
+		TotpEnabled: user.TotpEnabled,
 	}, nil
 }
 
@@ -169,12 +172,13 @@ func (s *UserService) ListUsers(page, size int) ([]*UserDTO, int64, error) {
 	userDtos := make([]*UserDTO, 0, len(users))
 	for _, user := range users {
 		userDtos = append(userDtos, &UserDTO{
-			ID:       user.ID,
-			Username: user.Username,
-			GitToken: maskGitToken(user.GitToken),
-			IsAdmin:  user.IsAdmin,
-			Scopes:   user.Scopes,
-			Email:    user.Email,
+			ID:          user.ID,
+			Username:    user.Username,
+			GitToken:    maskGitToken(user.GitToken),
+			IsAdmin:     user.IsAdmin,
+			Scopes:      user.Scopes,
+			Email:       user.Email,
+			TotpEnabled: user.TotpEnabled,
 		})
 	}
 

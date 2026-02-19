@@ -20,6 +20,7 @@ var (
 type Claims struct {
 	Username string `json:"username"`
 	UserID   uint   `json:"user_id"`
+	Purpose  string `json:"purpose,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -69,6 +70,50 @@ func ParseToken(tokenString string) (*Claims, error) {
 	}
 
 	if !token.Valid {
+		return nil, ErrInvalidToken
+	}
+
+	// Reject challenge tokens from being used as regular auth tokens
+	if claims.Purpose != "" {
+		return nil, ErrInvalidToken
+	}
+
+	return claims, nil
+}
+
+func Generate2FAToken(username string, userID uint) (string, error) {
+	claims := &Claims{
+		Username: username,
+		UserID:   userID,
+		Purpose:  "2fa_challenge",
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(5 * time.Minute)),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(JWTSecret)
+}
+
+func Parse2FAToken(tokenString string) (*Claims, error) {
+	claims := &Claims{}
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(t *jwt.Token) (interface{}, error) {
+		return JWTSecret, nil
+	})
+
+	if err != nil {
+		if errors.Is(err, jwt.ErrTokenExpired) {
+			return nil, ErrExpiredToken
+		}
+		return nil, ErrInvalidToken
+	}
+
+	if !token.Valid {
+		return nil, ErrInvalidToken
+	}
+
+	if claims.Purpose != "2fa_challenge" {
 		return nil, ErrInvalidToken
 	}
 

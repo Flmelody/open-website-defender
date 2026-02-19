@@ -28,6 +28,7 @@
             <template #default="scope">
               <span class="bright-text">{{ scope.row.username }}</span>
               <el-tag v-if="scope.row.is_admin" size="small" type="success" class="admin-tag">ADMIN</el-tag>
+              <el-tag v-if="scope.row.totp_enabled" size="small" type="warning" class="admin-tag">2FA</el-tag>
             </template>
           </el-table-column>
           <el-table-column prop="email" :label="t('user.email')" show-overflow-tooltip>
@@ -48,7 +49,7 @@
               <span v-else class="null-value">{{ t('user.unrestricted') }}</span>
             </template>
           </el-table-column>
-          <el-table-column :label="t('common.actions')" width="250" align="right">
+          <el-table-column :label="t('common.actions')" width="340" align="right">
             <template #default="scope">
               <div class="ops-cell">
                 <el-button
@@ -68,6 +69,26 @@
                   class="action-link oauth-btn"
                 >
                   {{ t('user.oauth_authorizations') }}
+                </el-button>
+                <el-button
+                  v-if="scope.row.totp_enabled"
+                  type="danger"
+                  link
+                  size="small"
+                  @click="handleReset2FA(scope.row)"
+                  class="action-link delete"
+                >
+                  {{ t('user.reset_2fa') }}
+                </el-button>
+                <el-button
+                  v-else
+                  type="success"
+                  link
+                  size="small"
+                  @click="handleSetup2FA(scope.row)"
+                  class="action-link totp-btn"
+                >
+                  {{ t('user.setup_2fa') }}
                 </el-button>
                 <el-button
                   type="danger"
@@ -233,6 +254,59 @@
         </div>
       </div>
     </el-dialog>
+
+    <!-- 2FA Setup Dialog -->
+    <el-dialog
+      v-model="totpDialogVisible"
+      :title="t('user.setup_2fa').toUpperCase()"
+      width="500px"
+      destroy-on-close
+    >
+      <div class="totp-setup">
+        <div v-if="totpSetupData">
+          <p class="totp-instruction">{{ t('user.scan_qr') }}</p>
+          <div class="totp-qr-wrapper">
+            <img :src="totpSetupData.qr_code" alt="QR Code" class="totp-qr" />
+          </div>
+          <div class="totp-manual-key">
+            <span class="totp-key-label">{{ t('user.manual_key') }}</span>
+            <div class="totp-key-row">
+              <code class="totp-key-value">{{ totpSetupData.secret }}</code>
+              <el-button type="primary" size="small" class="totp-copy-btn" @click="copyManualKey">
+                <el-icon><CopyDocument /></el-icon>
+              </el-button>
+            </div>
+          </div>
+          <div class="totp-verify-section">
+            <div class="totp-verify-row">
+              <span class="totp-verify-label">{{ t('user.verify_code') }}:</span>
+              <el-input
+                v-model="totpVerifyCode"
+                maxlength="6"
+                :placeholder="'000000'"
+                class="totp-verify-input"
+              />
+            </div>
+          </div>
+        </div>
+        <div v-else class="totp-loading">
+          <el-icon class="is-loading"><Loading /></el-icon>
+        </div>
+      </div>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="totpDialogVisible = false">{{ t('common.cancel') }}</el-button>
+          <el-button
+            type="primary"
+            :loading="totpConfirmLoading"
+            @click="handleConfirm2FA"
+            :disabled="totpVerifyCode.length !== 6"
+          >
+            {{ t('user.enable_2fa') }}
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -250,6 +324,7 @@ interface User {
   git_token?: string
   is_admin?: boolean
   scopes?: string
+  totp_enabled?: boolean
 }
 
 const { t } = useI18n()
@@ -554,6 +629,84 @@ const handleRevokeAuthorization = (auth: OAuthAuthorization) => {
   })
 }
 
+// 2FA Management
+interface TotpSetupData {
+  secret: string
+  qr_code: string
+}
+
+const totpDialogVisible = ref(false)
+const totpSetupData = ref<TotpSetupData | null>(null)
+const totpVerifyCode = ref('')
+const totpConfirmLoading = ref(false)
+const totpTargetUserId = ref(0)
+
+const handleSetup2FA = async (row: User) => {
+  totpTargetUserId.value = row.id
+  totpSetupData.value = null
+  totpVerifyCode.value = ''
+  totpDialogVisible.value = true
+  try {
+    const res: any = await request.post(`/users/${row.id}/totp/setup`)
+    totpSetupData.value = res
+  } catch {
+    totpDialogVisible.value = false
+  }
+}
+
+const copyManualKey = async () => {
+  if (!totpSetupData.value) return
+  try {
+    await navigator.clipboard.writeText(totpSetupData.value.secret)
+    ElMessage.success(t('user.copied'))
+  } catch {
+    const textarea = document.createElement('textarea')
+    textarea.value = totpSetupData.value.secret
+    textarea.style.position = 'fixed'
+    textarea.style.opacity = '0'
+    document.body.appendChild(textarea)
+    textarea.select()
+    document.execCommand('copy')
+    document.body.removeChild(textarea)
+    ElMessage.success(t('user.copied'))
+  }
+}
+
+const handleConfirm2FA = async () => {
+  if (totpVerifyCode.value.length !== 6) return
+  totpConfirmLoading.value = true
+  try {
+    await request.post(`/users/${totpTargetUserId.value}/totp/confirm`, { code: totpVerifyCode.value })
+    ElMessage.success(t('user.two_factor_enabled'))
+    totpDialogVisible.value = false
+    fetchData()
+  } catch {
+    totpVerifyCode.value = ''
+  } finally {
+    totpConfirmLoading.value = false
+  }
+}
+
+const handleReset2FA = (row: User) => {
+  ElMessageBox.confirm(
+    t('user.reset_2fa_confirm', { name: row.username }),
+    t('common.warning'),
+    {
+      confirmButtonText: t('common.confirm'),
+      cancelButtonText: t('common.cancel'),
+      type: 'warning',
+    }
+  ).then(async () => {
+    try {
+      await request.delete(`/users/${row.id}/totp`)
+      ElMessage.success(t('user.two_factor_disabled'))
+      fetchData()
+    } catch {
+      // handled
+    }
+  })
+}
+
 const handleSizeChange = (val: number) => {
   queryParams.size = val
   fetchData()
@@ -660,6 +813,15 @@ onMounted(() => {
   border-radius: 3px !important;
   padding: 2px 8px !important;
 }
+
+.totp-btn {
+  text-decoration: none !important;
+  border: 1px solid rgba(64, 158, 255, 0.5) !important;
+  border-radius: 3px !important;
+  padding: 2px 8px !important;
+  color: rgba(64, 158, 255, 0.9) !important;
+}
+
 
 .card-footer {
   padding: 12px 25px;
@@ -826,6 +988,111 @@ onMounted(() => {
 
 .auth-meta {
   font-size: 12px;
+}
+
+/* 2FA Setup dialog */
+.totp-setup {
+  font-family: 'Courier New', monospace;
+}
+
+.totp-instruction {
+  color: #8a8;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.totp-qr-wrapper {
+  text-align: center;
+  margin: 0 auto 16px;
+  display: flex;
+  justify-content: center;
+}
+
+.totp-qr {
+  width: 200px;
+  height: 200px;
+  border-radius: 4px;
+}
+
+.totp-manual-key {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(0, 40, 0, 0.4);
+  border: 1px solid #005000;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.totp-key-label {
+  color: #8a8;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.totp-key-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.totp-key-value {
+  color: #0F0;
+  font-size: 12px;
+  word-break: break-all;
+  letter-spacing: 1px;
+  text-shadow: 0 0 5px rgba(0, 255, 0, 0.2);
+  flex: 1;
+}
+
+.totp-copy-btn {
+  flex-shrink: 0;
+  background: transparent !important;
+  border: 1px solid #005000 !important;
+  color: #0F0 !important;
+  padding: 4px 8px !important;
+}
+
+.totp-copy-btn:hover {
+  background: rgba(0, 60, 0, 0.4) !important;
+  border-color: #0F0 !important;
+}
+
+.totp-verify-section {
+  margin-top: 16px;
+}
+
+.totp-verify-label {
+  color: #0F0;
+  font-size: 13px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.totp-verify-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.totp-verify-input {
+  flex: 1;
+}
+
+:deep(.totp-verify-input .el-input__inner) {
+  font-family: 'Courier New', monospace;
+  font-size: 18px;
+  letter-spacing: 6px;
+  text-align: center;
+}
+
+.totp-loading {
+  text-align: center;
+  padding: 40px;
+  color: #0F0;
 }
 
 </style>

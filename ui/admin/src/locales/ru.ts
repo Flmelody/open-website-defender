@@ -52,6 +52,10 @@ export default {
     required: 'ОБЯЗАТЕЛЬНО',
     access_granted: 'ДОСТУП РАЗРЕШЕН',
     access_denied: 'ДОСТУП ЗАПРЕЩЕН',
+    two_factor_required: '> Требуется двухфакторная аутентификация:',
+    two_factor_code: '> Код 2FA:',
+    btn_verify: '[ ПОДТВЕРДИТЬ ]',
+    back: '[ НАЗАД ]',
   },
   user: {
     new_user: '[ НОВЫЙ_ПОЛЬЗОВАТЕЛЬ ]',
@@ -83,7 +87,16 @@ export default {
     auth_since: 'С',
     auth_revoke: 'ОТОЗВАТЬ',
     auth_revoke_confirm: 'ОТОЗВАТЬ АВТОРИЗАЦИЮ ДЛЯ {name}?',
-    auth_revoked: 'АВТОРИЗАЦИЯ_ОТОЗВАНА'
+    auth_revoked: 'АВТОРИЗАЦИЯ_ОТОЗВАНА',
+    setup_2fa: '2FA',
+    reset_2fa: 'СБРОС_2FA',
+    scan_qr: 'Отсканируйте этот QR-код приложением-аутентификатором (Google Authenticator, Authy и др.)',
+    manual_key: 'РУЧНОЙ_КЛЮЧ',
+    verify_code: 'КОД_ПОДТВЕРЖДЕНИЯ',
+    enable_2fa: '[ ВКЛЮЧИТЬ_2FA ]',
+    reset_2fa_confirm: 'Сбросить 2FA для {name}? Пользователю потребуется заново настроить 2FA.',
+    two_factor_enabled: '2FA успешно включена',
+    two_factor_disabled: '2FA отключена'
   },
   ip_list: {
     ip_address: 'IP_АДРЕС',

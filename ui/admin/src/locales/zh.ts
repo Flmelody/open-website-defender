@@ -52,6 +52,10 @@ export default {
     required: '必填',
     access_granted: '访问已授权',
     access_denied: '访问被拒绝',
+    two_factor_required: '> 需要双因素认证:',
+    two_factor_code: '> 验证码:',
+    btn_verify: '[ 验证 ]',
+    back: '[ 返回 ]',
   },
   user: {
     new_user: '[ 新增用户 ]',
@@ -83,7 +87,16 @@ export default {
     auth_since: '授权时间',
     auth_revoke: '撤销',
     auth_revoke_confirm: '撤销 {name} 的授权？',
-    auth_revoked: '授权已撤销'
+    auth_revoked: '授权已撤销',
+    setup_2fa: '2FA',
+    reset_2fa: '重置2FA',
+    scan_qr: '使用身份验证器应用（Google Authenticator、Authy 等）扫描此二维码',
+    manual_key: '手动密钥',
+    verify_code: '验证码',
+    enable_2fa: '[ 启用2FA ]',
+    reset_2fa_confirm: '重置 {name} 的双因素认证？该用户需要重新设置2FA。',
+    two_factor_enabled: '双因素认证已启用',
+    two_factor_disabled: '双因素认证已禁用'
   },
   ip_list: {
     ip_address: 'IP地址',

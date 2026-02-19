@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <canvas ref="matrixCanvas" class="matrix-bg"></canvas>
-    
+
     <div class="login-glass-panel">
       <div class="terminal-header no-select">
         <span class="terminal-title">{{ t('login.system_access_required') }}</span>
@@ -11,56 +11,97 @@
           <span class="dot green"></span>
         </div>
       </div>
-      
-      <div class="terminal-body">
-        <div class="system-status no-select">
-          <p>{{ t('login.initializing') }}</p>
-          <p>{{ t('login.establishing') }}</p>
-          <p>{{ t('login.access_detected') }}</p>
-          <p class="blink">{{ t('login.authenticate') }}</p>
-        </div>
 
-        <el-form
-          ref="formRef"
-          :model="loginForm"
-          :rules="rules"
-          class="login-form"
-          @keyup.enter="handleLogin"
-        >
-          <div class="input-wrapper">
-            <span class="input-label">{{ t('login.username') }}</span>
-            <el-form-item prop="username" class="terminal-input">
+      <div class="terminal-body">
+        <!-- Step 1: Username/Password -->
+        <template v-if="!authStore.requires2FA">
+          <div class="system-status no-select">
+            <p>{{ t('login.initializing') }}</p>
+            <p>{{ t('login.establishing') }}</p>
+            <p>{{ t('login.access_detected') }}</p>
+            <p class="blink">{{ t('login.authenticate') }}</p>
+          </div>
+
+          <el-form
+            ref="formRef"
+            :model="loginForm"
+            :rules="rules"
+            class="login-form"
+            @keyup.enter="handleLogin"
+          >
+            <div class="input-wrapper">
+              <span class="input-label">{{ t('login.username') }}</span>
+              <el-form-item prop="username" class="terminal-input">
+                <el-input
+                  v-model="loginForm.username"
+                  autocomplete="off"
+                  class="glass-input"
+                />
+              </el-form-item>
+            </div>
+
+            <div class="input-wrapper">
+              <span class="input-label">{{ t('login.password') }}</span>
+              <el-form-item prop="password" class="terminal-input">
+                <el-input
+                  v-model="loginForm.password"
+                  type="password"
+                  show-password
+                  autocomplete="off"
+                  class="glass-input"
+                />
+              </el-form-item>
+            </div>
+
+            <div class="action-area">
+              <el-button
+                :loading="loading"
+                class="login-button"
+                @click="handleLogin"
+              >
+                {{ t('login.btn_authenticate') }}
+              </el-button>
+            </div>
+          </el-form>
+        </template>
+
+        <!-- Step 2: 2FA Code -->
+        <template v-else>
+          <div class="system-status no-select">
+            <p>{{ t('login.access_detected') }}</p>
+            <p class="blink">{{ t('login.two_factor_required') }}</p>
+          </div>
+
+          <div class="totp-form" @keyup.enter="handleVerify2FA">
+            <div class="input-wrapper">
+              <span class="input-label">{{ t('login.two_factor_code') }}</span>
               <el-input
-                v-model="loginForm.username"
+                ref="totpInputRef"
+                v-model="totpCode"
+                maxlength="6"
                 autocomplete="off"
-                class="glass-input"
+                class="glass-input totp-input"
+                :placeholder="'000000'"
               />
-            </el-form-item>
+            </div>
+
+            <div class="action-area totp-actions">
+              <el-button
+                class="login-button back-button"
+                @click="handleCancel2FA"
+              >
+                {{ t('login.back') }}
+              </el-button>
+              <el-button
+                :loading="loading"
+                class="login-button"
+                @click="handleVerify2FA"
+              >
+                {{ t('login.btn_verify') }}
+              </el-button>
+            </div>
           </div>
-          
-          <div class="input-wrapper">
-            <span class="input-label">{{ t('login.password') }}</span>
-            <el-form-item prop="password" class="terminal-input">
-              <el-input
-                v-model="loginForm.password"
-                type="password"
-                show-password
-                autocomplete="off"
-                class="glass-input"
-              />
-            </el-form-item>
-          </div>
-          
-          <div class="action-area">
-            <el-button
-              :loading="loading"
-              class="login-button"
-              @click="handleLogin"
-            >
-              {{ t('login.btn_authenticate') }}
-            </el-button>
-          </div>
-        </el-form>
+        </template>
       </div>
     </div>
 
@@ -71,7 +112,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, onUnmounted, computed } from 'vue'
+import { ref, reactive, onMounted, onUnmounted, computed, nextTick, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { ElMessage } from 'element-plus'
@@ -84,6 +125,8 @@ const { t } = useI18n()
 const formRef = ref()
 const loading = ref(false)
 const matrixCanvas = ref<HTMLCanvasElement | null>(null)
+const totpInputRef = ref()
+const totpCode = ref('')
 
 const loginForm = reactive({
   username: '',
@@ -95,16 +138,28 @@ const rules = computed(() => ({
   password: [{ required: true, message: t('login.required'), trigger: 'blur' }]
 }))
 
+// Auto-focus TOTP input when 2FA step appears
+watch(() => authStore.requires2FA, (val) => {
+  if (val) {
+    totpCode.value = ''
+    nextTick(() => {
+      totpInputRef.value?.focus()
+    })
+  }
+})
+
 const handleLogin = async () => {
   if (!formRef.value) return
-  
+
   formRef.value.validate(async (valid: boolean) => {
     if (valid) {
       loading.value = true
       try {
-        await authStore.login(loginForm.username, loginForm.password)
-        ElMessage.success(t('login.access_granted'))
-        router.push({name: 'dashboard'})
+        const result = await authStore.login(loginForm.username, loginForm.password)
+        if (!result.requires2FA) {
+          ElMessage.success(t('login.access_granted'))
+          router.push({name: 'dashboard'})
+        }
       } catch (error: any) {
         // Error message already shown by request interceptor
       } finally {
@@ -114,12 +169,34 @@ const handleLogin = async () => {
   })
 }
 
+const handleVerify2FA = async () => {
+  if (totpCode.value.length !== 6) return
+  loading.value = true
+  try {
+    await authStore.verify2FA(totpCode.value)
+    ElMessage.success(t('login.access_granted'))
+    router.push({name: 'dashboard'})
+  } catch (error: any) {
+    totpCode.value = ''
+    nextTick(() => {
+      totpInputRef.value?.focus()
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
+const handleCancel2FA = () => {
+  authStore.cancelChallenge()
+  totpCode.value = ''
+}
+
 // Matrix Effect - Enhanced for Authenticity
 let intervalId: any
 const initMatrix = () => {
   const canvas = matrixCanvas.value
   if (!canvas) return
-  
+
   const ctx = canvas.getContext('2d')
   if (!ctx) return
 
@@ -140,22 +217,22 @@ const initMatrix = () => {
     // Very transparent black to create long trails
     ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
-    
+
     ctx.fillStyle = '#0F0' // Pure Matrix Green
     ctx.font = fontSize + 'px monospace'
-    
+
     for (let i = 0; i < drops.length; i++) {
       const text = letters[Math.floor(Math.random() * letters.length)]
-      
+
       // Randomly brighten some characters
       if (Math.random() > 0.95) {
-        ctx.fillStyle = '#FFF' 
+        ctx.fillStyle = '#FFF'
       } else {
         ctx.fillStyle = '#0F0'
       }
-      
+
       ctx.fillText(text, i * fontSize, drops[i] * fontSize)
-      
+
       if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
         drops[i] = 0
       }
@@ -204,7 +281,7 @@ onUnmounted(() => {
 .login-glass-panel {
   width: 550px;
   /* Strong Green Glass Effect */
-  background: rgba(0, 50, 0, 0.6); 
+  background: rgba(0, 50, 0, 0.6);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(0, 255, 0, 0.3);
   box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
@@ -319,9 +396,21 @@ onUnmounted(() => {
   caret-color: #fff;
 }
 
+/* TOTP login step */
+:deep(.totp-input .el-input__inner) {
+  font-size: 22px;
+  letter-spacing: 8px;
+  text-align: center;
+}
+
 .action-area {
   margin-top: 40px;
   text-align: right;
+}
+
+.totp-actions {
+  display: flex;
+  justify-content: space-between;
 }
 
 .login-button {
@@ -341,6 +430,11 @@ onUnmounted(() => {
   background: rgba(0, 255, 0, 0.2) !important;
   box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
   text-shadow: 0 0 8px #0F0;
+}
+
+.back-button {
+  border-color: rgba(0, 255, 0, 0.4) !important;
+  color: rgba(0, 255, 0, 0.6) !important;
 }
 
 .copyright {

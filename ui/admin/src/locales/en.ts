@@ -52,6 +52,10 @@ export default {
     required: 'REQUIRED',
     access_granted: 'ACCESS GRANTED',
     access_denied: 'ACCESS DENIED',
+    two_factor_required: '> Two-factor authentication required:',
+    two_factor_code: '> 2FA Code:',
+    btn_verify: '[ VERIFY ]',
+    back: '[ BACK ]',
   },
   user: {
     new_user: '[ NEW_USER ]',
@@ -83,7 +87,16 @@ export default {
     auth_since: 'SINCE',
     auth_revoke: 'REVOKE',
     auth_revoke_confirm: 'REVOKE AUTHORIZATION FOR {name}?',
-    auth_revoked: 'AUTHORIZATION_REVOKED'
+    auth_revoked: 'AUTHORIZATION_REVOKED',
+    setup_2fa: '2FA',
+    reset_2fa: 'RESET_2FA',
+    scan_qr: 'Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)',
+    manual_key: 'MANUAL_KEY',
+    verify_code: 'VERIFY_CODE',
+    enable_2fa: '[ ENABLE_2FA ]',
+    reset_2fa_confirm: 'RESET 2FA FOR {name}? They will need to set up 2FA again.',
+    two_factor_enabled: '2FA enabled successfully',
+    two_factor_disabled: '2FA has been disabled'
   },
   ip_list: {
     ip_address: 'IP_ADDRESS',

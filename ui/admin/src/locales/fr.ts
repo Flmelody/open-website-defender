@@ -52,6 +52,10 @@ export default {
     required: 'REQUIS',
     access_granted: 'ACCÈS ACCORDÉ',
     access_denied: 'ACCÈS REFUSÉ',
+    two_factor_required: '> Authentification à deux facteurs requise :',
+    two_factor_code: '> Code 2FA :',
+    btn_verify: '[ VÉRIFIER ]',
+    back: '[ RETOUR ]',
   },
   user: {
     new_user: '[ NOUVEL_UTILISATEUR ]',
@@ -83,7 +87,16 @@ export default {
     auth_since: 'DEPUIS',
     auth_revoke: 'RÉVOQUER',
     auth_revoke_confirm: 'RÉVOQUER L\'AUTORISATION POUR {name} ?',
-    auth_revoked: 'AUTORISATION_RÉVOQUÉE'
+    auth_revoked: 'AUTORISATION_RÉVOQUÉE',
+    setup_2fa: '2FA',
+    reset_2fa: 'RÉINITIALISER_2FA',
+    scan_qr: 'Scannez ce QR code avec votre application d\'authentification (Google Authenticator, Authy, etc.)',
+    manual_key: 'CLÉ_MANUELLE',
+    verify_code: 'CODE_VÉRIFICATION',
+    enable_2fa: '[ ACTIVER_2FA ]',
+    reset_2fa_confirm: 'Réinitialiser le 2FA pour {name} ? L\'utilisateur devra reconfigurer le 2FA.',
+    two_factor_enabled: '2FA activé avec succès',
+    two_factor_disabled: '2FA a été désactivé'
   },
   ip_list: {
     ip_address: 'ADRESSE_IP',

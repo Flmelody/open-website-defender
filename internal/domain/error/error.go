@@ -11,4 +11,8 @@ var (
 	ErrInvalidCredentials  = errors.New("invalid credentials")
 	ErrAdminRequired       = errors.New("admin privileges required")
 	ErrScopeDenied         = errors.New("domain not in user scope")
+	ErrTotpRequired        = errors.New("2FA verification required")
+	ErrTotpInvalidCode     = errors.New("invalid 2FA code")
+	ErrTotpAlreadyEnabled  = errors.New("2FA is already enabled")
+	ErrTotpNotEnabled      = errors.New("2FA is not enabled")
 )

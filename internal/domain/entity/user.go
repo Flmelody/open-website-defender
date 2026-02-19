@@ -10,6 +10,8 @@ type User struct {
 	IsAdmin  bool   `gorm:"type:boolean;default:false"`
 	Email    string `gorm:"type:varchar(255)"`
 
-	Scopes    string    `gorm:"type:varchar(1000);default:''"`
-	CreatedAt time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP"`
+	Scopes      string    `gorm:"type:varchar(1000);default:''"`
+	TotpSecret  string    `gorm:"type:varchar(255);default:''"`
+	TotpEnabled bool      `gorm:"type:boolean;default:false"`
+	CreatedAt   time.Time `gorm:"type:timestamp;default:CURRENT_TIMESTAMP"`
 }

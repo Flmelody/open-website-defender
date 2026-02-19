@@ -52,6 +52,10 @@ export default {
     required: '必須',
     access_granted: 'アクセス許可',
     access_denied: 'アクセス拒否',
+    two_factor_required: '> 二要素認証が必要です:',
+    two_factor_code: '> 認証コード:',
+    btn_verify: '[ 確認 ]',
+    back: '[ 戻る ]',
   },
   user: {
     new_user: '[ 新規ユーザー ]',
@@ -83,7 +87,16 @@ export default {
     auth_since: '認可日時',
     auth_revoke: '取消',
     auth_revoke_confirm: '{name} の認可を取り消しますか？',
-    auth_revoked: '認可を取り消しました'
+    auth_revoked: '認可を取り消しました',
+    setup_2fa: '2FA',
+    reset_2fa: '2FAリセット',
+    scan_qr: '認証アプリ（Google Authenticator、Authyなど）でこのQRコードをスキャンしてください',
+    manual_key: '手動キー',
+    verify_code: '確認コード',
+    enable_2fa: '[ 2FA有効化 ]',
+    reset_2fa_confirm: '{name} の二要素認証をリセットしますか？ユーザーは2FAを再設定する必要があります。',
+    two_factor_enabled: '二要素認証が有効になりました',
+    two_factor_disabled: '二要素認証が無効になりました'
   },
   ip_list: {
     ip_address: 'IPアドレス',

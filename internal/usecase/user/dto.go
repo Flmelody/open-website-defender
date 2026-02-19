@@ -24,12 +24,13 @@ type UpdateUserDTO struct {
 }
 
 type UserDTO struct {
-	ID       uint   `json:"id"`
-	Username string `json:"username"`
-	GitToken string `json:"git_token,omitempty"`
-	IsAdmin  bool   `json:"is_admin"`
-	Scopes   string `json:"scopes"`
-	Email    string `json:"email"`
+	ID          uint   `json:"id"`
+	Username    string `json:"username"`
+	GitToken    string `json:"git_token,omitempty"`
+	IsAdmin     bool   `json:"is_admin"`
+	Scopes      string `json:"scopes"`
+	Email       string `json:"email"`
+	TotpEnabled bool   `json:"totp_enabled"`
 }
 
 type LoginInputDTO struct {
@@ -43,9 +44,27 @@ type LoginOutputDTO struct {
 }
 
 type UserInfoDTO struct {
-	ID       uint
-	Username string
-	Scopes   string
-	IsAdmin  bool
-	Email    string
+	ID          uint
+	Username    string
+	Scopes      string
+	IsAdmin     bool
+	Email       string
+	TotpEnabled bool
+}
+
+type AdminLoginOutputDTO struct {
+	RequiresTwoFA  bool
+	ChallengeToken string
+	Token          string
+	User           *UserInfoDTO
+}
+
+type TotpSetupOutputDTO struct {
+	Secret        string
+	QRCodeDataURI string
+}
+
+type TwoFALoginInputDTO struct {
+	ChallengeToken string
+	Code           string
 }

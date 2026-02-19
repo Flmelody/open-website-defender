@@ -34,6 +34,12 @@ func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 		adminLoginHandlers = append(adminLoginHandlers, handler.AdminLogin)
 		api.POST("/admin-login", adminLoginHandlers...)
 
+		// 2FA verification (shares same rate limiter as admin-login)
+		twoFAHandlers := make([]gin.HandlerFunc, len(adminLoginHandlers)-1, len(adminLoginHandlers))
+		copy(twoFAHandlers, adminLoginHandlers[:len(adminLoginHandlers)-1])
+		twoFAHandlers = append(twoFAHandlers, handler.Verify2FA)
+		api.POST("/admin-login/2fa", twoFAHandlers...)
+
 		// OIDC Discovery (public, no auth)
 		api.GET("/.well-known/openid-configuration", handler.OIDCDiscovery)
 		api.GET("/.well-known/jwks.json", handler.JWKS)
@@ -61,6 +67,11 @@ func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 			// User OAuth Authorizations
 			authorized.GET("/users/:id/oauth-authorizations", handler.ListUserOAuthAuthorizations)
 			authorized.DELETE("/users/:id/oauth-authorizations/:clientId", handler.RevokeUserOAuthAuthorization)
+
+			// TOTP 2FA management
+			authorized.POST("/users/:id/totp/setup", handler.SetupTotp)
+			authorized.POST("/users/:id/totp/confirm", handler.ConfirmTotp)
+			authorized.DELETE("/users/:id/totp", handler.DisableTotp)
 
 			// IP Blacklist
 			authorized.POST("/ip-black-list", handler.CreateIpBlackList)

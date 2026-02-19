@@ -56,6 +56,13 @@ type LoginResponse struct {
 	User  *UserInfoResponse `json:"user"`
 }
 
+type AdminLoginResponse struct {
+	RequiresTwoFactor bool              `json:"requires_two_factor"`
+	ChallengeToken    string            `json:"challenge_token,omitempty"`
+	Token             string            `json:"token,omitempty"`
+	User              *UserInfoResponse `json:"user"`
+}
+
 type UserInfoResponse struct {
 	ID       uint   `json:"id"`
 	Username string `json:"username"`
@@ -281,7 +288,7 @@ func AdminLogin(c *gin.Context) {
 				return
 			}
 			logging.Sugar.Infof("Admin user '%s' already logged in", userInfo.Username)
-			response.SuccessWithMessage(c, "Already logged in", LoginResponse{
+			response.SuccessWithMessage(c, "Already logged in", AdminLoginResponse{
 				Token: tokenString,
 				User: &UserInfoResponse{
 					ID:       userInfo.ID,
@@ -304,11 +311,16 @@ func AdminLogin(c *gin.Context) {
 		Password: req.Password,
 	}
 
-	output, err := service.Login(input)
+	output, err := service.AdminLogin(input)
 	if err != nil {
 		if errors.Is(err, domainError.ErrInvalidCredentials) {
 			logging.Sugar.Warnf("Admin login failed for user '%s': invalid credentials", req.Username)
 			response.Unauthorized(c, "Invalid username or password")
+			return
+		}
+		if errors.Is(err, domainError.ErrAdminRequired) {
+			logging.Sugar.Warnf("Admin login denied for user '%s': not an admin", req.Username)
+			response.Forbidden(c, "Admin privileges required")
 			return
 		}
 		logging.Sugar.Errorf("Admin login failed for user '%s': %v", req.Username, err)
@@ -316,9 +328,50 @@ func AdminLogin(c *gin.Context) {
 		return
 	}
 
-	if !output.User.IsAdmin {
-		logging.Sugar.Warnf("Admin login denied for user '%s': not an admin", req.Username)
-		response.Forbidden(c, "Admin privileges required")
+	adminLoginResponse := AdminLoginResponse{
+		RequiresTwoFactor: output.RequiresTwoFA,
+		ChallengeToken:    output.ChallengeToken,
+		Token:             output.Token,
+		User: &UserInfoResponse{
+			ID:       output.User.ID,
+			Username: output.User.Username,
+		},
+	}
+
+	if output.RequiresTwoFA {
+		logging.Sugar.Infof("Admin user '%s' requires 2FA verification", req.Username)
+		response.SuccessWithMessage(c, "2FA verification required", adminLoginResponse)
+	} else {
+		logging.Sugar.Infof("Admin user '%s' logged in successfully", req.Username)
+		response.SuccessWithMessage(c, "Login successful", adminLoginResponse)
+	}
+}
+
+// Verify2FA handles the second step of 2FA login
+func Verify2FA(c *gin.Context) {
+	service := user.GetAuthService()
+
+	var req request.TwoFactorVerifyRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "Invalid request format: "+err.Error())
+		return
+	}
+
+	output, err := service.Verify2FALogin(&user.TwoFALoginInputDTO{
+		ChallengeToken: req.ChallengeToken,
+		Code:           req.Code,
+	})
+	if err != nil {
+		if errors.Is(err, domainError.ErrInvalidCredentials) || errors.Is(err, domainError.ErrTotpInvalidCode) {
+			response.Unauthorized(c, "Invalid 2FA code")
+			return
+		}
+		if errors.Is(err, domainError.ErrTotpNotEnabled) {
+			response.BadRequest(c, "2FA is not enabled for this account")
+			return
+		}
+		logging.Sugar.Errorf("2FA verification failed: %v", err)
+		response.InternalServerError(c, "Verification failed, please try again later")
 		return
 	}
 
@@ -330,6 +383,6 @@ func AdminLogin(c *gin.Context) {
 		},
 	}
 
-	logging.Sugar.Infof("Admin user '%s' logged in successfully", req.Username)
+	logging.Sugar.Infof("Admin user '%s' completed 2FA verification", output.User.Username)
 	response.SuccessWithMessage(c, "Login successful", loginResponse)
 }

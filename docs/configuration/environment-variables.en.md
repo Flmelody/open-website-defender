@@ -13,6 +13,8 @@ Website Defender uses environment variables at **build time** to configure front
 | `ROOT_PATH` | `/wall` | The root path context for all routes |
 | `ADMIN_PATH` | `/admin` | The path for the admin dashboard |
 | `GUARD_PATH` | `/guard` | The path for the guard (challenge/login) page |
+| `GUARD_DOMAIN` | *(empty)* | Cookie domain for the auth token. When set (e.g. `.example.com`), the `flmelody.token` cookie is shared across all subdomains, enabling single sign-on |
+| `PORT` | `9999` | The port the server listens on |
 
 ## Usage
 
@@ -25,6 +27,8 @@ export BACKEND_HOST="https://defender.example.com/wall"
 export ROOT_PATH="/wall"
 export ADMIN_PATH="/admin"
 export GUARD_PATH="/guard"
+export GUARD_DOMAIN=""
+export PORT=9999
 
 ./scripts/build.sh
 ```
@@ -38,6 +42,8 @@ BACKEND_HOST=https://defender.example.com/wall
 ROOT_PATH=/wall
 ADMIN_PATH=/admin
 GUARD_PATH=/guard
+GUARD_DOMAIN=
+PORT=9999
 ```
 
 Then build normally:

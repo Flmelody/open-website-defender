@@ -14,7 +14,34 @@ Website Defender is designed for simple, single-binary deployment with minimal d
 
 ## Quick Deployment
 
-### 1. Build the Binary
+### 1. Set Build-Time Environment Variables
+
+The frontend API address is **compiled into the binary** at build time. You **must** set `BACKEND_HOST` to match your actual deployment URL before building, otherwise the frontend cannot reach the backend and login will fail.
+
+Create a `.env` file in the project root:
+
+```bash
+# REQUIRED: change to your actual deployment URL
+BACKEND_HOST=https://defender.example.com/wall
+ROOT_PATH=/wall
+ADMIN_PATH=/admin
+GUARD_PATH=/guard
+GUARD_DOMAIN=
+PORT=9999
+```
+
+Or export them directly:
+
+```bash
+export BACKEND_HOST=https://defender.example.com/wall
+```
+
+!!! danger "Common Pitfall"
+    If you build with the default `BACKEND_HOST=http://localhost:9999/wall` and deploy to a remote server, the admin dashboard will try to call `localhost:9999` in the user's browser -- API requests will fail and **you won't be able to log in**. Always set `BACKEND_HOST` to the public URL of your Defender instance before building.
+
+For the full list of build-time variables, see [Environment Variables](../configuration/environment-variables.md).
+
+### 2. Build the Binary
 
 ```bash
 git clone https://github.com/Flmelody/open-website-defender.git
@@ -22,9 +49,7 @@ cd open-website-defender
 ./scripts/build.sh
 ```
 
-For custom build settings, see [Environment Variables](../configuration/environment-variables.md).
-
-### 2. Configure
+### 3. Configure
 
 Create or edit `config/config.yaml`:
 
@@ -54,7 +79,7 @@ trustedProxies:
 
 For the full configuration reference, see [Configuration](../configuration/index.md).
 
-### 3. Run
+### 4. Run
 
 ```bash
 ./app
@@ -62,7 +87,7 @@ For the full configuration reference, see [Configuration](../configuration/index
 
 The application listens on port `9999` by default.
 
-### 4. Configure Nginx
+### 5. Configure Nginx
 
 Set up Nginx to use Website Defender as the auth provider. See [Nginx Setup](nginx-setup.md) for the complete configuration guide.
 

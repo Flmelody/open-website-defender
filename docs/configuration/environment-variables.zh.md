@@ -10,6 +10,8 @@ Website Defender 的前端构建依赖一组**构建时**环境变量，用于�
 | `ROOT_PATH` | `/wall` | 根路径上下文，所有 API 路由的前缀 |
 | `ADMIN_PATH` | `/admin` | 管理后台的访问路径 |
 | `GUARD_PATH` | `/guard` | 防护页/登录页的访问路径 |
+| `GUARD_DOMAIN` | *（空）* | 认证令牌的 Cookie 域名。设置后（如 `.example.com`），`flmelody.token` Cookie 可在所有子域名间共享，实现单点登录 |
+| `PORT` | `9999` | 服务监听端口 |
 
 ## 配置方式
 
@@ -22,6 +24,8 @@ BACKEND_HOST=https://example.com/wall
 ROOT_PATH=/wall
 ADMIN_PATH=/admin
 GUARD_PATH=/guard
+GUARD_DOMAIN=
+PORT=9999
 ```
 
 构建脚本会自动读取 `.env` 文件中的变量。
@@ -35,6 +39,8 @@ export BACKEND_HOST=https://example.com/wall
 export ROOT_PATH=/wall
 export ADMIN_PATH=/admin
 export GUARD_PATH=/guard
+export GUARD_DOMAIN=
+export PORT=9999
 
 ./scripts/build.sh
 ```

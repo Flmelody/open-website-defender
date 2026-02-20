@@ -25,7 +25,9 @@ func CreateIpBlackList(c *gin.Context) {
 	}
 
 	input := &iplist.CreateIpBlackListDto{
-		Ip: req.Ip,
+		Ip:        req.Ip,
+		Remark:    req.Remark,
+		ExpiresAt: req.ExpiresAt,
 	}
 
 	dto, err := service.Create(input)

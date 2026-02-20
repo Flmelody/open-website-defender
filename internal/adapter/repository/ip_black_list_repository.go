@@ -3,6 +3,7 @@ package repository
 import (
 	"open-website-defender/internal/domain/entity"
 	_interface "open-website-defender/internal/usecase/interface"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -31,7 +32,7 @@ func (r *IpBlackListRepository) List(limit, offset int) ([]*entity.IpBlackList, 
 	if err := r.db.Model(&entity.IpBlackList{}).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	err := r.db.Limit(limit).Offset(offset).Find(&list).Error
+	err := r.db.Order("id DESC").Limit(limit).Offset(offset).Find(&list).Error
 	return list, total, err
 }
 
@@ -43,4 +44,10 @@ func (r *IpBlackListRepository) FindByIP(ip string) (*entity.IpBlackList, error)
 		return nil, nil
 	}
 	return &item, err
+}
+
+// DeleteExpired removes all blacklist entries whose ExpiresAt is in the past.
+func (r *IpBlackListRepository) DeleteExpired() (int64, error) {
+	result := r.db.Where("expires_at IS NOT NULL AND expires_at < ?", time.Now().UTC()).Delete(&entity.IpBlackList{})
+	return result.RowsAffected, result.Error
 }

@@ -130,6 +130,7 @@ func InitDB() error {
 		&entity.OAuthClient{},
 		&entity.OAuthAuthorizationCode{},
 		&entity.OAuthRefreshToken{},
+		&entity.SecurityEvent{},
 	)
 	if err != nil {
 		return err
@@ -209,6 +210,7 @@ func initDefaultUser() error {
 		Username: defaultUsername,
 		Password: hashedPassword,
 		IsAdmin:  true,
+		Enabled:  true,
 	}
 
 	if err := DB.Create(defaultUser).Error; err != nil {
@@ -300,6 +302,22 @@ func initDefaultWafRules() error {
 			Category: "traversal",
 			Action:   "block",
 			Enabled:  boolPtr(true),
+		},
+		// User-Agent blacklist — malicious scanners (enabled by default)
+		{
+			Name:     "UA Blacklist - Scanners",
+			Pattern:  `(?i)(sqlmap|nikto|nessus|masscan|nmap|acunetix|w3af|burpsuite)`,
+			Category: "ua",
+			Action:   "block",
+			Enabled:  boolPtr(true),
+		},
+		// User-Agent blacklist — common bots (disabled by default, user can enable)
+		{
+			Name:     "UA Blacklist - Bots",
+			Pattern:  `(?i)(scrapy|python-requests|go-http-client|curl\/|wget\/)`,
+			Category: "ua",
+			Action:   "block",
+			Enabled:  boolPtr(false),
 		},
 	}
 

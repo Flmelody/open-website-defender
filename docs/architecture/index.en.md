@@ -25,7 +25,7 @@ graph LR
 Every request to Website Defender passes through the following middleware in order:
 
 ```
-SecurityHeaders → CORS → BodyLimit → AccessLog → GeoBlock → WAF → RateLimiter → Route Handler
+SecurityHeaders → CORS → BodyLimit → AccessLog → GeoBlock → WAF → RateLimiter → JS Challenge → Route Handler
 ```
 
 | Middleware | Purpose |
@@ -33,10 +33,11 @@ SecurityHeaders → CORS → BodyLimit → AccessLog → GeoBlock → WAF → Ra
 | **SecurityHeaders** | Adds hardening headers (`X-Content-Type-Options`, HSTS, etc.) |
 | **CORS** | Handles Cross-Origin Resource Sharing |
 | **BodyLimit** | Enforces maximum request body size |
-| **AccessLog** | Records request details for analytics |
+| **AccessLog** | Records request details for analytics; feeds data to [threat detection](../features/threat-detection.md) |
 | **GeoBlock** | Blocks requests from restricted countries |
 | **WAF** | Inspects URL, query, User-Agent, and body for attack patterns |
 | **RateLimiter** | Enforces per-IP request rate limits |
+| **JS Challenge** | Serves [Proof-of-Work challenge](../features/js-challenge.md) to suspicious or all visitors |
 | **Route Handler** | Processes the actual API endpoint logic |
 
 !!! info "Middleware Order Matters"
@@ -91,4 +92,6 @@ The core data entities and their relationships:
 - **Authorized Domains** -- central registry of all protected domains
 - **IP Whitelist** -- entries can be bound to an authorized domain; only grants access when the requested domain matches the bound domain
 - **Users** -- authorized domains restrict which protected services each user can access
-- **IP Blacklist**, **WAF Rules**, **Geo-Block Rules**, **Licenses** -- independent entities managed via the admin dashboard
+- **IP Blacklist** -- supports permanent and temporary bans (auto-expiring entries from [threat detection](../features/threat-detection.md))
+- **Security Events** -- recorded by threat detection for audit and analysis
+- **WAF Rules**, **Geo-Block Rules**, **Licenses** -- independent entities managed via the admin dashboard

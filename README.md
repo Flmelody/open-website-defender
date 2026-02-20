@@ -2,7 +2,9 @@
 
 [中文文档](README-zh.md)
 
-`Website Defender` is a lightweight `WAF` (Web Application Firewall) designed to provide additional protection for websites exposed on public networks.
+A **self-hosted**, **lightweight**, **simple** WAF (Web Application Firewall) -- single binary, deploy in minutes.
+
+`Website Defender` provides unified authentication, intelligent threat detection, and multi-layer access control for websites exposed on public networks. No agents to install, no cloud subscriptions -- just one binary in front of Nginx.
 
 ![Website Defender Dashboard](assets/defender-glance-en.png)
 
@@ -11,7 +13,7 @@ Enterprises often deploy many internal applications such as `Gitlab`, `Jenkins`,
 - Brute-force attacks
 - Vulnerabilities in open-source versions
 
-`Website Defender` addresses these issues by providing a secure gateway with authentication and access control policies.
+`Website Defender` addresses these issues by providing a self-hosted security gateway with authentication and access control policies -- **no code changes required** for your existing applications.
 
 ## Architecture
 
@@ -34,7 +36,7 @@ graph LR
 - **Git Token Authentication**: Machine access via configurable HTTP header (default `Defender-Git-Token`), format `username:token`.
 - **License Token Authentication**: API access via configurable HTTP header (default `Defender-License`), tokens are SHA-256 hashed before storage.
 - **IP Whitelist**: Allow specific IPs or CIDR ranges (e.g. `192.168.1.0/24`) to bypass authentication.
-- **IP Blacklist**: Block malicious IPs by exact match or CIDR range.
+- **IP Blacklist**: Block malicious IPs by exact match or CIDR range. Supports temporary bans with auto-expiry and optional remarks.
 
 - **Authorized Domains**: Centrally manage protected domains. Used as the data source for IP whitelist domain binding and user access control.
 - **Authorized Domain Access Control**: Restrict users to specific authorized domains using comma-separated patterns (e.g. `gitea.com, *.internal.org`). Empty authorized domains grant unrestricted access. Admin users bypass authorized domain checks. Domain is determined from `X-Forwarded-Host` header with fallback to `Host`.
@@ -117,6 +119,42 @@ Regex-based request filtering that inspects URL path, query string, User-Agent, 
 
 Custom rules can be added via the admin dashboard.
 
+### Threat Detection & Auto-Ban
+
+Automatic detection and blocking of malicious behavior patterns with configurable thresholds:
+
+- **4xx Error Flood**: Ban IPs after excessive client errors (default: 20 in 60s → 1h ban)
+- **Path Scanning**: Detect systematic 404 probing (default: 10 in 5min → 4h ban)
+- **Rate Limit Abuse**: Catch repeated rate limit hits (default: 5 in 5min → 2h ban)
+- **Brute Force**: Block IPs with excessive failed logins (default: 10 in 10min → 1h ban)
+- **Threat Scoring**: Dynamic per-IP threat score (WAF blocks +5, rate limits +3, 4xx +1) with 1h decay
+
+### JS Challenge (Proof-of-Work)
+
+JavaScript-based Proof-of-Work challenge to filter bots:
+
+- **Modes**: `off`, `suspicious` (only high-threat IPs), `all` (every new visitor)
+- SHA256 PoW with configurable difficulty (1-6 leading zeros)
+- Pass cookie valid for 24h per IP
+- Automatically bypasses whitelisted IPs, authenticated requests, and non-browser clients
+
+### Security Events
+
+Centralized security event tracking and analysis:
+
+- Event types: `auto_ban`, `brute_force`, `scan_detected`, `js_challenge_fail`
+- Statistics: total events, 24h auto-bans, top threat IPs, event type breakdown
+- Filterable by event type, IP, and time range
+- 90-day automatic retention with async buffered writes
+
+### Webhook Notifications
+
+HTTP POST notifications to external systems when security events occur:
+
+- Configurable endpoint URL and event type filtering
+- Async delivery with 5-second timeout
+- Payload includes event type, client IP, reason, ban duration, and timestamp
+
 ### Geo-IP Blocking
 
 Block requests by country using MaxMind GeoLite2-Country database. Country codes are managed via the admin dashboard.
@@ -138,9 +176,10 @@ Automatic security headers on all responses:
 
 ### Access Logging & Analytics
 
-All requests are logged with client IP, method, path, status code, latency, User-Agent, and action (allowed/blocked). The dashboard provides:
+All requests are logged with client IP, method, path, status code, latency, User-Agent, and action (allowed/blocked). Access log data feeds into the threat detection engine in real time. The dashboard provides:
 - Total and blocked request counts
 - Top 10 blocked IPs
+- Auto-bans in past 24 hours, active threat count
 - Filtering by IP, action, status code, and time range
 
 ### Authorized Domain Management
@@ -153,8 +192,10 @@ All requests are logged with client IP, method, path, status code, latency, User
 
 - Create, edit, and delete admin users
 - Role-based access (admin privilege flag)
+- **Account enable/disable**: toggle accounts on/off without deletion; disabled accounts are blocked from all auth methods
 - Auto-generate Git tokens with one-click copy
 - **Authorized domains**: restrict which protected domains each user can access (selectable from registered authorized domains)
+- **2FA recovery**: config-based recovery key for resetting admin 2FA when locked out (localhost-only by default)
 
 ### License Management
 
@@ -164,8 +205,9 @@ All requests are logged with client IP, method, path, status code, latency, User
 
 ### Admin Dashboard
 
-- Real-time statistics (requests, blocks, uptime)
-- User, IP list, authorized domain, WAF rule, access log, geo-block, license, and system settings management
+- Real-time statistics (requests, blocks, uptime, auto-bans, active threats)
+- User, IP list, authorized domain, WAF rule, access log, security events, geo-block, license, and system settings management
+- JS Challenge and Webhook configuration via system settings
 - Hacker-themed terminal UI
 - **6 languages**: English, Chinese, German, French, Japanese, Russian
 
@@ -179,7 +221,8 @@ All requests are logged with client IP, method, path, status code, latency, User
 
 ### Deployment
 
-- Single-binary deployment with embedded frontend assets (`go:embed`)
+- **Single-binary, self-hosted** -- no external services, no cloud dependencies, no Docker required
+- Frontend assets embedded via `go:embed` -- nothing else to deploy
 - Configurable via `config/config.yaml` or environment variables
 - Graceful shutdown support
 - Trusted proxy configuration
@@ -265,6 +308,21 @@ request-filtering:
 geo-blocking:
   enabled: false
   database-path: ""
+
+# Threat detection (auto-ban on anomalous behavior)
+threat-detection:
+  enabled: true
+
+# JS Challenge (Proof-of-Work)
+js-challenge:
+  enabled: false
+  mode: "suspicious"    # off | suspicious | all
+  difficulty: 4
+
+# Webhook notifications
+webhook:
+  url: ""
+  events: [auto_ban, brute_force, scan_detected]
 ```
 
 ## API Reference
@@ -275,6 +333,7 @@ All routes are prefixed with the configurable `ROOT_PATH` (default `/wall`).
 |--------|------|-------------|------|
 | `POST` | `/login` | User authentication | No |
 | `POST` | `/admin-login` | Admin-only authentication (rejects non-admin users with 403) | No |
+| `POST` | `/admin-recover-2fa` | Reset admin 2FA with recovery key (localhost-only by default) | No |
 | `GET` | `/auth` | Verify credentials (IP lists + token) | No |
 | `GET` | `/health` | Health check | No |
 | `GET` | `/dashboard/stats` | Dashboard statistics | Yes |
@@ -287,6 +346,8 @@ All routes are prefixed with the configurable `ROOT_PATH` (default `/wall`).
 | `POST/GET/DELETE` | `/authorized-domains[/:id]` | Authorized domain management | Yes |
 | `POST/GET/DELETE` | `/geo-block-rules[/:id]` | Geo-blocking management | Yes |
 | `POST/GET/DELETE` | `/licenses[/:id]` | License management | Yes |
+| `GET` | `/security-events` | Security events list | Yes |
+| `GET` | `/security-events/stats` | Security event statistics | Yes |
 | `GET/PUT` | `/system/settings` | System settings | Yes |
 | `POST` | `/system/reload` | Reload configuration & clear caches | Yes |
 
@@ -295,7 +356,7 @@ All routes are prefixed with the configurable `ROOT_PATH` (default `/wall`).
 Requests pass through the following middleware in order:
 
 ```
-SecurityHeaders → CORS → BodyLimit → AccessLog → GeoBlock → WAF → RateLimiter → Route Handler
+SecurityHeaders → CORS → BodyLimit → AccessLog → GeoBlock → WAF → RateLimiter → JS Challenge → Route Handler
 ```
 
 ## License

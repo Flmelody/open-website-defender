@@ -53,6 +53,7 @@ func (s *UserService) CreateUser(input *CreateUserDTO) (*UserDTO, error) {
 		Password: input.Password,
 		GitToken: input.GitToken,
 		IsAdmin:  input.IsAdmin,
+		Enabled:  input.Enabled,
 		Scopes:   input.Scopes,
 		Email:    input.Email,
 	}
@@ -66,6 +67,7 @@ func (s *UserService) CreateUser(input *CreateUserDTO) (*UserDTO, error) {
 		Username:    user.Username,
 		GitToken:    maskGitToken(input.GitToken),
 		IsAdmin:     user.IsAdmin,
+		Enabled:     user.Enabled,
 		Scopes:      user.Scopes,
 		Email:       user.Email,
 		TotpEnabled: user.TotpEnabled,
@@ -86,6 +88,7 @@ func (s *UserService) GetUser(id uint) (*UserDTO, error) {
 		Username:    user.Username,
 		GitToken:    maskGitToken(user.GitToken),
 		IsAdmin:     user.IsAdmin,
+		Enabled:     user.Enabled,
 		Scopes:      user.Scopes,
 		Email:       user.Email,
 		TotpEnabled: user.TotpEnabled,
@@ -107,12 +110,21 @@ func (s *UserService) UpdateUser(id uint, input *UpdateUserDTO) (*UserDTO, error
 	if input.Password != "" {
 		user.Password = input.Password
 	}
-	if input.GitToken != "" {
-		user.GitToken = input.GitToken
+	if input.GitToken != nil {
+		user.GitToken = *input.GitToken
 	}
-	user.IsAdmin = input.IsAdmin
-	user.Scopes = input.Scopes
-	user.Email = input.Email
+	if input.IsAdmin != nil {
+		user.IsAdmin = *input.IsAdmin
+	}
+	if input.Enabled != nil {
+		user.Enabled = *input.Enabled
+	}
+	if input.Scopes != nil {
+		user.Scopes = *input.Scopes
+	}
+	if input.Email != nil {
+		user.Email = *input.Email
+	}
 
 	if err := s.userRepo.Update(user); err != nil {
 		return nil, fmt.Errorf("failed to update user: %w", err)
@@ -125,6 +137,7 @@ func (s *UserService) UpdateUser(id uint, input *UpdateUserDTO) (*UserDTO, error
 		Username:    user.Username,
 		GitToken:    maskGitToken(user.GitToken),
 		IsAdmin:     user.IsAdmin,
+		Enabled:     user.Enabled,
 		Scopes:      user.Scopes,
 		Email:       user.Email,
 		TotpEnabled: user.TotpEnabled,
@@ -176,6 +189,7 @@ func (s *UserService) ListUsers(page, size int) ([]*UserDTO, int64, error) {
 			Username:    user.Username,
 			GitToken:    maskGitToken(user.GitToken),
 			IsAdmin:     user.IsAdmin,
+			Enabled:     user.Enabled,
 			Scopes:      user.Scopes,
 			Email:       user.Email,
 			TotpEnabled: user.TotpEnabled,

@@ -13,6 +13,7 @@ import (
 	"open-website-defender/internal/pkg"
 	_interface "open-website-defender/internal/usecase/interface"
 	"sync"
+	"time"
 )
 
 type IpBlackListService struct {
@@ -26,19 +27,44 @@ var (
 
 func GetIpBlackListService() *IpBlackListService {
 	ipBlackListOnce.Do(func() {
-		ipBlackListService = &IpBlackListService{
+		svc := &IpBlackListService{
 			repo: repository.NewIpBlackListRepository(database.DB),
 		}
+		go svc.cleanupLoop()
+		ipBlackListService = svc
 	})
 	return ipBlackListService
 }
 
-func (s *IpBlackListService) getRules() ([]string, error) {
+// cleanupLoop periodically removes expired blacklist entries.
+func (s *IpBlackListService) cleanupLoop() {
+	ticker := time.NewTicker(10 * time.Minute)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		deleted, err := s.repo.DeleteExpired()
+		if err != nil {
+			logging.Sugar.Errorf("Failed to cleanup expired blacklist entries: %v", err)
+			continue
+		}
+		if deleted > 0 {
+			logging.Sugar.Infof("Cleaned up %d expired blacklist entries", deleted)
+			event.Bus().Publish(event.BlackListChanged)
+		}
+	}
+}
+
+type blacklistRule struct {
+	Ip        string     `json:"ip"`
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+}
+
+func (s *IpBlackListService) getRules() ([]blacklistRule, error) {
 	c := pkg.Cacher()
 
 	data, err := c.Get([]byte(cache.KeyBlackListRules))
 	if err == nil {
-		var rules []string
+		var rules []blacklistRule
 		if err := json.Unmarshal(data, &rules); err == nil {
 			return rules, nil
 		}
@@ -49,9 +75,12 @@ func (s *IpBlackListService) getRules() ([]string, error) {
 		return nil, err
 	}
 
-	rules := make([]string, 0, len(list))
+	rules := make([]blacklistRule, 0, len(list))
 	for _, item := range list {
-		rules = append(rules, item.Ip)
+		rules = append(rules, blacklistRule{
+			Ip:        item.Ip,
+			ExpiresAt: item.ExpiresAt,
+		})
 	}
 
 	data, err = json.Marshal(rules)
@@ -76,7 +105,9 @@ func (s *IpBlackListService) Create(input *CreateIpBlackListDto) (*IpBlackListDt
 	}
 
 	item := &entity.IpBlackList{
-		Ip: input.Ip,
+		Ip:        input.Ip,
+		Remark:    input.Remark,
+		ExpiresAt: input.ExpiresAt,
 	}
 
 	if err := s.repo.Create(item); err != nil {
@@ -88,8 +119,38 @@ func (s *IpBlackListService) Create(input *CreateIpBlackListDto) (*IpBlackListDt
 	return &IpBlackListDto{
 		ID:        item.ID,
 		Ip:        item.Ip,
+		Remark:    item.Remark,
+		ExpiresAt: item.ExpiresAt,
 		CreatedAt: item.CreatedAt,
 	}, nil
+}
+
+// CreateAutoBlacklist adds an IP to the blacklist with an automatic expiry duration and remark.
+// Returns (true, nil) if a new ban was created, (false, nil) if already banned.
+func (s *IpBlackListService) CreateAutoBlacklist(ip, remark string, duration time.Duration) (bool, error) {
+	existing, err := s.repo.FindByIP(ip)
+	if err != nil {
+		return false, err
+	}
+	if existing != nil {
+		// Already blacklisted, skip
+		return false, nil
+	}
+
+	expiresAt := time.Now().UTC().Add(duration)
+	item := &entity.IpBlackList{
+		Ip:        ip,
+		Remark:    remark,
+		ExpiresAt: &expiresAt,
+	}
+
+	if err := s.repo.Create(item); err != nil {
+		return false, fmt.Errorf("failed to auto-blacklist IP: %w", err)
+	}
+
+	logging.Sugar.Infof("Auto-blacklisted IP %s for %v: %s", ip, duration, remark)
+	event.Bus().Publish(event.BlackListChanged)
+	return true, nil
 }
 
 func (s *IpBlackListService) Delete(id uint) error {
@@ -119,6 +180,8 @@ func (s *IpBlackListService) List(page, size int) ([]*IpBlackListDto, int64, err
 		dtos = append(dtos, &IpBlackListDto{
 			ID:        item.ID,
 			Ip:        item.Ip,
+			Remark:    item.Remark,
+			ExpiresAt: item.ExpiresAt,
 			CreatedAt: item.CreatedAt,
 		})
 	}
@@ -132,9 +195,14 @@ func (s *IpBlackListService) FindByIP(ip string) (*IpBlackListDto, error) {
 		return nil, err
 	}
 
+	now := time.Now().UTC()
 	for _, rule := range rules {
-		if pkg.MatchIP(rule, ip) {
-			return &IpBlackListDto{Ip: rule}, nil
+		// Skip expired entries
+		if rule.ExpiresAt != nil && rule.ExpiresAt.Before(now) {
+			continue
+		}
+		if pkg.MatchIP(rule.Ip, ip) {
+			return &IpBlackListDto{Ip: rule.Ip}, nil
 		}
 	}
 

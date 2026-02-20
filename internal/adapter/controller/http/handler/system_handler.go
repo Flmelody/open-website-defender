@@ -34,8 +34,12 @@ func UpdateSystemSettings(c *gin.Context) {
 	}
 
 	input := &system.UpdateSystemSettingsDTO{
-		GitTokenHeader: req.GitTokenHeader,
-		LicenseHeader:  req.LicenseHeader,
+		GitTokenHeader:        req.GitTokenHeader,
+		LicenseHeader:         req.LicenseHeader,
+		JSChallengeEnabled:    req.JSChallengeEnabled,
+		JSChallengeMode:       req.JSChallengeMode,
+		JSChallengeDifficulty: req.JSChallengeDifficulty,
+		WebhookURL:            req.WebhookURL,
 	}
 
 	if err := service.UpdateSettings(input); err != nil {

@@ -12,7 +12,8 @@ import (
 func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 	api := router.Group(appConfig.RootPath)
 	{
-		// Standalone auth check endpoint
+		// Standalone auth check endpoint (skip JS Challenge — nginx auth_request subrequest)
+		middleware.JSChallengeSkipRoute(appConfig.RootPath + "/auth")
 		api.GET("/auth", handler.Auth)
 
 		// Login with optional rate limiting
@@ -45,6 +46,12 @@ func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 		copy(twoFAHandlers, adminLoginHandlers[:len(adminLoginHandlers)-1])
 		twoFAHandlers = append(twoFAHandlers, handler.Verify2FA)
 		api.POST("/admin-login/2fa", twoFAHandlers...)
+
+		// Admin 2FA recovery (unauthenticated, rate-limited like login)
+		recoverHandlers := make([]gin.HandlerFunc, len(loginHandlers)-1, len(loginHandlers))
+		copy(recoverHandlers, loginHandlers[:len(loginHandlers)-1])
+		recoverHandlers = append(recoverHandlers, handler.AdminRecover2FA)
+		api.POST("/admin-recover-2fa", recoverHandlers...)
 
 		// OIDC Discovery (public, no auth)
 		api.GET("/.well-known/openid-configuration", handler.OIDCDiscovery)
@@ -123,11 +130,17 @@ func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 			authorized.PUT("/oauth-clients/:id", handler.UpdateOAuthClient)
 			authorized.DELETE("/oauth-clients/:id", handler.DeleteOAuthClient)
 
+			// Security Events
+			authorized.GET("/security-events", handler.ListSecurityEvents)
+			authorized.GET("/security-events/stats", handler.GetSecurityEventStats)
+			authorized.GET("/security-events/threat-score", handler.GetThreatScore)
+
 			// Dashboard & System
 			authorized.GET("/dashboard/stats", handler.GetDashboardStats)
 			authorized.GET("/system/settings", handler.GetSystemSettings)
 			authorized.PUT("/system/settings", handler.UpdateSystemSettings)
 			authorized.POST("/system/reload", handler.ReloadConfig)
+
 		}
 	}
 

@@ -8,8 +8,12 @@ type System struct {
 }
 
 type Security struct {
-	GitTokenHeader string `json:"git_token_header"` // default "Defender-Git-Token"
-	LicenseHeader  string `json:"license_header"`   // default "Defender-License"
+	GitTokenHeader        string `json:"git_token_header"`        // default "Defender-Git-Token"
+	LicenseHeader         string `json:"license_header"`          // default "Defender-License"
+	JSChallengeEnabled    *bool  `json:"js_challenge_enabled"`    // nil = use config file
+	JSChallengeMode       string `json:"js_challenge_mode"`       // off, suspicious, all
+	JSChallengeDifficulty int    `json:"js_challenge_difficulty"` // 1-6, 0 = use config file
+	WebhookURL            string `json:"webhook_url"`
 }
 
 type GeoBlockRule struct {

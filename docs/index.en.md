@@ -67,16 +67,23 @@ Each rule can `block` (return 403) or `log` (allow but record). Add your own rul
 
 ### Access Control
 
-- **IP Whitelist / Blacklist** -- allow or block by exact IP or CIDR range (e.g. `192.168.1.0/24`)
+- **IP Whitelist / Blacklist** -- allow or block by exact IP or CIDR range (e.g. `192.168.1.0/24`); blacklist supports temporary bans with auto-expiry
 - **Authorized Domains** -- centrally register protected domains; serves as data source for IP whitelist binding and user access control; enables multi-tenant access control restricting users to specific domains (e.g. `app.example.com, *.internal.org`)
 - **Geo-IP Blocking** -- country-level blocking using MaxMind GeoLite2
 - **Rate Limiting** -- global (default 100 req/min) and login-specific (default 5/min with auto-lockout)
 
+### Threat Detection & Response
+
+- **[Automatic Threat Detection](features/threat-detection.md)** -- detects 4xx floods, path scanning, rate limit abuse, and brute force attacks; auto-bans offending IPs with configurable thresholds and durations
+- **[JS Challenge (Proof-of-Work)](features/js-challenge.md)** -- serves JavaScript-based challenges to filter bots; supports `suspicious` mode (only challenge high-threat IPs) and `all` mode
+- **[Security Events](features/security-events.md)** -- centralized security event log with statistics, filtering, and 90-day retention
+- **[Webhook Notifications](features/webhook.md)** -- HTTP POST alerts to external systems when security events occur
+
 ### Security & Monitoring
 
 - **Security Headers** -- automatic `X-Content-Type-Options`, `X-XSS-Protection`, `Referrer-Policy`, `Permissions-Policy`, configurable `X-Frame-Options` and HSTS
-- **Access Logs** -- every request logged with IP, method, path, status, latency, User-Agent, and allow/block action
-- **Dashboard Analytics** -- real-time stats, top blocked IPs, filtering by IP/action/status/time
+- **Access Logs** -- every request logged with IP, method, path, status, latency, User-Agent, and allow/block action; feeds into threat detection engine
+- **Dashboard Analytics** -- real-time stats, top blocked IPs, auto-bans in 24h, active threat count, filtering by IP/action/status/time
 
 ### Production Ready
 

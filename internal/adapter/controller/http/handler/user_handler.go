@@ -46,11 +46,17 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
+	enabled := true
+	if req.Enabled != nil {
+		enabled = *req.Enabled
+	}
+
 	input := &user.CreateUserDTO{
 		Username: req.Username,
 		Password: req.Password,
 		GitToken: req.GitToken,
 		IsAdmin:  req.IsAdmin,
+		Enabled:  enabled,
 		Scopes:   req.Scopes,
 		Email:    req.Email,
 	}
@@ -87,7 +93,7 @@ func UpdateUser(c *gin.Context) {
 		return
 	}
 
-	if !validateScopes(req.Scopes) {
+	if req.Scopes != nil && !validateScopes(*req.Scopes) {
 		response.BadRequest(c, "Invalid domain format in authorized domains")
 		return
 	}
@@ -97,6 +103,7 @@ func UpdateUser(c *gin.Context) {
 		Password: req.Password,
 		GitToken: req.GitToken,
 		IsAdmin:  req.IsAdmin,
+		Enabled:  req.Enabled,
 		Scopes:   req.Scopes,
 		Email:    req.Email,
 	}

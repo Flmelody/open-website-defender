@@ -88,6 +88,48 @@ default-user:
   username: defender
   password: defender
 
+# OAuth2/OIDC Provider configuration
+oauth:
+  enabled: true
+  issuer: "https://auth.example.com/wall"
+  rsa-private-key-path: ""
+  authorization-code-lifetime: 300
+  access-token-lifetime: 3600
+  refresh-token-lifetime: 2592000
+  id-token-lifetime: 3600
+
+# Threat detection (auto-ban on anomalous behavior)
+threat-detection:
+  enabled: true
+  status-code-threshold: 20
+  status-code-window: 60
+  rate-limit-abuse-threshold: 5
+  rate-limit-abuse-window: 300
+  auto-ban-duration: 3600
+  scan-threshold: 10
+  scan-window: 300
+  scan-ban-duration: 14400
+  brute-force-threshold: 10
+  brute-force-window: 600
+  brute-force-ban-duration: 3600
+
+# JS Challenge (Proof-of-Work)
+js-challenge:
+  enabled: false
+  mode: "suspicious"    # off | suspicious | all
+  difficulty: 4         # 1-6
+  cookie-ttl: 86400
+  cookie-secret: ""
+
+# Webhook notifications
+webhook:
+  url: ""
+  timeout: 5
+  events:
+    - auto_ban
+    - brute_force
+    - scan_detected
+
 # Trusted proxy IPs (for correct client IP detection behind reverse proxies)
 trustedProxies:
   - "127.0.0.1"
@@ -108,6 +150,8 @@ For detailed database configuration with examples for each driver, see [Database
 |---------|---------|-------------|
 | `jwt-secret` | `""` (random) | Secret key for JWT token signing |
 | `token-expiration-hours` | `24` | JWT token validity period in hours |
+| `admin-recovery-key` | `""` (disabled) | Recovery key for resetting admin 2FA |
+| `admin-recovery-local-only` | `true` | Restrict 2FA recovery to localhost |
 | `cors.allowed-origins` | `[]` (permissive) | List of allowed CORS origins |
 | `cors.allow-credentials` | `true` | Allow credentials in CORS requests |
 | `headers.hsts-enabled` | `false` | Enable HTTP Strict Transport Security |
@@ -163,6 +207,47 @@ For more details, see [Geo-IP Blocking](../features/geo-blocking.md).
 
 !!! warning "Change Default Credentials"
     Change the default username and password immediately after first login.
+
+### Threat Detection
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `enabled` | `true` | Enable or disable automatic threat detection |
+| `status-code-threshold` | `20` | 4xx responses before auto-ban |
+| `status-code-window` | `60` | Time window for 4xx counting (seconds) |
+| `rate-limit-abuse-threshold` | `5` | Rate limit hits before auto-ban |
+| `rate-limit-abuse-window` | `300` | Time window for rate limit counting (seconds) |
+| `auto-ban-duration` | `3600` | Default auto-ban duration (seconds) |
+| `scan-threshold` | `10` | 404 responses before scan detection |
+| `scan-window` | `300` | Time window for scan counting (seconds) |
+| `scan-ban-duration` | `14400` | Scan detection ban duration (seconds) |
+| `brute-force-threshold` | `10` | Failed logins before brute force detection |
+| `brute-force-window` | `600` | Time window for brute force counting (seconds) |
+| `brute-force-ban-duration` | `3600` | Brute force ban duration (seconds) |
+
+For more details, see [Threat Detection](../features/threat-detection.md).
+
+### JS Challenge
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `enabled` | `false` | Enable or disable JS Challenge |
+| `mode` | `"suspicious"` | Challenge mode: `off`, `suspicious`, or `all` |
+| `difficulty` | `4` | Number of leading zeros required (1-6) |
+| `cookie-ttl` | `86400` | Pass cookie lifetime in seconds |
+| `cookie-secret` | `""` | HMAC secret for cookie signing |
+
+For more details, see [JS Challenge](../features/js-challenge.md).
+
+### Webhook
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `url` | `""` (disabled) | Webhook endpoint URL |
+| `timeout` | `5` | Request timeout in seconds |
+| `events` | `[auto_ban, brute_force, scan_detected]` | Event types that trigger notifications |
+
+For more details, see [Webhook](../features/webhook.md).
 
 ### Trusted Proxies
 

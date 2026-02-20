@@ -49,6 +49,16 @@
               <span v-else class="null-value">{{ t('user.unrestricted') }}</span>
             </template>
           </el-table-column>
+          <el-table-column :label="t('user.enabled')" width="100" align="center">
+            <template #default="scope">
+              <el-switch
+                v-model="scope.row.enabled"
+                size="small"
+                :disabled="scope.row.is_admin"
+                @change="(val: boolean) => handleToggleEnabled(scope.row, val)"
+              />
+            </template>
+          </el-table-column>
           <el-table-column :label="t('common.actions')" width="340" align="right">
             <template #default="scope">
               <div class="ops-cell">
@@ -323,6 +333,7 @@ interface User {
   email?: string
   git_token?: string
   is_admin?: boolean
+  enabled?: boolean
   scopes?: string
   totp_enabled?: boolean
 }
@@ -356,6 +367,7 @@ const form = reactive({
   email: '',
   git_token: '',
   is_admin: false,
+  enabled: true,
   scopes: ''
 })
 
@@ -418,6 +430,7 @@ const handleAdd = () => {
   form.email = ''
   form.git_token = ''
   form.is_admin = false
+  form.enabled = true
   form.scopes = ''
   scopesArray.value = []
   isEditMode.value = false
@@ -433,11 +446,21 @@ const handleEdit = (row: User) => {
   form.email = row.email || ''
   form.git_token = ''
   form.is_admin = row.is_admin || false
+  form.enabled = row.enabled !== false
   form.scopes = row.scopes || ''
   scopesArray.value = row.scopes ? row.scopes.split(',').map((s: string) => s.trim()).filter(Boolean) : []
   isEditMode.value = true
   pendingToken.value = ''
   dialogVisible.value = true
+}
+
+const handleToggleEnabled = async (row: User, val: boolean) => {
+  try {
+    await request.put(`/users/${row.id}`, { enabled: val })
+    ElMessage.success(t('common.updated'))
+  } catch {
+    row.enabled = !val
+  }
 }
 
 const handleDelete = (row: User) => {

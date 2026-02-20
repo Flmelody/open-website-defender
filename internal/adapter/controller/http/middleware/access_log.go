@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"open-website-defender/internal/usecase/accesslog"
+	"open-website-defender/internal/usecase/threat"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -16,6 +17,7 @@ func AccessLog() gin.HandlerFunc {
 
 		latency := time.Since(start).Microseconds()
 		clientIP := c.ClientIP()
+		statusCode := c.Writer.Status()
 
 		action := "allowed"
 		ruleName := ""
@@ -28,14 +30,19 @@ func AccessLog() gin.HandlerFunc {
 			ruleName = wafRule.(string)
 		}
 
-		// Detect blocked status from response code
+		// Check if rate limiter flagged this request
+		wasRateLimited := false
 		if action == "allowed" {
-			switch c.Writer.Status() {
+			switch statusCode {
 			case 403:
 				action = "blocked"
 			case 429:
 				action = "blocked_ratelimit"
+				wasRateLimited = true
 			}
+		}
+		if action == "blocked_ratelimit" {
+			wasRateLimited = true
 		}
 
 		svc := accesslog.GetAccessLogService()
@@ -43,11 +50,24 @@ func AccessLog() gin.HandlerFunc {
 			ClientIP:   clientIP,
 			Method:     c.Request.Method,
 			Path:       c.Request.URL.Path,
-			StatusCode: c.Writer.Status(),
+			StatusCode: statusCode,
 			Latency:    latency,
 			UserAgent:  c.GetHeader("User-Agent"),
 			Action:     action,
 			RuleName:   ruleName,
 		})
+
+		// Feed request data to threat detector for anomaly detection
+		td := threat.GetThreatDetector()
+		td.RecordRequest(clientIP, statusCode, wasRateLimited)
+
+		// Update threat score based on action
+		if action == "blocked_waf" {
+			td.AddThreatScore(clientIP, 5)
+		} else if wasRateLimited {
+			td.AddThreatScore(clientIP, 3)
+		} else if statusCode >= 400 && statusCode < 500 {
+			td.AddThreatScore(clientIP, 1)
+		}
 	}
 }

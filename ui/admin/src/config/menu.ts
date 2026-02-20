@@ -1,4 +1,4 @@
-import { DataBoard, Moon, Sunny, User, Lock, Document, Location, Key, Setting, Link, Connection } from '@element-plus/icons-vue'
+import { DataBoard, Moon, Sunny, User, Lock, Document, Location, Key, Setting, Link, Connection, Warning } from '@element-plus/icons-vue'
 import type { Component } from 'vue'
 
 export interface MenuItem {
@@ -32,6 +32,11 @@ export const menuItems: MenuItem[] = [
     index: '/ip-black-list',
     icon: Moon,
     label: 'menu.ip_black_list'
+  },
+  {
+    index: '/security-events',
+    icon: Warning,
+    label: 'menu.security_events'
   },
   {
     index: '/geo-block',

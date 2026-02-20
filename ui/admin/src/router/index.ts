@@ -13,6 +13,7 @@ import AuthorizedDomainView from '@/views/AuthorizedDomainView.vue'
 import LicenseView from '@/views/LicenseView.vue'
 import SystemSettingsView from '@/views/SystemSettingsView.vue'
 import OAuthClientView from '@/views/OAuthClientView.vue'
+import SecurityEventsView from '@/views/SecurityEventsView.vue'
 
 const config = getAppConfig()
 // Clean up double slashes if any
@@ -85,6 +86,11 @@ const router = createRouter({
           path: 'oauth-clients',
           name: 'oauth-clients',
           component: OAuthClientView
+        },
+        {
+          path: 'security-events',
+          name: 'security-events',
+          component: SecurityEventsView
         },
         {
           path: 'system-settings',

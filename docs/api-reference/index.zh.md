@@ -18,6 +18,7 @@ Website Defender 提供 RESTful API 用于管理所有功能。所有路由均�
 | `POST` | `/admin-login` | 管理后台登录，仅管理员可用（启用 2FA 时返回挑战令牌） | 否 |
 | `POST` | `/admin-login/2fa` | 管理后台登录的 2FA 验证 | 否 |
 | `GET` | `/auth` | 验证凭证（IP 名单 + 令牌），供 Nginx `auth_request` 调用 | 否 |
+| `POST` | `/admin-recover-2fa` | 使用恢复密钥重置管理员 2FA（默认仅限本地） | 否 |
 | `GET` | `/health` | 健康检查 | 否 |
 
 ### 仪表盘
@@ -94,6 +95,13 @@ Website Defender 提供 RESTful API 用于管理所有功能。所有路由均�
 | `POST` | `/licenses` | 创建许可证 | 是 |
 | `GET` | `/licenses` | 查询许可证列表 | 是 |
 | `DELETE` | `/licenses/:id` | 删除许可证 | 是 |
+
+### 安全事件
+
+| 方法 | 路径 | 说明 | 鉴权 |
+|------|------|------|------|
+| `GET` | `/security-events` | 查询安全事件列表（支持分页和筛选） | 是 |
+| `GET` | `/security-events/stats` | 获取安全事件统计数据 | 是 |
 
 ### 系统设置
 

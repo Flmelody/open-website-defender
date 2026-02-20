@@ -29,6 +29,7 @@ type IpBlackListRepository interface {
 	Delete(id uint) error
 	List(limit, offset int) ([]*entity.IpBlackList, int64, error)
 	FindByIP(ip string) (*entity.IpBlackList, error)
+	DeleteExpired() (int64, error)
 }
 
 type LicenseRepository interface {

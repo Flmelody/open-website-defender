@@ -59,10 +59,19 @@ Website Defender 记录所有经过的请求，提供完整的访问审计能力
 
 详见 [API 参考](../api-reference/index.md)。
 
+## 威胁检测集成
+
+访问日志中间件实时向[威胁检测](threat-detection.md)引擎提供请求数据。每个请求的状态码和速率限制状态都会被分析，用于计算每个 IP 的动态威胁评分。这使得：
+
+- 检测到异常模式时自动封禁 IP
+- 对可疑 IP 动态激活 [JS 挑战](js-challenge.md)
+- 记录[安全事件](security-events.md)用于审计
+
 ---
 
 ## 相关页面
 
-- [WAF 规则](waf.md) - 了解 WAF 拦截规则
-- [IP 黑白名单](ip-lists.md) - IP 访问控制
-- [API 参考](../api-reference/index.md) - 访问日志查询 API
+- [威胁检测](threat-detection.md) -- 基于访问日志的自动化威胁检测
+- [WAF 规则](waf.md) -- 了解 WAF 拦截规则
+- [IP 黑白名单](ip-lists.md) -- IP 访问控制
+- [API 参考](../api-reference/index.md) -- 访问日志查询 API

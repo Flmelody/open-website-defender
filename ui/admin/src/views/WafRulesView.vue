@@ -97,6 +97,7 @@
                 <el-option label="SQLi" value="sqli" />
                 <el-option label="XSS" value="xss" />
                 <el-option label="Traversal" value="traversal" />
+                <el-option label="UA" value="ua" />
                 <el-option label="Custom" value="custom" />
               </el-select>
             </el-form-item>

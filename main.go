@@ -216,6 +216,9 @@ func main() {
 		logging.Sugar.Infof("Global rate limiter enabled: %d requests/minute per IP", globalRPM)
 	}
 
+	// JS Challenge (Proof-of-Work) middleware — always registered, controlled by DB settings at runtime
+	r.Use(middleware.JSChallenge())
+
 	// Register routes AFTER all middleware so they are included in the handler chain
 	_http.Setup(r, appConfig)
 

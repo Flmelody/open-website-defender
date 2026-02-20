@@ -1,7 +1,11 @@
 package request
 
+import "time"
+
 type CreateIpBlackListRequest struct {
-	Ip string `json:"ip" binding:"required"`
+	Ip        string     `json:"ip" binding:"required"`
+	Remark    string     `json:"remark"`
+	ExpiresAt *time.Time `json:"expires_at"`
 }
 
 type ListIpBlackListRequest struct {

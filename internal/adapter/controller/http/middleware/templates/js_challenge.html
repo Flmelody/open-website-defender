@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Check — Defender</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        body {
+            background: #060d06;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden
+        }
+
+        .wrap {
+            position: relative;
+            z-index: 1;
+            text-align: center
+        }
+
+        .arena {
+            width: 220px;
+            height: 220px;
+            margin: 0 auto;
+            position: relative
+        }
+
+        .shield {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 120px;
+            height: 120px;
+            transform: translate(-50%, -50%)
+        }
+
+        .shield svg {
+            width: 120px;
+            height: 120px;
+            filter: drop-shadow(0 0 24px rgba(0, 255, 0, .3))
+        }
+
+        .shield .icon-lock, .shield .icon-check, .shield .icon-fail {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -46%)
+        }
+
+        .shield .icon-lock svg, .shield .icon-check svg, .shield .icon-fail svg {
+            width: 34px;
+            height: 34px;
+            filter: none
+        }
+
+        .shield .icon-check, .shield .icon-fail {
+            display: none
+        }
+
+        .arena.done .shield .icon-lock {
+            display: none
+        }
+
+        .arena.done .shield .icon-check {
+            display: block
+        }
+
+        .arena.fail .shield .icon-lock {
+            display: none
+        }
+
+        .arena.fail .shield .icon-fail {
+            display: block
+        }
+
+        .arena.fail .shield svg {
+            stroke: #f56c6c;
+            filter: drop-shadow(0 0 24px rgba(245, 108, 108, .3))
+        }
+
+        .ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: rgba(0, 255, 0, .5);
+            border-right-color: rgba(0, 255, 0, .15);
+            transform: translate(-50%, -50%) rotate(0deg);
+            animation: spin 1.2s linear infinite;
+            will-change: transform
+        }
+
+        .ring2 {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 192px;
+            height: 192px;
+            border-radius: 50%;
+            border: 1.5px solid transparent;
+            border-bottom-color: rgba(0, 255, 0, .35);
+            border-left-color: rgba(0, 255, 0, .1);
+            transform: translate(-50%, -50%) rotate(0deg);
+            animation: spin 2.4s linear infinite reverse;
+            will-change: transform
+        }
+
+        .arena.done .ring, .arena.done .ring2 {
+            animation: none;
+            border-color: rgba(0, 255, 0, .08);
+            transform: translate(-50%, -50%)
+        }
+
+        .arena.fail .ring, .arena.fail .ring2 {
+            animation: none;
+            border-color: rgba(245, 108, 108, .12);
+            transform: translate(-50%, -50%)
+        }
+
+        @keyframes spin {
+            from {
+                transform: translate(-50%, -50%) rotate(0deg)
+            }
+            to {
+                transform: translate(-50%, -50%) rotate(360deg)
+            }
+        }
+
+        .msg {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 100%;
+            margin-top: 8px;
+            white-space: nowrap;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            opacity: 0;
+            transition: opacity .3s
+        }
+
+        .msg.show {
+            opacity: 1
+        }
+
+        .msg.ok {
+            color: #0f0;
+            text-shadow: 0 0 10px rgba(0, 255, 0, .3)
+        }
+
+        .msg.err {
+            color: #f56c6c;
+            text-shadow: 0 0 10px rgba(245, 108, 108, .3)
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="arena" id="arena">
+        <div class="ring"></div>
+        <div class="ring2"></div>
+        <div class="shield">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="1.5">
+                <path d="M12 2L3 7v5c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z"/>
+            </svg>
+            <div class="icon-lock">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="1.8" stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <rect x="5" y="11" width="14" height="10" rx="2"/>
+                    <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                </svg>
+            </div>
+            <div class="icon-check">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2.2" stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path d="M5 12l5 5L20 7"/>
+                </svg>
+            </div>
+            <div class="icon-fail">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#f56c6c" stroke-width="2.2" stroke-linecap="round"
+                     stroke-linejoin="round">
+                    <path d="M18 6L6 18"/>
+                    <path d="M6 6l12 12"/>
+                </svg>
+            </div>
+        </div>
+        <div class="msg" id="msg"></div>
+    </div>
+</div>
+<script>
+    (async function () {
+        var nonce = "{{.Nonce}}", sig = "{{.Signature}}", prefix = "{{.Prefix}}";
+        var arena = document.getElementById("arena");
+        var msg = document.getElementById("msg");
+        var enc = new TextEncoder();
+        var counter = 0, found = false, solvedSolution = null, startTime = Date.now(), minDelay = 1500, timeout = 30000;
+
+        function showDone() {
+            arena.classList.add("done");
+            msg.textContent = "VERIFICATION COMPLETE";
+            msg.className = "msg show ok";
+            document.cookie = "_defender_challenge=" + nonce + ":" + solvedSolution + ":" + sig + ";path=/;SameSite=Lax";
+            setTimeout(function () {
+                window.location.reload()
+            }, 800);
+        }
+
+        function showFail() {
+            arena.classList.add("fail");
+            msg.textContent = "VERIFICATION FAILED";
+            msg.className = "msg show err";
+            setTimeout(function () {
+                window.location.reload()
+            }, 3000);
+        }
+
+        async function work() {
+            for (var i = 0; i < 2000 && !found; i++) {
+                if (Date.now() - startTime > timeout) {
+                    showFail();
+                    return
+                }
+                var solution = counter.toString(36);
+                var hash = await crypto.subtle.digest("SHA-256", enc.encode(nonce + solution));
+                var hex = Array.from(new Uint8Array(hash)).map(function (b) {
+                    return b.toString(16).padStart(2, "0")
+                }).join("");
+                if (hex.startsWith(prefix)) {
+                    found = true;
+                    solvedSolution = solution;
+                    var elapsed = Date.now() - startTime;
+                    var wait = Math.max(0, minDelay - elapsed);
+                    setTimeout(showDone, wait);
+                    return;
+                }
+                counter++;
+            }
+            if (!found) setTimeout(work, 0);
+        }
+
+        work();
+    })();
+</script>
+</body>
+</html>

@@ -13,10 +13,10 @@
       </div>
 
       <div class="data-grid">
-        <el-table 
-          :data="tableData" 
-          v-loading="loading" 
-          style="width: 100%" 
+        <el-table
+          :data="tableData"
+          v-loading="loading"
+          style="width: 100%"
           class="hacker-table"
         >
           <el-table-column prop="id" label="ID" width="80">
@@ -29,7 +29,19 @@
               <span class="bright-text">{{ scope.row.ip }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="created_at" :label="t('common.created_at')" width="200">
+          <el-table-column prop="remark" :label="t('ip_list.remark')" min-width="120">
+            <template #default="scope">
+              <span v-if="scope.row.remark" class="remark-text">{{ scope.row.remark }}</span>
+              <span v-else class="dim-text">-</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="expires_at" :label="t('ip_list.expires_at')" width="180">
+            <template #default="scope">
+              <span v-if="scope.row.expires_at" class="expires-text">{{ formatExpiry(scope.row.expires_at) }}</span>
+              <span v-else class="dim-text">{{ t('ip_list.permanent') }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="created_at" :label="t('common.created_at')" width="180">
             <template #default="scope">
               <span class="dim-text">{{ new Date(scope.row.created_at).toLocaleString() }}</span>
             </template>
@@ -37,10 +49,10 @@
           <el-table-column :label="t('common.actions')" width="120" align="right">
             <template #default="scope">
               <div class="ops-cell">
-                <el-button 
-                  type="danger" 
-                  link 
-                  size="small" 
+                <el-button
+                  type="danger"
+                  link
+                  size="small"
                   @click="handleDelete(scope.row)"
                   class="action-link delete"
                 >
@@ -84,6 +96,19 @@
           <el-input v-model="form.ip" placeholder="192.168.1.1" />
           <div class="field-hint">{{ t('ip_list.ip_hint') }}</div>
         </el-form-item>
+        <el-form-item :label="'> ' + t('ip_list.remark')" prop="remark">
+          <el-input v-model="form.remark" :placeholder="t('ip_list.remark_placeholder')" />
+        </el-form-item>
+        <el-form-item :label="'> ' + t('ip_list.duration')" prop="duration">
+          <el-select v-model="form.duration" style="width: 100%">
+            <el-option :label="t('ip_list.permanent')" value="permanent" />
+            <el-option :label="t('ip_list.duration_1h')" value="1h" />
+            <el-option :label="t('ip_list.duration_6h')" value="6h" />
+            <el-option :label="t('ip_list.duration_24h')" value="24h" />
+            <el-option :label="t('ip_list.duration_7d')" value="7d" />
+            <el-option :label="t('ip_list.duration_30d')" value="30d" />
+          </el-select>
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -106,6 +131,8 @@ import { useI18n } from 'vue-i18n'
 interface IpItem {
   id: number
   ip: string
+  remark: string
+  expires_at: string | null
   created_at: string
 }
 
@@ -124,8 +151,33 @@ const formRef = ref()
 const formLoading = ref(false)
 
 const form = reactive({
-  ip: ''
+  ip: '',
+  remark: '',
+  duration: 'permanent'
 })
+
+const durationToMs: Record<string, number> = {
+  '1h': 3600000,
+  '6h': 21600000,
+  '24h': 86400000,
+  '7d': 604800000,
+  '30d': 2592000000
+}
+
+const formatExpiry = (expiresAt: string) => {
+  const expiry = new Date(expiresAt)
+  const now = new Date()
+  const diff = expiry.getTime() - now.getTime()
+  if (diff <= 0) return t('ip_list.expired')
+  const hours = Math.floor(diff / 3600000)
+  const minutes = Math.floor((diff % 3600000) / 60000)
+  if (hours >= 24) {
+    const days = Math.floor(hours / 24)
+    return `${days}d ${hours % 24}h`
+  }
+  if (hours > 0) return `${hours}h ${minutes}m`
+  return `${minutes}m`
+}
 
 const ipValidator = (_rule: any, value: string, callback: (err?: Error) => void) => {
   if (!value) return callback()
@@ -165,6 +217,8 @@ const fetchData = async () => {
 const handleAdd = () => {
   dialogTitle.value = t('ip_list.title_create')
   form.ip = ''
+  form.remark = ''
+  form.duration = 'permanent'
   dialogVisible.value = true
 }
 
@@ -194,7 +248,12 @@ const handleSubmit = async () => {
     if (valid) {
       formLoading.value = true
       try {
-        await request.post('/ip-black-list', form)
+        const payload: any = { ip: form.ip, remark: form.remark }
+        if (form.duration !== 'permanent' && durationToMs[form.duration]) {
+          const expiresAt = new Date(Date.now() + durationToMs[form.duration])
+          payload.expires_at = expiresAt.toISOString()
+        }
+        await request.post('/ip-black-list', payload)
         ElMessage.success(t('common.added'))
         dialogVisible.value = false
         fetchData()
@@ -283,6 +342,17 @@ onMounted(() => {
   color: #fff;
   font-weight: bold;
   font-size: 15px;
+}
+
+.remark-text {
+  color: #ff0;
+  font-size: 13px;
+}
+
+.expires-text {
+  color: #f80;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
 }
 
 .action-link {

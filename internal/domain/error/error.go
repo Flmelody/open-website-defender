@@ -15,4 +15,7 @@ var (
 	ErrTotpInvalidCode     = errors.New("invalid 2FA code")
 	ErrTotpAlreadyEnabled  = errors.New("2FA is already enabled")
 	ErrTotpNotEnabled      = errors.New("2FA is not enabled")
+	ErrUserDisabled        = errors.New("account is disabled")
+	ErrRecoveryDisabled    = errors.New("recovery is not configured")
+	ErrRecoveryKeyInvalid  = errors.New("invalid recovery key")
 )

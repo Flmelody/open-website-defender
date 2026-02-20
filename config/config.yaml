@@ -29,6 +29,11 @@ security:
   jwt-secret: ""
   # Token expiration time in hours (default: 24)
   token-expiration-hours: 24
+  # Recovery key for resetting admin 2FA when locked out.
+  # If empty, the recovery endpoint is disabled.
+  admin-recovery-key: ""
+  # Only allow 2FA recovery from localhost (default: true)
+  admin-recovery-local-only: true
 
   # CORS configuration
   cors:
@@ -97,6 +102,50 @@ oauth:
   refresh-token-lifetime: 2592000
   # ID token lifetime in seconds (default: 3600 = 1 hour)
   id-token-lifetime: 3600
+
+# Threat detection configuration (auto-ban on anomalous behavior)
+threat-detection:
+  enabled: true
+  # 4xx response threshold: ban IP after N 4xx responses in window
+  status-code-threshold: 20
+  status-code-window: 60          # seconds
+  # Rate limit abuse: ban IP after N rate limit hits in window
+  rate-limit-abuse-threshold: 5
+  rate-limit-abuse-window: 300    # seconds
+  # Default auto-ban duration in seconds (1 hour)
+  auto-ban-duration: 3600
+  # Path scan detection: ban IP after N distinct 404 paths in window
+  scan-threshold: 10
+  scan-window: 300                # seconds
+  scan-ban-duration: 14400        # 4 hours
+  # Brute force detection: ban IP after N failed logins in window
+  brute-force-threshold: 10
+  brute-force-window: 600         # seconds
+  brute-force-ban-duration: 3600  # 1 hour
+
+# JS Challenge (Proof-of-Work) configuration
+js-challenge:
+  enabled: false
+  # Mode: off | suspicious | all
+  mode: "suspicious"
+  # Difficulty: number of leading zeros required in SHA256 hash (1-6)
+  difficulty: 4
+  # Pass cookie TTL in seconds (default: 24 hours)
+  cookie-ttl: 86400
+  # HMAC secret for signing cookies (auto-generated if empty)
+  cookie-secret: ""
+
+# Webhook notification configuration
+webhook:
+  # Webhook endpoint URL (empty = disabled)
+  url: ""
+  # Request timeout in seconds
+  timeout: 5
+  # Which events trigger webhook notifications
+  events:
+    - auto_ban
+    - brute_force
+    - scan_detected
 
 trustedProxies:
   - "127.0.0.1"

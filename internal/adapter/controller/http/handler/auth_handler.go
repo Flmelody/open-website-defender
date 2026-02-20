@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"net"
 	"open-website-defender/internal/adapter/controller/http/request"
 	"open-website-defender/internal/adapter/controller/http/response"
 	domainError "open-website-defender/internal/domain/error"
@@ -10,11 +11,13 @@ import (
 	"open-website-defender/internal/usecase/iplist"
 	"open-website-defender/internal/usecase/license"
 	"open-website-defender/internal/usecase/system"
+	"open-website-defender/internal/usecase/threat"
 	"open-website-defender/internal/usecase/user"
 	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/spf13/viper"
 )
 
 func isGitRequest(c *gin.Context) bool {
@@ -254,7 +257,13 @@ func Login(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, domainError.ErrInvalidCredentials) {
 			logging.Sugar.Warnf("Login failed for user '%s': invalid credentials", req.Username)
+			threat.GetThreatDetector().RecordFailedLogin(c.ClientIP())
 			response.Unauthorized(c, "Invalid username or password")
+			return
+		}
+		if errors.Is(err, domainError.ErrUserDisabled) {
+			logging.Sugar.Warnf("Login failed for user '%s': account disabled", req.Username)
+			response.Forbidden(c, "Account is disabled")
 			return
 		}
 		logging.Sugar.Errorf("Login failed for user '%s': %v", req.Username, err)
@@ -329,7 +338,13 @@ func AdminLogin(c *gin.Context) {
 	if err != nil {
 		if errors.Is(err, domainError.ErrInvalidCredentials) {
 			logging.Sugar.Warnf("Admin login failed for user '%s': invalid credentials", req.Username)
+			threat.GetThreatDetector().RecordFailedLogin(c.ClientIP())
 			response.Unauthorized(c, "Invalid username or password")
+			return
+		}
+		if errors.Is(err, domainError.ErrUserDisabled) {
+			logging.Sugar.Warnf("Admin login failed for user '%s': account disabled", req.Username)
+			response.Forbidden(c, "Account is disabled")
 			return
 		}
 		if errors.Is(err, domainError.ErrAdminRequired) {
@@ -380,6 +395,10 @@ func Verify2FA(c *gin.Context) {
 			response.Unauthorized(c, "Invalid 2FA code")
 			return
 		}
+		if errors.Is(err, domainError.ErrUserDisabled) {
+			response.Forbidden(c, "Account is disabled")
+			return
+		}
 		if errors.Is(err, domainError.ErrTotpNotEnabled) {
 			response.BadRequest(c, "2FA is not enabled for this account")
 			return
@@ -399,4 +418,55 @@ func Verify2FA(c *gin.Context) {
 
 	logging.Sugar.Infof("User '%s' completed 2FA verification", output.User.Username)
 	response.SuccessWithMessage(c, "Login successful", loginResponse)
+}
+
+// AdminRecover2FA resets 2FA for an admin user using a config-based recovery key.
+func AdminRecover2FA(c *gin.Context) {
+	// Check local-only restriction (default: true when not explicitly set).
+	// Must satisfy both conditions to be considered a genuine local request:
+	//   1. TCP peer (RemoteAddr) is loopback
+	//   2. No forwarding headers present (rules out reverse-proxied external traffic)
+	if !viper.IsSet("security.admin-recovery-local-only") || viper.GetBool("security.admin-recovery-local-only") {
+		host, _, _ := net.SplitHostPort(c.Request.RemoteAddr)
+		ip := net.ParseIP(host)
+		proxied := c.GetHeader("X-Forwarded-For") != "" || c.GetHeader("X-Real-IP") != ""
+		if ip == nil || !ip.IsLoopback() || proxied {
+			response.Forbidden(c, "Recovery is only allowed from localhost")
+			return
+		}
+	}
+
+	var req request.AdminRecover2FARequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		response.BadRequest(c, "Invalid request format: "+err.Error())
+		return
+	}
+
+	service := user.GetAuthService()
+	err := service.RecoverAdmin2FA(req.Username, req.Password, req.RecoveryKey)
+	if err != nil {
+		if errors.Is(err, domainError.ErrRecoveryDisabled) || errors.Is(err, domainError.ErrRecoveryKeyInvalid) {
+			response.Forbidden(c, "Recovery failed")
+			return
+		}
+		if errors.Is(err, domainError.ErrInvalidCredentials) {
+			threat.GetThreatDetector().RecordFailedLogin(c.ClientIP())
+			response.Unauthorized(c, "Invalid username or password")
+			return
+		}
+		if errors.Is(err, domainError.ErrAdminRequired) {
+			response.Forbidden(c, "Admin privileges required")
+			return
+		}
+		if errors.Is(err, domainError.ErrTotpNotEnabled) {
+			response.BadRequest(c, "2FA is not enabled for this account")
+			return
+		}
+		logging.Sugar.Errorf("Admin 2FA recovery failed for user '%s': %v", req.Username, err)
+		response.InternalServerError(c, "Recovery failed, please try again later")
+		return
+	}
+
+	logging.Sugar.Infof("Admin 2FA recovered for user '%s'", req.Username)
+	response.SuccessWithMessage(c, "2FA has been reset successfully", nil)
 }

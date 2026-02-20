@@ -42,3 +42,11 @@ Access logs and statistics are also available via the API:
 | `GET` | `/access-logs/stats` | Get aggregated access log statistics |
 
 Both endpoints require authentication. See the [API Reference](../api-reference/index.md) for full details.
+
+## Threat Detection Integration
+
+The access log middleware feeds request data to the [threat detection](threat-detection.md) engine in real time. Each request's status code and rate limit status are analyzed to calculate dynamic threat scores per IP. This enables:
+
+- Automatic IP banning when anomalous patterns are detected
+- Dynamic [JS Challenge](js-challenge.md) activation for suspicious IPs
+- [Security event](security-events.md) recording for audit purposes

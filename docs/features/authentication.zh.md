@@ -23,8 +23,24 @@ Website Defender 支持基于 TOTP 的双因素认证，适用于管理后台和
 - 同时适用于 `/login`（Guard 登录）和 `/admin-login`（管理后台登录）流程
 - 管理员可以通过管理后台为任何用户重置 2FA
 
-!!! warning "无恢复码"
-    当前版本不提供恢复码。如果用户丢失了认证器应用的访问权限，管理员需要从管理后台重置该用户的 2FA。
+### 2FA 恢复机制
+
+如果管理员丢失了认证器应用的访问权限，且没有其他管理员可以重置其 2FA，可以使用**基于配置的恢复机制**：
+
+1. 在 `config/config.yaml` 中设置 `admin-recovery-key`
+2. 调用 `POST /admin-recover-2fa`，传入管理员的用户名、密码和恢复密钥
+3. 管理员的 2FA 将被重置，可以仅使用用户名和密码登录
+
+```yaml
+security:
+  admin-recovery-key: "your-secret-recovery-key"
+  admin-recovery-local-only: true  # 限制为仅本地访问（推荐）
+```
+
+!!! warning "恢复密钥安全性"
+    - 默认情况下，恢复端点仅接受来自**本地**的请求（`admin-recovery-local-only: true`）。即使密钥泄露也能防止远程利用。
+    - 将 `admin-recovery-key` 留空可完全禁用恢复端点。
+    - 恢复端点除恢复密钥外，还需要验证正确的用户名和密码。
 
 2FA 管理的详细操作请参阅[用户管理](user-management.md)。
 

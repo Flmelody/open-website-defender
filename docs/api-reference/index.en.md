@@ -22,6 +22,7 @@ Obtain a token by calling `POST /login` (or `POST /admin-login` for admin-only a
 | `POST` | `/admin-login` | Admin-only authentication. Returns a JWT token or 2FA challenge token. Rejects non-admin users with 403. | No |
 | `POST` | `/admin-login/2fa` | Complete 2FA verification for admin login. | No |
 | `GET` | `/auth` | Verify credentials (IP lists + token + authorized domain check). Used by Nginx `auth_request`. | No |
+| `POST` | `/admin-recover-2fa` | Reset admin 2FA with recovery key (localhost-only by default). | No |
 | `GET` | `/health` | Health check endpoint. | No |
 
 ### Dashboard
@@ -98,6 +99,13 @@ Obtain a token by calling `POST /login` (or `POST /admin-login` for admin-only a
 | `GET` | `/licenses` | List all licenses | Yes |
 | `POST` | `/licenses` | Create a new license token | Yes |
 | `DELETE` | `/licenses/:id` | Delete a license | Yes |
+
+### Security Events
+
+| Method | Path | Description | Auth |
+|--------|------|-------------|------|
+| `GET` | `/security-events` | List security events with pagination and filters | Yes |
+| `GET` | `/security-events/stats` | Get security event statistics | Yes |
 
 ### System
 

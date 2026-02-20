@@ -37,6 +37,20 @@ Use cases:
 
 The same formats as the whitelist are supported: exact IP, CIDR range, and IPv6.
 
+### Temporary Bans
+
+Blacklist entries support an optional **expiration time**, enabling temporary bans:
+
+- **Permanent** -- no expiration (default)
+- **Timed** -- choose from preset durations: 1 hour, 6 hours, 24 hours, 7 days, 30 days
+- **Auto-ban** -- the [threat detection](threat-detection.md) engine automatically creates temporary blacklist entries when thresholds are exceeded
+
+Expired entries are automatically cleaned up every 10 minutes.
+
+### Remarks
+
+Each blacklist entry can include an optional **remark** field for notes (e.g., "suspicious scanning activity", "auto-banned: brute force"). Auto-banned entries are labeled automatically.
+
 !!! warning "Blacklist Takes Priority"
     The blacklist is checked **before** the whitelist. If an IP appears in both lists, it will be blocked. Always review your blacklist entries to avoid accidentally blocking trusted IPs.
 

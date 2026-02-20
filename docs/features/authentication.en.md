@@ -28,8 +28,24 @@ Website Defender supports TOTP-based two-factor authentication for both admin an
 - Applies to both `/login` (guard) and `/admin-login` (admin dashboard) flows
 - Administrators can reset 2FA for any user via the admin dashboard
 
-!!! warning "No Recovery Codes"
-    Currently, there are no recovery codes. If a user loses access to their authenticator app, an administrator must reset their 2FA from the admin dashboard.
+### 2FA Recovery
+
+If an administrator loses access to their authenticator app and no other admin can reset their 2FA, a **config-based recovery mechanism** is available:
+
+1. Set a `admin-recovery-key` in `config/config.yaml`
+2. Call `POST /admin-recover-2fa` with the admin's username, password, and recovery key
+3. The admin's 2FA will be reset, allowing them to log in with just username and password
+
+```yaml
+security:
+  admin-recovery-key: "your-secret-recovery-key"
+  admin-recovery-local-only: true  # restrict to localhost (recommended)
+```
+
+!!! warning "Recovery Key Security"
+    - By default, the recovery endpoint only accepts requests from **localhost** (`admin-recovery-local-only: true`). This prevents remote exploitation even if the key is leaked.
+    - Leave `admin-recovery-key` empty to completely disable the recovery endpoint.
+    - The recovery endpoint requires valid username and password in addition to the recovery key.
 
 For 2FA management details, see [User Management](user-management.md).
 

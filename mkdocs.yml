@@ -53,6 +53,10 @@ plugins:
             Security Headers: 安全响应头
             Access Logs: 访问日志
             User Management: 用户管理
+            Threat Detection: 威胁检测
+            JS Challenge: JS 挑战
+            Security Events: 安全事件
+            Webhook: Webhook 通知
             Configuration: 配置说明
             Environment Variables: 环境变量
             Database: 数据库
@@ -77,6 +81,10 @@ nav:
       - Security Headers: features/security-headers.md
       - Access Logs: features/access-logs.md
       - User Management: features/user-management.md
+      - Threat Detection: features/threat-detection.md
+      - JS Challenge: features/js-challenge.md
+      - Security Events: features/security-events.md
+      - Webhook: features/webhook.md
   - Configuration:
       - Configuration: configuration/index.md
       - Environment Variables: configuration/environment-variables.md

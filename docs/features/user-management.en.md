@@ -13,6 +13,15 @@ Administrators can create, view, edit, and delete users through the admin dashbo
 | `PUT` | `/users/:id` | Update a user |
 | `DELETE` | `/users/:id` | Delete a user |
 
+## Account Enable/Disable
+
+User accounts can be **enabled or disabled** via a toggle switch in the admin dashboard:
+
+- **Disabled accounts** are blocked from all authentication methods (login, guard, 2FA, token, git token)
+- Disabled accounts return `403 Forbidden` with "Account is disabled"
+- Admin accounts cannot be disabled (to prevent self-lockout)
+- Account status can be toggled inline from the user list without opening the edit dialog
+
 ## Role-Based Access
 
 Each user has an **admin privilege flag** that controls their access level:

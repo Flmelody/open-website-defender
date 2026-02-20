@@ -3,13 +3,17 @@ package iplist
 import "time"
 
 type CreateIpBlackListDto struct {
-	Ip string `json:"ip" binding:"required"`
+	Ip        string     `json:"ip" binding:"required"`
+	Remark    string     `json:"remark"`
+	ExpiresAt *time.Time `json:"expires_at"`
 }
 
 type IpBlackListDto struct {
-	ID        uint      `json:"id"`
-	Ip        string    `json:"ip"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        uint       `json:"id"`
+	Ip        string     `json:"ip"`
+	Remark    string     `json:"remark"`
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	CreatedAt time.Time  `json:"created_at"`
 }
 
 type CreateIpWhiteListDto struct {

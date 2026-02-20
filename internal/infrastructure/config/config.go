@@ -10,6 +10,9 @@ type Config struct {
 	Blacklist        BlacklistConfig        `mapstructure:"blacklist" json:"-"`
 	Wall             AppConfig              `mapstructure:"wall"`
 	OAuth            OAuthConfig            `mapstructure:"oauth"`
+	ThreatDetection  ThreatDetectionConfig  `mapstructure:"threat-detection"`
+	JSChallenge      JSChallengeConfig      `mapstructure:"js-challenge"`
+	Webhook          WebhookConfig          `mapstructure:"webhook"`
 }
 
 type OAuthConfig struct {
@@ -42,10 +45,12 @@ type DatabaseConfig struct {
 }
 
 type SecurityConfig struct {
-	JWTSecret          string       `mapstructure:"jwt-secret"`
-	TokenExpirationHrs int          `mapstructure:"token-expiration-hours"`
-	CORS               CORSConfig   `mapstructure:"cors"`
-	Headers            HeaderConfig `mapstructure:"headers"`
+	JWTSecret              string       `mapstructure:"jwt-secret"`
+	TokenExpirationHrs     int          `mapstructure:"token-expiration-hours"`
+	AdminRecoveryKey       string       `mapstructure:"admin-recovery-key"`
+	AdminRecoveryLocalOnly bool         `mapstructure:"admin-recovery-local-only"`
+	CORS                   CORSConfig   `mapstructure:"cors"`
+	Headers                HeaderConfig `mapstructure:"headers"`
 }
 
 type CORSConfig struct {
@@ -82,4 +87,33 @@ type AppConfig struct {
 	RootPath  string `mapstructure:"root-path" json:"rootPath"`
 	AdminPath string `mapstructure:"admin-path" json:"adminPath"`
 	GuardPath string `mapstructure:"guard-path" json:"guardPath"`
+}
+
+type ThreatDetectionConfig struct {
+	Enabled                 bool `mapstructure:"enabled"`
+	StatusCodeThreshold     int  `mapstructure:"status-code-threshold"`
+	StatusCodeWindow        int  `mapstructure:"status-code-window"`
+	RateLimitAbuseThreshold int  `mapstructure:"rate-limit-abuse-threshold"`
+	RateLimitAbuseWindow    int  `mapstructure:"rate-limit-abuse-window"`
+	AutoBanDuration         int  `mapstructure:"auto-ban-duration"`
+	ScanThreshold           int  `mapstructure:"scan-threshold"`
+	ScanWindow              int  `mapstructure:"scan-window"`
+	ScanBanDuration         int  `mapstructure:"scan-ban-duration"`
+	BruteForceThreshold     int  `mapstructure:"brute-force-threshold"`
+	BruteForceWindow        int  `mapstructure:"brute-force-window"`
+	BruteForceBanDuration   int  `mapstructure:"brute-force-ban-duration"`
+}
+
+type JSChallengeConfig struct {
+	Enabled      bool   `mapstructure:"enabled"`
+	Mode         string `mapstructure:"mode"`
+	Difficulty   int    `mapstructure:"difficulty"`
+	CookieTTL    int    `mapstructure:"cookie-ttl"`
+	CookieSecret string `mapstructure:"cookie-secret"`
+}
+
+type WebhookConfig struct {
+	URL     string   `mapstructure:"url"`
+	Timeout int      `mapstructure:"timeout"`
+	Events  []string `mapstructure:"events"`
 }

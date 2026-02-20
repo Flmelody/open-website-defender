@@ -101,6 +101,14 @@
               <div class="counter-label dim-text">{{ t('dashboard.block_rate') }}</div>
               <div class="counter-value" style="color: #f56c6c;">{{ blockRate }}%</div>
             </div>
+            <div class="counter-item">
+              <div class="counter-label dim-text">{{ t('dashboard.auto_bans_24h') }}</div>
+              <div class="counter-value" style="color: #e6a23c;">{{ securityStats.auto_bans_24h || 0 }}</div>
+            </div>
+            <div class="counter-item">
+              <div class="counter-label dim-text">{{ t('dashboard.active_threats') }}</div>
+              <div class="counter-value" style="color: #f56c6c;">{{ securityStats.top_ips?.length || 0 }}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -132,6 +140,7 @@ const stats = ref<any>({})
 const topBlocked = ref<any[]>([])
 const requestTrend = ref<any[]>([])
 const blockReasons = ref<any[]>([])
+const securityStats = ref<any>({})
 const trendHours = ref(24)
 
 const trendRangeOptions = computed(() => [
@@ -318,8 +327,18 @@ const fetchData = async () => {
   }
 }
 
+const fetchSecurityStats = async () => {
+  try {
+    const res: any = await request.get('/security-events/stats')
+    securityStats.value = res || {}
+  } catch {
+    // handled
+  }
+}
+
 onMounted(() => {
   fetchData()
+  fetchSecurityStats()
 })
 </script>
 

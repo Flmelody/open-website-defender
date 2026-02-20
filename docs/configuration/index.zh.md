@@ -41,6 +41,10 @@ security:
   jwt-secret: ""
   # 令牌过期时间（小时），默认 24
   token-expiration-hours: 24
+  # 管理员 2FA 恢复密钥（留空则禁用恢复端点）
+  admin-recovery-key: ""
+  # 仅允许本地访问 2FA 恢复端点（默认 true）
+  admin-recovery-local-only: true
 
   # CORS 跨域配置
   cors:
@@ -103,6 +107,56 @@ server:
 default-user:
   username: defender
   password: defender
+
+# ==================================================
+# OAuth2/OIDC 提供者配置
+# ==================================================
+oauth:
+  enabled: true
+  issuer: "https://auth.example.com/wall"
+  rsa-private-key-path: ""
+  authorization-code-lifetime: 300
+  access-token-lifetime: 3600
+  refresh-token-lifetime: 2592000
+  id-token-lifetime: 3600
+
+# ==================================================
+# 威胁检测配置（异常行为自动封禁）
+# ==================================================
+threat-detection:
+  enabled: true
+  status-code-threshold: 20
+  status-code-window: 60
+  rate-limit-abuse-threshold: 5
+  rate-limit-abuse-window: 300
+  auto-ban-duration: 3600
+  scan-threshold: 10
+  scan-window: 300
+  scan-ban-duration: 14400
+  brute-force-threshold: 10
+  brute-force-window: 600
+  brute-force-ban-duration: 3600
+
+# ==================================================
+# JS 挑战（工作量证明）配置
+# ==================================================
+js-challenge:
+  enabled: false
+  mode: "suspicious"    # off | suspicious | all
+  difficulty: 4         # 1-6
+  cookie-ttl: 86400
+  cookie-secret: ""
+
+# ==================================================
+# Webhook 通知配置
+# ==================================================
+webhook:
+  url: ""
+  timeout: 5
+  events:
+    - auto_ban
+    - brute_force
+    - scan_detected
 
 # ==================================================
 # 信任代理列表

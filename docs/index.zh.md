@@ -67,16 +67,23 @@ graph LR
 
 ### 访问控制
 
-- **IP 黑白名单** -- 通过精确 IP 或 CIDR 网段（如 `192.168.1.0/24`）允许或封禁
+- **IP 黑白名单** -- 通过精确 IP 或 CIDR 网段（如 `192.168.1.0/24`）允许或封禁；黑名单支持临时封禁和自动过期
 - **授权域管理** -- 集中注册受保护域名，作为 IP 白名单域名绑定和用户访问控制的数据源；实现多租户访问控制，限制用户可访问的域名（如 `app.example.com, *.internal.org`）
 - **地域封锁** -- 基于 MaxMind GeoLite2 的国家级封锁
 - **速率限制** -- 全局限速（默认 100 次/分钟）和登录限速（默认 5 次/分钟，自动锁定）
 
+### 威胁检测与响应
+
+- **[自动威胁检测](features/threat-detection.md)** -- 检测 4xx 洪泛、路径扫描、速率限制滥用和暴力破解；自动封禁攻击 IP，阈值和时长可配置
+- **[JS 挑战（工作量证明）](features/js-challenge.md)** -- 提供基于 JavaScript 的挑战过滤机器人；支持 `suspicious` 模式（仅挑战高威胁 IP）和 `all` 模式
+- **[安全事件](features/security-events.md)** -- 集中的安全事件日志，支持统计、筛选和 90 天数据保留
+- **[Webhook 通知](features/webhook.md)** -- 安全事件发生时向外部系统发送 HTTP POST 告警
+
 ### 安全与监控
 
 - **安全响应头** -- 自动附加 `X-Content-Type-Options`、`X-XSS-Protection`、`Referrer-Policy`、`Permissions-Policy`，可配置 `X-Frame-Options` 和 HSTS
-- **访问日志** -- 每个请求记录 IP、方法、路径、状态码、延迟、User-Agent 和处理动作
-- **仪表盘分析** -- 实时统计、Top 10 被拦截 IP、按 IP/动作/状态码/时间筛选
+- **访问日志** -- 每个请求记录 IP、方法、路径、状态码、延迟、User-Agent 和处理动作；数据实时输入威胁检测引擎
+- **仪表盘分析** -- 实时统计、Top 10 被拦截 IP、24 小时自动封禁数、活跃威胁数、按 IP/动作/状态码/时间筛选
 
 ### 生产就绪
 

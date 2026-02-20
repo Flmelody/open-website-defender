@@ -10,6 +10,8 @@ import (
 	"open-website-defender/internal/pkg"
 	_interface "open-website-defender/internal/usecase/interface"
 	"sync"
+
+	"github.com/spf13/viper"
 )
 
 const (
@@ -54,8 +56,19 @@ func (s *SystemService) GetSettings() (*SystemSettingsDTO, error) {
 	}
 
 	dto := &SystemSettingsDTO{
-		GitTokenHeader: defaultGitTokenHeader,
-		LicenseHeader:  defaultLicenseHeader,
+		GitTokenHeader:        defaultGitTokenHeader,
+		LicenseHeader:         defaultLicenseHeader,
+		JSChallengeEnabled:    viper.GetBool("js-challenge.enabled"),
+		JSChallengeMode:       viper.GetString("js-challenge.mode"),
+		JSChallengeDifficulty: viper.GetInt("js-challenge.difficulty"),
+		WebhookURL:            viper.GetString("webhook.url"),
+	}
+
+	if dto.JSChallengeMode == "" {
+		dto.JSChallengeMode = "suspicious"
+	}
+	if dto.JSChallengeDifficulty <= 0 {
+		dto.JSChallengeDifficulty = 4
 	}
 
 	if sys != nil {
@@ -64,6 +77,19 @@ func (s *SystemService) GetSettings() (*SystemSettingsDTO, error) {
 		}
 		if sys.Security.LicenseHeader != "" {
 			dto.LicenseHeader = sys.Security.LicenseHeader
+		}
+		// DB settings override config file for JS challenge & webhook
+		if sys.Security.JSChallengeEnabled != nil {
+			dto.JSChallengeEnabled = *sys.Security.JSChallengeEnabled
+		}
+		if sys.Security.JSChallengeMode != "" {
+			dto.JSChallengeMode = sys.Security.JSChallengeMode
+		}
+		if sys.Security.JSChallengeDifficulty > 0 {
+			dto.JSChallengeDifficulty = sys.Security.JSChallengeDifficulty
+		}
+		if sys.Security.WebhookURL != "" {
+			dto.WebhookURL = sys.Security.WebhookURL
 		}
 	}
 
@@ -86,6 +112,10 @@ func (s *SystemService) UpdateSettings(input *UpdateSystemSettingsDTO) error {
 
 	sys.Security.GitTokenHeader = input.GitTokenHeader
 	sys.Security.LicenseHeader = input.LicenseHeader
+	sys.Security.JSChallengeEnabled = &input.JSChallengeEnabled
+	sys.Security.JSChallengeMode = input.JSChallengeMode
+	sys.Security.JSChallengeDifficulty = input.JSChallengeDifficulty
+	sys.Security.WebhookURL = input.WebhookURL
 
 	if err := s.systemRepo.Save(sys); err != nil {
 		return err

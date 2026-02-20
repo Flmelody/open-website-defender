@@ -10,6 +10,7 @@ import (
 	"sync"
 
 	"github.com/pquerna/otp/totp"
+	"github.com/spf13/viper"
 	"open-website-defender/internal/adapter/repository"
 	domainError "open-website-defender/internal/domain/error"
 	"open-website-defender/internal/infrastructure/cache"
@@ -56,6 +57,10 @@ func (s *AuthService) Login(input *LoginInputDTO) (*LoginOutputDTO, error) {
 		return nil, domainError.ErrInvalidCredentials
 	}
 
+	if !user.Enabled {
+		return nil, domainError.ErrUserDisabled
+	}
+
 	token, err := pkg.GenerateToken(user.Username, user.ID)
 	if err != nil {
 		return nil, err
@@ -67,6 +72,7 @@ func (s *AuthService) Login(input *LoginInputDTO) (*LoginOutputDTO, error) {
 			ID:       user.ID,
 			Username: user.Username,
 			IsAdmin:  user.IsAdmin,
+			Enabled:  user.Enabled,
 			Email:    user.Email,
 		},
 	}, nil
@@ -86,10 +92,15 @@ func (s *AuthService) GuardLogin(input *LoginInputDTO) (*GuardLoginOutputDTO, er
 		return nil, domainError.ErrInvalidCredentials
 	}
 
+	if !user.Enabled {
+		return nil, domainError.ErrUserDisabled
+	}
+
 	userInfo := &UserInfoDTO{
 		ID:          user.ID,
 		Username:    user.Username,
 		IsAdmin:     user.IsAdmin,
+		Enabled:     user.Enabled,
 		Email:       user.Email,
 		TotpEnabled: user.TotpEnabled,
 	}
@@ -132,6 +143,10 @@ func (s *AuthService) AdminLogin(input *LoginInputDTO) (*AdminLoginOutputDTO, er
 		return nil, domainError.ErrInvalidCredentials
 	}
 
+	if !user.Enabled {
+		return nil, domainError.ErrUserDisabled
+	}
+
 	if !user.IsAdmin {
 		return nil, domainError.ErrAdminRequired
 	}
@@ -140,6 +155,7 @@ func (s *AuthService) AdminLogin(input *LoginInputDTO) (*AdminLoginOutputDTO, er
 		ID:          user.ID,
 		Username:    user.Username,
 		IsAdmin:     user.IsAdmin,
+		Enabled:     user.Enabled,
 		Email:       user.Email,
 		TotpEnabled: user.TotpEnabled,
 	}
@@ -182,6 +198,10 @@ func (s *AuthService) Verify2FALogin(input *TwoFALoginInputDTO) (*LoginOutputDTO
 		return nil, domainError.ErrUserNotFound
 	}
 
+	if !user.Enabled {
+		return nil, domainError.ErrUserDisabled
+	}
+
 	if !user.TotpEnabled || user.TotpSecret == "" {
 		return nil, domainError.ErrTotpNotEnabled
 	}
@@ -201,6 +221,7 @@ func (s *AuthService) Verify2FALogin(input *TwoFALoginInputDTO) (*LoginOutputDTO
 			ID:          user.ID,
 			Username:    user.Username,
 			IsAdmin:     user.IsAdmin,
+			Enabled:     user.Enabled,
 			Email:       user.Email,
 			TotpEnabled: user.TotpEnabled,
 		},
@@ -304,6 +325,9 @@ func (s *AuthService) ValidateToken(tokenString string) (*UserInfoDTO, error) {
 	if data, err := c.Get(cacheKey); err == nil {
 		var userInfo UserInfoDTO
 		if json.Unmarshal(data, &userInfo) == nil {
+			if !userInfo.Enabled {
+				return nil, domainError.ErrUserDisabled
+			}
 			return &userInfo, nil
 		}
 	}
@@ -316,11 +340,16 @@ func (s *AuthService) ValidateToken(tokenString string) (*UserInfoDTO, error) {
 		return nil, domainError.ErrUserNotFound
 	}
 
+	if !user.Enabled {
+		return nil, domainError.ErrUserDisabled
+	}
+
 	userInfo := &UserInfoDTO{
 		ID:       user.ID,
 		Username: user.Username,
 		Scopes:   user.Scopes,
 		IsAdmin:  user.IsAdmin,
+		Enabled:  user.Enabled,
 		Email:    user.Email,
 	}
 
@@ -330,6 +359,40 @@ func (s *AuthService) ValidateToken(tokenString string) (*UserInfoDTO, error) {
 	}
 
 	return userInfo, nil
+}
+
+func (s *AuthService) RecoverAdmin2FA(username, password, recoveryKey string) error {
+	configuredKey := viper.GetString("security.admin-recovery-key")
+	if configuredKey == "" {
+		return domainError.ErrRecoveryDisabled
+	}
+
+	if recoveryKey != configuredKey {
+		return domainError.ErrRecoveryKeyInvalid
+	}
+
+	user, err := s.userRepo.FindByUsernameAndPassword(username, password)
+	if err != nil {
+		return err
+	}
+	if user == nil {
+		return domainError.ErrInvalidCredentials
+	}
+
+	if !user.IsAdmin {
+		return domainError.ErrAdminRequired
+	}
+
+	if !user.TotpEnabled {
+		return domainError.ErrTotpNotEnabled
+	}
+
+	user.TotpSecret = ""
+	user.TotpEnabled = false
+	if err := s.userRepo.Update(user); err != nil {
+		return fmt.Errorf("failed to reset 2FA: %w", err)
+	}
+	return nil
 }
 
 func (s *AuthService) ValidateGitToken(username, token string) (*UserInfoDTO, error) {
@@ -345,6 +408,10 @@ func (s *AuthService) ValidateGitToken(username, token string) (*UserInfoDTO, er
 		return nil, domainError.ErrInvalidCredentials
 	}
 
+	if !user.Enabled {
+		return nil, domainError.ErrUserDisabled
+	}
+
 	if user.GitToken == "" || !pkg.CheckPassword(user.GitToken, token) {
 		return nil, domainError.ErrInvalidCredentials
 	}
@@ -354,6 +421,7 @@ func (s *AuthService) ValidateGitToken(username, token string) (*UserInfoDTO, er
 		Username: user.Username,
 		Scopes:   user.Scopes,
 		IsAdmin:  user.IsAdmin,
+		Enabled:  user.Enabled,
 		Email:    user.Email,
 	}, nil
 }

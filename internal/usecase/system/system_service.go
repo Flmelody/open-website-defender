@@ -90,7 +90,7 @@ func (s *SystemService) GetSettings() (*SystemSettingsDTO, error) {
 		dto.JSChallengeDifficulty = 4
 	}
 	if dto.CaptchaProvider == "" {
-		dto.CaptchaProvider = "hcaptcha"
+		dto.CaptchaProvider = "builtin"
 	}
 	if dto.CaptchaCookieTTL <= 0 {
 		dto.CaptchaCookieTTL = 86400

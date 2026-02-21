@@ -4,7 +4,6 @@ import (
 	"open-website-defender/internal/adapter/repository"
 	"open-website-defender/internal/domain/entity"
 	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/pkg"
 	"os"
 	"regexp"
 	"testing"
@@ -376,7 +375,7 @@ func TestCheckRequest_Integration_SQLi(t *testing.T) {
 	svc := newTestWafService(db)
 
 	// Initialize the cache and invalidate stale entries from other tests
-	_ = pkg.Cacher()
+
 	svc.invalidateCache()
 
 	tests := []struct {
@@ -433,7 +432,7 @@ func TestCheckRequest_Integration_XSS(t *testing.T) {
 	db := setupTestDB(t)
 	seedDefaultRules(t, db)
 	svc := newTestWafService(db)
-	_ = pkg.Cacher()
+
 	svc.invalidateCache()
 
 	tests := []struct {
@@ -487,7 +486,7 @@ func TestCheckRequest_Integration_PathTraversal(t *testing.T) {
 	db := setupTestDB(t)
 	seedDefaultRules(t, db)
 	svc := newTestWafService(db)
-	_ = pkg.Cacher()
+
 	svc.invalidateCache()
 
 	tests := []struct {
@@ -540,7 +539,7 @@ func TestCheckRequest_Integration_NoRules(t *testing.T) {
 	db := setupTestDB(t)
 	// Do NOT seed rules
 	svc := newTestWafService(db)
-	_ = pkg.Cacher()
+
 	svc.invalidateCache() // Clear any cached rules from previous tests
 
 	result := svc.CheckRequest("GET", "/api/test", "id=1 UNION SELECT * FROM users", "", "")
@@ -563,7 +562,6 @@ func TestCheckRequest_Integration_DisabledRule(t *testing.T) {
 		t.Fatalf("Failed to create disabled rule: %v", err)
 	}
 	svc := newTestWafService(db)
-	_ = pkg.Cacher()
 
 	// Invalidate cache to ensure fresh load from DB (not stale from other tests)
 	svc.invalidateCache()
@@ -588,7 +586,7 @@ func TestCheckRequest_Integration_LogAction(t *testing.T) {
 		t.Fatalf("Failed to create log rule: %v", err)
 	}
 	svc := newTestWafService(db)
-	_ = pkg.Cacher()
+
 	svc.invalidateCache()
 
 	result := svc.CheckRequest("GET", "/api/test", "id=1 UNION SELECT * FROM users", "", "")
@@ -610,7 +608,7 @@ func TestCheckRequest_UserAgent(t *testing.T) {
 	db := setupTestDB(t)
 	seedDefaultRules(t, db)
 	svc := newTestWafService(db)
-	_ = pkg.Cacher()
+
 	svc.invalidateCache()
 
 	// XSS in user agent
@@ -627,7 +625,6 @@ func TestCheckRequest_UserAgent(t *testing.T) {
 func TestCreate_ValidRule(t *testing.T) {
 	db := setupTestDB(t)
 	svc := newTestWafService(db)
-	_ = pkg.Cacher()
 
 	enabled := true
 	dto, err := svc.Create(&CreateWafRuleDto{

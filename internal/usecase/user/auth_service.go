@@ -320,9 +320,9 @@ func (s *AuthService) ValidateToken(tokenString string) (*UserInfoDTO, error) {
 	}
 
 	// Check user info cache
-	c := pkg.Cacher()
-	cacheKey := []byte(fmt.Sprintf("%s%d", cache.KeyUserInfo, claims.UserID))
-	if data, err := c.Get(cacheKey); err == nil {
+	store := cache.Store()
+	cacheKey := fmt.Sprintf("%s%d", cache.KeyUserInfo, claims.UserID)
+	if data, err := store.Get(cacheKey); err == nil {
 		var userInfo UserInfoDTO
 		if json.Unmarshal(data, &userInfo) == nil {
 			if !userInfo.Enabled {
@@ -355,7 +355,7 @@ func (s *AuthService) ValidateToken(tokenString string) (*UserInfoDTO, error) {
 
 	// Cache user info (10 minutes)
 	if data, err := json.Marshal(userInfo); err == nil {
-		_ = c.Set(cacheKey, data, 600)
+		_ = store.Set(cacheKey, data, 600)
 	}
 
 	return userInfo, nil

@@ -1,7 +1,9 @@
 package config
 
 type Config struct {
+	Mode             string                 `mapstructure:"mode"` // "auth_request" (default) | "reverse_proxy"
 	Database         DatabaseConfig         `mapstructure:"database"`
+	Cache            CacheConfig            `mapstructure:"cache"`
 	Security         SecurityConfig         `mapstructure:"security"`
 	RateLimit        RateLimitConfig        `mapstructure:"rate-limit"`
 	RequestFiltering RequestFilteringConfig `mapstructure:"request-filtering"`
@@ -13,6 +15,12 @@ type Config struct {
 	ThreatDetection  ThreatDetectionConfig  `mapstructure:"threat-detection"`
 	JSChallenge      JSChallengeConfig      `mapstructure:"js-challenge"`
 	Webhook          WebhookConfig          `mapstructure:"webhook"`
+	BotManagement    BotManagementConfig    `mapstructure:"bot-management"`
+}
+
+type CacheConfig struct {
+	SizeMB       int `mapstructure:"size-mb"`       // Maximum memory in MB (default: 100)
+	SyncInterval int `mapstructure:"sync-interval"` // Multi-instance sync polling interval in seconds (default: 0 = disabled)
 }
 
 type OAuthConfig struct {
@@ -116,4 +124,17 @@ type WebhookConfig struct {
 	URL     string   `mapstructure:"url"`
 	Timeout int      `mapstructure:"timeout"`
 	Events  []string `mapstructure:"events"`
+}
+
+type BotManagementConfig struct {
+	Enabled             bool          `mapstructure:"enabled"`
+	ChallengeEscalation bool          `mapstructure:"challenge-escalation"`
+	Captcha             CaptchaConfig `mapstructure:"captcha"`
+}
+
+type CaptchaConfig struct {
+	Provider  string `mapstructure:"provider"` // hcaptcha, turnstile
+	SiteKey   string `mapstructure:"site-key"`
+	SecretKey string `mapstructure:"secret-key"`
+	CookieTTL int    `mapstructure:"cookie-ttl"` // seconds, default 86400
 }

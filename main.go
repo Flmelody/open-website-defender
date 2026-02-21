@@ -127,6 +127,9 @@ func main() {
 		pkg.InitRSAKey(viper.GetString("oauth.rsa-private-key-path"))
 	}
 
+	// Initialize cache (must be before DB and services)
+	cache.InitStore(viper.GetInt("cache.size-mb"))
+
 	err = database.InitDB()
 	if err != nil {
 		logging.Sugar.Fatalf("Error initializing database: %s", err)
@@ -135,6 +138,10 @@ func main() {
 
 	// Initialize event-driven cache invalidation
 	cache.Init()
+
+	// Start cross-instance cache sync (polls DB for version changes)
+	viper.SetDefault("cache.sync-interval", 0)
+	cache.InitSync(database.DB, viper.GetInt("cache.sync-interval"))
 
 	appConfig := getAppConfig()
 
@@ -169,7 +176,10 @@ func main() {
 			c.FileFromFS("ui/guard/dist/index.html", http.FS(server))
 			return
 		}
-		c.Next()
+		if strings.HasPrefix(c.Request.URL.Path, appConfig.RootPath) {
+			// Requests under root path that don't match any route → 404
+			return
+		}
 	})
 
 	// Security headers
@@ -197,11 +207,17 @@ func main() {
 		}
 	}
 
-	// Request filtering (SQLi, XSS, Path Traversal detection)
+	// Request filtering (SQLi, XSS, Path Traversal detection — enhanced rule engine)
 	if viper.GetBool("request-filtering.enabled") {
 		r.Use(middleware.WAF())
 		logging.Sugar.Info("Request filtering enabled")
 	}
+
+	// Bot management — controlled by DB settings
+	r.Use(middleware.BotManagement())
+
+	// CAPTCHA page — serves CAPTCHA challenge when bot_captcha flag is set
+	r.Use(middleware.CaptchaPage())
 
 	// Request logging
 	r.Use(middleware.Logger())
@@ -257,6 +273,7 @@ func main() {
 		logging.Sugar.Fatalf("Server forced to shutdown: %s", err)
 	}
 
+	cache.StopSync()
 	pkg.CloseGeoIP()
 	logging.Sugar.Info("Server exited gracefully")
 }

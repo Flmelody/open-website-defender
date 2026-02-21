@@ -3,8 +3,8 @@ package handler
 import (
 	"open-website-defender/internal/adapter/controller/http/request"
 	"open-website-defender/internal/adapter/controller/http/response"
+	"open-website-defender/internal/infrastructure/cache"
 	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/pkg"
 	"open-website-defender/internal/usecase/system"
 
 	"github.com/gin-gonic/gin"
@@ -40,6 +40,15 @@ func UpdateSystemSettings(c *gin.Context) {
 		JSChallengeMode:       req.JSChallengeMode,
 		JSChallengeDifficulty: req.JSChallengeDifficulty,
 		WebhookURL:            req.WebhookURL,
+
+		BotManagementEnabled: req.BotManagementEnabled,
+		ChallengeEscalation:  req.ChallengeEscalation,
+		CaptchaProvider:      req.CaptchaProvider,
+		CaptchaSiteKey:       req.CaptchaSiteKey,
+		CaptchaSecretKey:     req.CaptchaSecretKey,
+		CaptchaCookieTTL:     req.CaptchaCookieTTL,
+
+		CacheSyncInterval: req.CacheSyncInterval,
 	}
 
 	if err := service.UpdateSettings(input); err != nil {
@@ -53,7 +62,7 @@ func UpdateSystemSettings(c *gin.Context) {
 
 // ReloadConfig flushes all caches, forcing services to reload from database.
 func ReloadConfig(c *gin.Context) {
-	pkg.Cacher().Clear()
+	cache.Store().Clear()
 	logging.Sugar.Info("Cache cleared via admin reload endpoint")
 	response.SuccessWithMessage(c, "Configuration reloaded, caches cleared", nil)
 }

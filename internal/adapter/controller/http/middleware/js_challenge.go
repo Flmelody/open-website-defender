@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"bytes"
-	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
 	_ "embed"
@@ -10,6 +9,7 @@ import (
 	"fmt"
 	"net/http"
 	"open-website-defender/internal/infrastructure/logging"
+	"open-website-defender/internal/pkg"
 	"open-website-defender/internal/usecase/iplist"
 	"open-website-defender/internal/usecase/system"
 	"open-website-defender/internal/usecase/threat"
@@ -36,31 +36,12 @@ func JSChallengeSkipRoute(paths ...string) {
 	}
 }
 
-var challengeSecret []byte
-
-func getSecret() []byte {
-	if challengeSecret != nil {
-		return challengeSecret
-	}
-	secret := viper.GetString("js-challenge.cookie-secret")
-	if secret != "" {
-		challengeSecret = []byte(secret)
-		return challengeSecret
-	}
-	challengeSecret = make([]byte, 32)
-	_, _ = rand.Read(challengeSecret)
-	return challengeSecret
-}
-
 func signChallenge(data string) string {
-	mac := hmac.New(sha256.New, getSecret())
-	mac.Write([]byte(data))
-	return hex.EncodeToString(mac.Sum(nil))
+	return pkg.SignCookieData(data)
 }
 
 func verifySignature(data, signature string) bool {
-	expected := signChallenge(data)
-	return hmac.Equal([]byte(expected), []byte(signature))
+	return pkg.VerifyCookieSignature(data, signature)
 }
 
 // JSChallenge returns a middleware that serves a JavaScript Proof-of-Work challenge
@@ -78,17 +59,19 @@ func getJSChallengeSettings() (enabled bool, mode string, difficulty int) {
 func JSChallenge() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		enabled, mode, cfgDifficulty := getJSChallengeSettings()
-		if !enabled {
-			c.Next()
-			return
+
+		// Check if upstream middleware (WAF/BotManagement) flagged this request for challenge
+		forcedChallenge := c.GetBool("waf_challenge")
+
+		// If not forced by upstream, check own enabled/mode settings
+		if !forcedChallenge {
+			if !enabled || mode == "off" || mode == "" {
+				c.Next()
+				return
+			}
 		}
 
-		if mode == "off" || mode == "" {
-			c.Next()
-			return
-		}
-
-		// Skip non-GET requests
+		// Skip non-GET requests (PoW only works for browser navigation)
 		if c.Request.Method != http.MethodGet {
 			c.Next()
 			return
@@ -158,7 +141,8 @@ func JSChallenge() gin.HandlerFunc {
 		}
 
 		// In "suspicious" mode, only challenge IPs with elevated threat score
-		if mode == "suspicious" {
+		// Skip this check if forced by upstream (WAF/BotManagement already decided to challenge)
+		if !forcedChallenge && mode == "suspicious" {
 			td := threat.GetThreatDetector()
 			threshold := 10
 			score := td.GetThreatScore(c.ClientIP())

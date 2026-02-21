@@ -7,4 +7,15 @@ type UpdateSystemSettingsRequest struct {
 	JSChallengeMode       string `json:"js_challenge_mode"`
 	JSChallengeDifficulty int    `json:"js_challenge_difficulty"`
 	WebhookURL            string `json:"webhook_url"`
+
+	// Bot Management
+	BotManagementEnabled bool   `json:"bot_management_enabled"`
+	ChallengeEscalation  bool   `json:"challenge_escalation"`
+	CaptchaProvider      string `json:"captcha_provider"`
+	CaptchaSiteKey       string `json:"captcha_site_key"`
+	CaptchaSecretKey     string `json:"captcha_secret_key"`
+	CaptchaCookieTTL     int    `json:"captcha_cookie_ttl"`
+
+	// Cache
+	CacheSyncInterval int `json:"cache_sync_interval"`
 }

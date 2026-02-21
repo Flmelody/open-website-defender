@@ -37,15 +37,24 @@ func GetAccessLogService() *AccessLogService {
 // Record adds an access log entry to the async buffer.
 func (s *AccessLogService) Record(input *AccessLogInput) {
 	entry := &entity.AccessLog{
-		ClientIP:   input.ClientIP,
-		Method:     input.Method,
-		Path:       input.Path,
-		StatusCode: input.StatusCode,
-		Latency:    input.Latency,
-		UserAgent:  input.UserAgent,
-		Action:     input.Action,
-		RuleName:   input.RuleName,
-		CreatedAt:  time.Now().UTC(),
+		ClientIP:       input.ClientIP,
+		Method:         input.Method,
+		Host:           input.Host,
+		Scheme:         input.Scheme,
+		Path:           input.Path,
+		QueryString:    input.QueryString,
+		ContentType:    input.ContentType,
+		ContentLength:  input.ContentLength,
+		Referer:        input.Referer,
+		RequestHeaders: input.RequestHeaders,
+		RequestBody:    input.RequestBody,
+		StatusCode:     input.StatusCode,
+		ResponseSize:   input.ResponseSize,
+		Latency:        input.Latency,
+		UserAgent:      input.UserAgent,
+		Action:         input.Action,
+		RuleName:       input.RuleName,
+		CreatedAt:      time.Now().UTC(),
 	}
 
 	select {
@@ -148,16 +157,25 @@ func (s *AccessLogService) List(page, size int, filters map[string]interface{}) 
 	dtos := make([]*AccessLogDto, 0, len(list))
 	for _, item := range list {
 		dtos = append(dtos, &AccessLogDto{
-			ID:         item.ID,
-			ClientIP:   item.ClientIP,
-			Method:     item.Method,
-			Path:       item.Path,
-			StatusCode: item.StatusCode,
-			Latency:    item.Latency,
-			UserAgent:  item.UserAgent,
-			Action:     item.Action,
-			RuleName:   item.RuleName,
-			CreatedAt:  item.CreatedAt,
+			ID:             item.ID,
+			ClientIP:       item.ClientIP,
+			Method:         item.Method,
+			Host:           item.Host,
+			Scheme:         item.Scheme,
+			Path:           item.Path,
+			QueryString:    item.QueryString,
+			ContentType:    item.ContentType,
+			ContentLength:  item.ContentLength,
+			Referer:        item.Referer,
+			RequestHeaders: item.RequestHeaders,
+			RequestBody:    item.RequestBody,
+			StatusCode:     item.StatusCode,
+			ResponseSize:   item.ResponseSize,
+			Latency:        item.Latency,
+			UserAgent:      item.UserAgent,
+			Action:         item.Action,
+			RuleName:       item.RuleName,
+			CreatedAt:      item.CreatedAt,
 		})
 	}
 	return dtos, total, nil

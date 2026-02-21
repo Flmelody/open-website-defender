@@ -67,6 +67,11 @@ func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 			api.POST("/oauth/revoke", handler.OAuthRevoke)
 		}
 
+		// CAPTCHA endpoints (public)
+		api.GET("/captcha/preview", handler.PreviewCaptcha)
+		api.GET("/captcha/generate", handler.GenerateCaptcha)
+		api.POST("/captcha/verify", handler.VerifyCaptcha)
+
 		authorized := api.Group("")
 		// Middleware for route protection
 		authorized.Use(handler.AuthMiddleware)
@@ -102,6 +107,19 @@ func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 			authorized.GET("/waf-rules", handler.ListWafRules)
 			authorized.PUT("/waf-rules/:id", handler.UpdateWafRule)
 			authorized.DELETE("/waf-rules/:id", handler.DeleteWafRule)
+			authorized.PUT("/waf-rules/group/:name/enable", handler.BatchEnableWafGroup)
+			authorized.PUT("/waf-rules/group/:name/disable", handler.BatchDisableWafGroup)
+
+			// WAF Exclusions
+			authorized.POST("/waf-exclusions", handler.CreateWafExclusion)
+			authorized.GET("/waf-exclusions", handler.ListWafExclusions)
+			authorized.DELETE("/waf-exclusions/:id", handler.DeleteWafExclusion)
+
+			// Bot Signatures
+			authorized.POST("/bot-signatures", handler.CreateBotSignature)
+			authorized.GET("/bot-signatures", handler.ListBotSignatures)
+			authorized.PUT("/bot-signatures/:id", handler.UpdateBotSignature)
+			authorized.DELETE("/bot-signatures/:id", handler.DeleteBotSignature)
 
 			// Access Logs
 			authorized.GET("/access-logs", handler.ListAccessLogs)

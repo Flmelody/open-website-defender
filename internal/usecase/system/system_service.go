@@ -7,7 +7,6 @@ import (
 	"open-website-defender/internal/infrastructure/cache"
 	"open-website-defender/internal/infrastructure/database"
 	"open-website-defender/internal/infrastructure/event"
-	"open-website-defender/internal/pkg"
 	_interface "open-website-defender/internal/usecase/interface"
 	"sync"
 
@@ -42,8 +41,10 @@ func NewSystemService(systemRepo _interface.SystemRepository) *SystemService {
 }
 
 func (s *SystemService) GetSettings() (*SystemSettingsDTO, error) {
+	store := cache.Store()
+
 	// Check cache
-	if cached, err := pkg.Cacher().Get([]byte(cache.KeySystemSettings)); err == nil {
+	if cached, err := store.Get(cache.KeySystemSettings); err == nil {
 		var dto SystemSettingsDTO
 		if json.Unmarshal(cached, &dto) == nil {
 			return &dto, nil
@@ -55,22 +56,47 @@ func (s *SystemService) GetSettings() (*SystemSettingsDTO, error) {
 		return nil, err
 	}
 
+	mode := viper.GetString("mode")
+	if mode == "" {
+		mode = "auth_request"
+	}
+
 	dto := &SystemSettingsDTO{
+		Mode:                  mode,
 		GitTokenHeader:        defaultGitTokenHeader,
 		LicenseHeader:         defaultLicenseHeader,
 		JSChallengeEnabled:    viper.GetBool("js-challenge.enabled"),
 		JSChallengeMode:       viper.GetString("js-challenge.mode"),
 		JSChallengeDifficulty: viper.GetInt("js-challenge.difficulty"),
 		WebhookURL:            viper.GetString("webhook.url"),
+
+		// Bot Management defaults from config
+		BotManagementEnabled: viper.GetBool("bot-management.enabled"),
+		ChallengeEscalation:  viper.GetBool("bot-management.challenge-escalation"),
+		CaptchaProvider:      viper.GetString("bot-management.captcha.provider"),
+		CaptchaSiteKey:       viper.GetString("bot-management.captcha.site-key"),
+		CaptchaSecretKey:     viper.GetString("bot-management.captcha.secret-key"),
+		CaptchaCookieTTL:     viper.GetInt("bot-management.captcha.cookie-ttl"),
+
+		// Cache defaults from config
+		CacheSyncInterval: viper.GetInt("cache.sync-interval"),
 	}
 
+	// Apply sensible defaults for zero values
 	if dto.JSChallengeMode == "" {
 		dto.JSChallengeMode = "suspicious"
 	}
 	if dto.JSChallengeDifficulty <= 0 {
 		dto.JSChallengeDifficulty = 4
 	}
+	if dto.CaptchaProvider == "" {
+		dto.CaptchaProvider = "hcaptcha"
+	}
+	if dto.CaptchaCookieTTL <= 0 {
+		dto.CaptchaCookieTTL = 86400
+	}
 
+	// DB settings override config file
 	if sys != nil {
 		if sys.Security.GitTokenHeader != "" {
 			dto.GitTokenHeader = sys.Security.GitTokenHeader
@@ -78,7 +104,6 @@ func (s *SystemService) GetSettings() (*SystemSettingsDTO, error) {
 		if sys.Security.LicenseHeader != "" {
 			dto.LicenseHeader = sys.Security.LicenseHeader
 		}
-		// DB settings override config file for JS challenge & webhook
 		if sys.Security.JSChallengeEnabled != nil {
 			dto.JSChallengeEnabled = *sys.Security.JSChallengeEnabled
 		}
@@ -91,11 +116,36 @@ func (s *SystemService) GetSettings() (*SystemSettingsDTO, error) {
 		if sys.Security.WebhookURL != "" {
 			dto.WebhookURL = sys.Security.WebhookURL
 		}
+
+		// Bot Management overrides
+		if sys.BotManagement.Enabled != nil {
+			dto.BotManagementEnabled = *sys.BotManagement.Enabled
+		}
+		if sys.BotManagement.ChallengeEscalation != nil {
+			dto.ChallengeEscalation = *sys.BotManagement.ChallengeEscalation
+		}
+		if sys.BotManagement.CaptchaProvider != "" {
+			dto.CaptchaProvider = sys.BotManagement.CaptchaProvider
+		}
+		if sys.BotManagement.CaptchaSiteKey != "" {
+			dto.CaptchaSiteKey = sys.BotManagement.CaptchaSiteKey
+		}
+		if sys.BotManagement.CaptchaSecretKey != "" {
+			dto.CaptchaSecretKey = sys.BotManagement.CaptchaSecretKey
+		}
+		if sys.BotManagement.CaptchaCookieTTL > 0 {
+			dto.CaptchaCookieTTL = sys.BotManagement.CaptchaCookieTTL
+		}
+
+		// Cache overrides
+		if sys.CacheSettings.SyncInterval != nil {
+			dto.CacheSyncInterval = *sys.CacheSettings.SyncInterval
+		}
 	}
 
 	// Cache for 10 minutes
 	data, _ := json.Marshal(dto)
-	_ = pkg.Cacher().Set([]byte(cache.KeySystemSettings), data, 600)
+	_ = store.Set(cache.KeySystemSettings, data, 600)
 
 	return dto, nil
 }
@@ -117,11 +167,29 @@ func (s *SystemService) UpdateSettings(input *UpdateSystemSettingsDTO) error {
 	sys.Security.JSChallengeDifficulty = input.JSChallengeDifficulty
 	sys.Security.WebhookURL = input.WebhookURL
 
+	// Bot Management
+	sys.BotManagement = entity.BotManagementSettings{
+		Enabled:             &input.BotManagementEnabled,
+		ChallengeEscalation: &input.ChallengeEscalation,
+		CaptchaProvider:     input.CaptchaProvider,
+		CaptchaSiteKey:      input.CaptchaSiteKey,
+		CaptchaSecretKey:    input.CaptchaSecretKey,
+		CaptchaCookieTTL:    input.CaptchaCookieTTL,
+	}
+
+	// Cache
+	sys.CacheSettings = entity.CacheSettings{
+		SyncInterval: &input.CacheSyncInterval,
+	}
+
 	if err := s.systemRepo.Save(sys); err != nil {
 		return err
 	}
 
 	event.Bus().Publish(event.SystemSettingsChanged)
+
+	// Restart cache sync if interval changed
+	cache.RestartSync(input.CacheSyncInterval)
 
 	return nil
 }

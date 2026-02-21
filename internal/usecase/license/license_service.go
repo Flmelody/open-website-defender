@@ -103,8 +103,10 @@ func (s *LicenseService) ValidateToken(token string) (bool, error) {
 	tokenHash := pkg.SHA256Hash(token)
 	cacheKey := cache.KeyLicenseToken + tokenHash
 
+	store := cache.Store()
+
 	// Check cache
-	if cached, err := pkg.Cacher().Get([]byte(cacheKey)); err == nil {
+	if cached, err := store.Get(cacheKey); err == nil {
 		if len(cached) == 0 {
 			return false, nil // cached "not found"
 		}
@@ -122,13 +124,13 @@ func (s *LicenseService) ValidateToken(token string) (bool, error) {
 
 	if lic == nil {
 		// Cache negative result for 60 seconds
-		_ = pkg.Cacher().Set([]byte(cacheKey), []byte{}, 60)
+		_ = store.Set(cacheKey, []byte{}, 60)
 		return false, nil
 	}
 
 	// Cache positive result for 5 minutes
 	data, _ := json.Marshal(lic)
-	_ = pkg.Cacher().Set([]byte(cacheKey), data, 300)
+	_ = store.Set(cacheKey, data, 300)
 
 	return lic.Active, nil
 }

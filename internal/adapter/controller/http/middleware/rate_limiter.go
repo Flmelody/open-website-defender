@@ -1,15 +1,14 @@
 package middleware
 
 import (
-	"encoding/binary"
 	"open-website-defender/internal/adapter/controller/http/response"
+	"open-website-defender/internal/infrastructure/cache"
 	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/pkg"
 
 	"github.com/gin-gonic/gin"
 )
 
-// RateLimiter returns a middleware that limits requests per IP using freecache.
+// RateLimiter returns a middleware that limits requests per IP.
 // keyPrefix differentiates between global and endpoint-specific limiters.
 // requestsPerMinute is the max requests allowed per minute per IP.
 func RateLimiter(keyPrefix string, requestsPerMinute int) gin.HandlerFunc {
@@ -20,27 +19,22 @@ func RateLimiter(keyPrefix string, requestsPerMinute int) gin.HandlerFunc {
 		}
 
 		clientIP := c.ClientIP()
-		key := []byte(keyPrefix + ":" + clientIP)
-		cache := pkg.Cacher()
+		key := keyPrefix + ":" + clientIP
 
-		val, err := cache.Get(key)
-		var count int64
-		if err == nil && len(val) == 8 {
-			count = int64(binary.BigEndian.Uint64(val))
+		count, err := cache.Store().Incr(key, 60)
+		if err != nil {
+			logging.Sugar.Errorf("Rate limiter cache error: %v", err)
+			c.Next()
+			return
 		}
 
-		if count >= int64(requestsPerMinute) {
+		if count > int64(requestsPerMinute) {
 			logging.Sugar.Warnf("Rate limit exceeded for IP %s (prefix=%s, count=%d, limit=%d)",
 				clientIP, keyPrefix, count, requestsPerMinute)
 			response.TooManyRequests(c, "rate limit exceeded, please try again later")
 			c.Abort()
 			return
 		}
-
-		count++
-		buf := make([]byte, 8)
-		binary.BigEndian.PutUint64(buf, uint64(count))
-		_ = cache.Set(key, buf, 60) // 60 seconds TTL
 
 		c.Next()
 	}
@@ -56,11 +50,11 @@ func LoginRateLimiter(requestsPerMinute int, lockoutDuration int) gin.HandlerFun
 		}
 
 		clientIP := c.ClientIP()
-		cache := pkg.Cacher()
+		store := cache.Store()
 
 		// Check lockout first
-		lockoutKey := []byte("lockout:" + clientIP)
-		if _, err := cache.Get(lockoutKey); err == nil {
+		lockoutKey := "lockout:" + clientIP
+		if _, err := store.Get(lockoutKey); err == nil {
 			logging.Sugar.Warnf("Login locked out for IP %s", clientIP)
 			response.TooManyRequests(c, "too many login attempts, please try again later")
 			c.Abort()
@@ -68,30 +62,26 @@ func LoginRateLimiter(requestsPerMinute int, lockoutDuration int) gin.HandlerFun
 		}
 
 		// Check rate
-		rateKey := []byte("login:" + clientIP)
-		val, err := cache.Get(rateKey)
-		var count int64
-		if err == nil && len(val) == 8 {
-			count = int64(binary.BigEndian.Uint64(val))
+		rateKey := "login:" + clientIP
+		count, err := store.Incr(rateKey, 60)
+		if err != nil {
+			logging.Sugar.Errorf("Login rate limiter cache error: %v", err)
+			c.Next()
+			return
 		}
 
-		if count >= int64(requestsPerMinute) {
+		if count > int64(requestsPerMinute) {
 			// Set lockout
 			ttl := lockoutDuration
 			if ttl <= 0 {
 				ttl = 300 // default 5 minutes
 			}
-			_ = cache.Set(lockoutKey, []byte{1}, ttl)
+			_ = store.Set(lockoutKey, []byte{1}, ttl)
 			logging.Sugar.Warnf("Login rate limit exceeded for IP %s, locked out for %ds", clientIP, ttl)
 			response.TooManyRequests(c, "too many login attempts, please try again later")
 			c.Abort()
 			return
 		}
-
-		count++
-		buf := make([]byte, 8)
-		binary.BigEndian.PutUint64(buf, uint64(count))
-		_ = cache.Set(rateKey, buf, 60) // 60 seconds TTL
 
 		c.Next()
 	}

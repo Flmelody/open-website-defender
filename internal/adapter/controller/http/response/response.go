@@ -96,6 +96,14 @@ func TooManyRequests(c *gin.Context, message string) {
 	})
 }
 
+func BadGateway(c *gin.Context, message string) {
+	c.JSON(http.StatusBadGateway, Response{
+		Code:    502,
+		Message: "bad gateway",
+		Error:   message,
+	})
+}
+
 func InternalServerError(c *gin.Context, message string) {
 	c.JSON(http.StatusInternalServerError, Response{
 		Code:    500,

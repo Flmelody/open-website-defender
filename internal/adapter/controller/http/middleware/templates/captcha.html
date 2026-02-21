@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Check — Defender</title>
+    {{if eq .Provider "turnstile"}}
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    {{end}}
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box }
+
+        body {
+            background: #060d06;
+            color: #c0ffc0;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 50% 40%, rgba(0,255,0,.04) 0%, transparent 60%),
+                radial-gradient(ellipse at 50% 100%, rgba(0,40,0,.3) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .wrap {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            padding: 40px;
+        }
+
+        /* --- Shield arena --- */
+        .arena {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 32px;
+            position: relative;
+        }
+
+        .shield {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 100px; height: 100px;
+            transform: translate(-50%, -50%);
+        }
+
+        .shield svg {
+            width: 100px; height: 100px;
+            fill: rgba(0,255,0,.08);
+            stroke: #0f0;
+            filter: drop-shadow(0 0 20px rgba(0,255,0,.25));
+        }
+
+        .shield .icon-lock {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -46%);
+        }
+
+        .shield .icon-lock svg {
+            width: 30px; height: 30px;
+            fill: none;
+            filter: none;
+        }
+
+        .ring {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 140px; height: 140px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            border-top-color: rgba(0,255,0,.6);
+            border-right-color: rgba(0,255,0,.15);
+            transform: translate(-50%, -50%);
+            animation: spin 2.5s linear infinite;
+        }
+
+        .ring2 {
+            position: absolute;
+            top: 50%; left: 50%;
+            width: 170px; height: 170px;
+            border-radius: 50%;
+            border: 1.5px solid transparent;
+            border-bottom-color: rgba(0,255,0,.4);
+            border-left-color: rgba(0,255,0,.1);
+            transform: translate(-50%, -50%);
+            animation: spin 3.5s linear infinite reverse;
+        }
+
+        @keyframes spin {
+            from { transform: translate(-50%, -50%) rotate(0deg) }
+            to   { transform: translate(-50%, -50%) rotate(360deg) }
+        }
+
+        /* --- Title --- */
+        .title {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(0,255,0,.55);
+            margin-bottom: 28px;
+        }
+
+        /* --- Captcha card --- */
+        .captcha-card {
+            background: rgba(0,20,0,.45);
+            border: 1px solid rgba(0,255,0,.15);
+            border-radius: 12px;
+            padding: 28px 32px;
+            backdrop-filter: blur(8px);
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        /* --- Built-in captcha image row --- */
+        .captcha-img-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .captcha-img-row img {
+            border: 1px solid rgba(0,255,0,.25);
+            border-radius: 6px;
+            display: block;
+            height: 64px;
+            width: auto;
+        }
+
+        .captcha-refresh {
+            width: 40px; height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0,255,0,.06);
+            border: 1px solid rgba(0,255,0,.25);
+            border-radius: 8px;
+            color: #0f0;
+            cursor: pointer;
+            font-size: 20px;
+            line-height: 1;
+            transition: all .2s;
+        }
+
+        .captcha-refresh:hover {
+            background: rgba(0,255,0,.15);
+            border-color: rgba(0,255,0,.5);
+        }
+
+        /* --- Input --- */
+        .captcha-input {
+            background: rgba(0,15,0,.5);
+            border: 1px solid rgba(0,255,0,.25);
+            border-radius: 8px;
+            color: #0f0;
+            padding: 10px 14px;
+            font-family: 'Courier New', monospace;
+            font-size: 18px;
+            letter-spacing: 6px;
+            text-align: center;
+            width: 220px;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .captcha-input::placeholder {
+            color: rgba(0,255,0,.25);
+            letter-spacing: 2px;
+            font-size: 14px;
+        }
+
+        .captcha-input:focus {
+            border-color: rgba(0,255,0,.5);
+            box-shadow: 0 0 12px rgba(0,255,0,.15);
+        }
+
+        /* --- Button --- */
+        .btn-verify {
+            background: linear-gradient(180deg, #00cc00, #009900);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 40px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            transition: all .2s;
+            box-shadow: 0 2px 12px rgba(0,255,0,.2);
+        }
+
+        .btn-verify:hover {
+            background: linear-gradient(180deg, #00dd00, #00aa00);
+            box-shadow: 0 4px 20px rgba(0,255,0,.35);
+            transform: translateY(-1px);
+        }
+
+        .btn-verify:active {
+            transform: translateY(0);
+        }
+
+        /* --- Footer --- */
+        .footer {
+            margin-top: 24px;
+            font-size: 11px;
+            color: rgba(0,255,0,.2);
+            letter-spacing: 1px;
+        }
+
+        /* --- Turnstile --- */
+        .cf-turnstile {
+            margin: 0 auto;
+            min-width: 300px;
+            min-height: 65px;
+        }
+
+        .turnstile-status {
+            font-size: 13px;
+            letter-spacing: 1px;
+            text-align: center;
+            min-height: 20px;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="arena">
+        <div class="ring"></div>
+        <div class="ring2"></div>
+        <div class="shield">
+            <svg viewBox="0 0 24 24" stroke-width="1.2">
+                <path d="M12 2L3 7v5c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-9-5z"/>
+            </svg>
+            <div class="icon-lock">
+                <svg viewBox="0 0 24 24" stroke="#0f0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="5" y="11" width="14" height="10" rx="2"/>
+                    <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <div class="title">Security Verification</div>
+
+    {{if eq .Provider "builtin"}}
+    <div class="captcha-card">
+        <form method="POST" action="{{.VerifyAction}}" id="captcha-form" style="display:contents">
+            <input type="hidden" name="captcha_id" id="captcha-id">
+            <div class="captcha-img-row">
+                <img id="captcha-img" alt="CAPTCHA">
+                <button type="button" class="captcha-refresh" onclick="loadCaptcha()" title="Refresh">&#x21bb;</button>
+            </div>
+            <input type="text" name="captcha_answer" class="captcha-input" placeholder="Enter code" autocomplete="off" required autofocus>
+            <button type="submit" class="btn-verify">Verify</button>
+        </form>
+        <script>
+            function loadCaptcha() {
+                fetch('{{.GenerateURL}}')
+                    .then(function(r) { return r.json(); })
+                    .then(function(d) {
+                        if (d.data) {
+                            document.getElementById('captcha-id').value = d.data.id;
+                            document.getElementById('captcha-img').src = d.data.image;
+                        }
+                    });
+            }
+            loadCaptcha();
+        </script>
+    </div>
+    {{else if eq .Provider "turnstile"}}
+    <form method="POST" action="{{.VerifyAction}}" id="turnstile-form">
+        <div class="cf-turnstile" data-sitekey="{{.SiteKey}}" data-theme="dark" data-callback="onTurnstileSuccess"></div>
+        <div class="turnstile-status" id="turnstile-status"></div>
+    </form>
+    <script>
+        function onTurnstileSuccess() {
+            var s = document.getElementById('turnstile-status');
+            s.textContent = 'Verified. Redirecting...';
+            s.style.color = '#0f0';
+            document.getElementById('turnstile-form').submit();
+        }
+    </script>
+    {{end}}
+
+    <div class="footer">Protected by Open Website Defender</div>
+</div>
+</body>
+</html>

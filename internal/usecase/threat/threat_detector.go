@@ -3,13 +3,12 @@ package threat
 import (
 	"encoding/binary"
 	"fmt"
+	"open-website-defender/internal/infrastructure/cache"
 	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/pkg"
 	"open-website-defender/internal/usecase/iplist"
 	"sync"
 	"time"
 
-	"github.com/coocood/freecache"
 	"github.com/spf13/viper"
 )
 
@@ -44,7 +43,7 @@ func (td *ThreatDetector) RecordRequest(ip string, statusCode int, wasRateLimite
 		return
 	}
 
-	cache := pkg.Cacher()
+	store := cache.Store()
 
 	// Track 4xx responses
 	if statusCode >= 400 && statusCode < 500 {
@@ -57,8 +56,8 @@ func (td *ThreatDetector) RecordRequest(ip string, statusCode int, wasRateLimite
 			window = 60
 		}
 
-		key := []byte(fmt.Sprintf("threat:4xx:%s", ip))
-		count := td.incrementCounter(cache, key, window)
+		key := fmt.Sprintf("threat:4xx:%s", ip)
+		count := td.incrementCounter(store, key, window)
 
 		if count >= int64(threshold) {
 			banDuration := viper.GetInt("threat-detection.auto-ban-duration")
@@ -67,7 +66,7 @@ func (td *ThreatDetector) RecordRequest(ip string, statusCode int, wasRateLimite
 			}
 			td.checkAndBan(ip, "excessive 4xx responses", time.Duration(banDuration)*time.Second)
 			// Reset counter after banning to avoid repeated bans
-			cache.Del(key)
+			store.Del(key)
 		}
 	}
 
@@ -82,8 +81,8 @@ func (td *ThreatDetector) RecordRequest(ip string, statusCode int, wasRateLimite
 			window = 300
 		}
 
-		key := []byte(fmt.Sprintf("threat:scan:%s", ip))
-		count := td.incrementCounter(cache, key, window)
+		key := fmt.Sprintf("threat:scan:%s", ip)
+		count := td.incrementCounter(store, key, window)
 
 		if count >= int64(threshold) {
 			banDuration := viper.GetInt("threat-detection.scan-ban-duration")
@@ -91,7 +90,7 @@ func (td *ThreatDetector) RecordRequest(ip string, statusCode int, wasRateLimite
 				banDuration = 14400
 			}
 			td.checkAndBan(ip, "path scanning", time.Duration(banDuration)*time.Second)
-			cache.Del(key)
+			store.Del(key)
 		}
 	}
 
@@ -106,8 +105,8 @@ func (td *ThreatDetector) RecordRequest(ip string, statusCode int, wasRateLimite
 			window = 300
 		}
 
-		key := []byte(fmt.Sprintf("threat:ratelimit:%s", ip))
-		count := td.incrementCounter(cache, key, window)
+		key := fmt.Sprintf("threat:ratelimit:%s", ip)
+		count := td.incrementCounter(store, key, window)
 
 		if count >= int64(threshold) {
 			banDuration := viper.GetInt("threat-detection.auto-ban-duration")
@@ -115,7 +114,7 @@ func (td *ThreatDetector) RecordRequest(ip string, statusCode int, wasRateLimite
 				banDuration = 3600
 			}
 			td.checkAndBan(ip, "rate limit abuse", time.Duration(banDuration*2)*time.Second)
-			cache.Del(key)
+			store.Del(key)
 		}
 	}
 }
@@ -126,7 +125,7 @@ func (td *ThreatDetector) RecordFailedLogin(ip string) {
 		return
 	}
 
-	cache := pkg.Cacher()
+	store := cache.Store()
 	threshold := viper.GetInt("threat-detection.brute-force-threshold")
 	if threshold <= 0 {
 		threshold = 10
@@ -136,8 +135,8 @@ func (td *ThreatDetector) RecordFailedLogin(ip string) {
 		window = 600
 	}
 
-	key := []byte(fmt.Sprintf("threat:bruteforce:%s", ip))
-	count := td.incrementCounter(cache, key, window)
+	key := fmt.Sprintf("threat:bruteforce:%s", ip)
+	count := td.incrementCounter(store, key, window)
 
 	if count >= int64(threshold) {
 		banDuration := viper.GetInt("threat-detection.brute-force-ban-duration")
@@ -145,16 +144,15 @@ func (td *ThreatDetector) RecordFailedLogin(ip string) {
 			banDuration = 3600
 		}
 		td.checkAndBan(ip, "brute force", time.Duration(banDuration)*time.Second)
-		cache.Del(key)
+		store.Del(key)
 	}
 }
 
 // GetThreatScore returns the current threat score for an IP.
 // Higher score = more suspicious activity.
 func (td *ThreatDetector) GetThreatScore(ip string) int {
-	cache := pkg.Cacher()
-	key := []byte(fmt.Sprintf("threat:score:%s", ip))
-	val, err := cache.Get(key)
+	key := fmt.Sprintf("threat:score:%s", ip)
+	val, err := cache.Store().Get(key)
 	if err != nil || len(val) < 8 {
 		return 0
 	}
@@ -163,10 +161,10 @@ func (td *ThreatDetector) GetThreatScore(ip string) int {
 
 // AddThreatScore adds points to an IP's threat score.
 func (td *ThreatDetector) AddThreatScore(ip string, points int) {
-	cache := pkg.Cacher()
-	key := []byte(fmt.Sprintf("threat:score:%s", ip))
+	store := cache.Store()
+	key := fmt.Sprintf("threat:score:%s", ip)
 
-	val, err := cache.Get(key)
+	val, err := store.Get(key)
 	var score int64
 	if err == nil && len(val) == 8 {
 		score = int64(binary.BigEndian.Uint64(val))
@@ -175,21 +173,15 @@ func (td *ThreatDetector) AddThreatScore(ip string, points int) {
 
 	buf := make([]byte, 8)
 	binary.BigEndian.PutUint64(buf, uint64(score))
-	_ = cache.Set(key, buf, 3600) // 1 hour TTL, score decays naturally
+	_ = store.Set(key, buf, 3600) // 1 hour TTL, score decays naturally
 }
 
-func (td *ThreatDetector) incrementCounter(cache *freecache.Cache, key []byte, ttlSeconds int) int64 {
-	val, err := cache.Get(key)
-	var count int64
-	if err == nil && len(val) == 8 {
-		count = int64(binary.BigEndian.Uint64(val))
+func (td *ThreatDetector) incrementCounter(store cache.Cache, key string, ttlSeconds int) int64 {
+	count, err := store.Incr(key, ttlSeconds)
+	if err != nil {
+		logging.Sugar.Errorf("Failed to increment threat counter %s: %v", key, err)
+		return 0
 	}
-
-	count++
-	buf := make([]byte, 8)
-	binary.BigEndian.PutUint64(buf, uint64(count))
-	_ = cache.Set(key, buf, ttlSeconds)
-
 	return count
 }
 

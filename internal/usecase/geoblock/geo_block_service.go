@@ -53,9 +53,9 @@ func (s *GeoBlockService) IsBlocked(ip string) (bool, string) {
 }
 
 func (s *GeoBlockService) getBlockedCodes() ([]string, error) {
-	c := pkg.Cacher()
+	store := cache.Store()
 
-	data, err := c.Get([]byte(cache.KeyGeoBlockCodes))
+	data, err := store.Get(cache.KeyGeoBlockCodes)
 	if err == nil {
 		var codes []string
 		if err := json.Unmarshal(data, &codes); err == nil {
@@ -69,7 +69,7 @@ func (s *GeoBlockService) getBlockedCodes() ([]string, error) {
 	}
 
 	jsonData, _ := json.Marshal(codes)
-	c.Set([]byte(cache.KeyGeoBlockCodes), jsonData, 3600)
+	store.Set(cache.KeyGeoBlockCodes, jsonData, 3600)
 
 	return codes, nil
 }

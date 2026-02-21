@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"open-website-defender/internal/infrastructure/event"
 	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/pkg"
 )
 
 // cache key constants — single source of truth for all cache keys
@@ -19,35 +18,35 @@ const (
 
 func clearWhiteList(e event.Event, data any) {
 	logging.Sugar.Debug("Cache invalidation: whitelist rules")
-	pkg.Cacher().Del([]byte(KeyWhiteListRules))
+	Store().Del(KeyWhiteListRules)
 }
 
 func clearBlackList(e event.Event, data any) {
 	logging.Sugar.Debug("Cache invalidation: blacklist rules")
-	pkg.Cacher().Del([]byte(KeyBlackListRules))
+	Store().Del(KeyBlackListRules)
 }
 
 func clearGeoBlock(e event.Event, data any) {
 	logging.Sugar.Debug("Cache invalidation: geoblock codes")
-	pkg.Cacher().Del([]byte(KeyGeoBlockCodes))
+	Store().Del(KeyGeoBlockCodes)
 }
 
 func clearSystemSettings(e event.Event, data any) {
 	logging.Sugar.Debug("Cache invalidation: system settings")
-	pkg.Cacher().Del([]byte(KeySystemSettings))
+	Store().Del(KeySystemSettings)
 }
 
 func clearLicenseToken(e event.Event, data any) {
 	if tokenHash, ok := data.(string); ok && tokenHash != "" {
 		logging.Sugar.Debugf("Cache invalidation: license token %s...", tokenHash[:8])
-		pkg.Cacher().Del([]byte(KeyLicenseToken + tokenHash))
+		Store().Del(KeyLicenseToken + tokenHash)
 	}
 }
 
 func clearUserInfo(e event.Event, data any) {
 	if userID, ok := data.(uint); ok {
 		logging.Sugar.Debugf("Cache invalidation: user %d", userID)
-		pkg.Cacher().Del([]byte(fmt.Sprintf("%s%d", KeyUserInfo, userID)))
+		Store().Del(fmt.Sprintf("%s%d", KeyUserInfo, userID))
 	}
 }
 

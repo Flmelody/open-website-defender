@@ -3,8 +3,10 @@ package entity
 import "time"
 
 type System struct {
-	ID       uint     `gorm:"primarykey"`
-	Security Security `json:"security" gorm:"serializer:json;column:security"`
+	ID            uint                  `gorm:"primarykey"`
+	Security      Security              `json:"security" gorm:"serializer:json;column:security"`
+	BotManagement BotManagementSettings `json:"bot_management" gorm:"serializer:json;column:bot_management"`
+	CacheSettings CacheSettings         `json:"cache_settings" gorm:"serializer:json;column:cache_settings"`
 }
 
 type Security struct {
@@ -14,6 +16,19 @@ type Security struct {
 	JSChallengeMode       string `json:"js_challenge_mode"`       // off, suspicious, all
 	JSChallengeDifficulty int    `json:"js_challenge_difficulty"` // 1-6, 0 = use config file
 	WebhookURL            string `json:"webhook_url"`
+}
+
+type BotManagementSettings struct {
+	Enabled             *bool  `json:"enabled"`
+	ChallengeEscalation *bool  `json:"challenge_escalation"`
+	CaptchaProvider     string `json:"captcha_provider"`
+	CaptchaSiteKey      string `json:"captcha_site_key"`
+	CaptchaSecretKey    string `json:"captcha_secret_key"`
+	CaptchaCookieTTL    int    `json:"captcha_cookie_ttl"`
+}
+
+type CacheSettings struct {
+	SyncInterval *int `json:"sync_interval"` // nil = use config, seconds
 }
 
 type GeoBlockRule struct {

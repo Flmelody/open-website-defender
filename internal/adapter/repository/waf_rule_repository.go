@@ -49,7 +49,7 @@ func (r *WafRuleRepository) List(limit, offset int) ([]*entity.WafRule, int64, e
 
 func (r *WafRuleRepository) FindAllEnabled() ([]*entity.WafRule, error) {
 	var rules []*entity.WafRule
-	err := r.db.Where("enabled = ?", true).Find(&rules).Error
+	err := r.db.Where("enabled = ?", true).Order("priority ASC, id ASC").Find(&rules).Error
 	return rules, err
 }
 
@@ -60,4 +60,8 @@ func (r *WafRuleRepository) FindByName(name string) (*entity.WafRule, error) {
 		return nil, nil
 	}
 	return &rule, err
+}
+
+func (r *WafRuleRepository) UpdateGroupEnabled(groupName string, enabled bool) error {
+	return r.db.Model(&entity.WafRule{}).Where("group_name = ?", groupName).Update("enabled", enabled).Error
 }

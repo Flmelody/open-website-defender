@@ -22,6 +22,16 @@ database:
   # user: root
   # password: your_password
 
+# Cache configuration
+cache:
+  # Maximum memory in MB (default: 100)
+  size-mb: 100
+  # Multi-instance sync polling interval in seconds (default: 0 = disabled)
+  # When multiple instances share the same database, set this to enable cross-instance
+  # cache invalidation for security-critical data (blacklist, whitelist, geoblock,
+  # system settings, WAF rules). Recommended: 5 for multi-instance deployments.
+  sync-interval: 0
+
 # Security configuration
 security:
   # JWT secret key for token signing. If empty, a random key is generated on each restart.
@@ -146,6 +156,20 @@ webhook:
     - auto_ban
     - brute_force
     - scan_detected
+
+# Bot Management
+bot-management:
+  enabled: true
+  # Enable challenge escalation based on threat score
+  challenge-escalation: false
+  # CAPTCHA configuration
+  captcha:
+    # Provider: builtin or turnstile
+    provider: "builtin"
+    site-key: ""
+    secret-key: ""
+    # CAPTCHA pass cookie TTL in seconds (default: 24 hours)
+    cookie-ttl: 86400
 
 trustedProxies:
   - "127.0.0.1"

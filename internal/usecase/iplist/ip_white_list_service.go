@@ -35,9 +35,9 @@ func GetIpWhiteListService() *IpWhiteListService {
 }
 
 func (s *IpWhiteListService) getRules() ([]*whiteListRule, error) {
-	c := pkg.Cacher()
+	store := cache.Store()
 
-	data, err := c.Get([]byte(cache.KeyWhiteListRules))
+	data, err := store.Get(cache.KeyWhiteListRules)
 	if err == nil {
 		var rules []*whiteListRule
 		if err := json.Unmarshal(data, &rules); err == nil {
@@ -57,7 +57,7 @@ func (s *IpWhiteListService) getRules() ([]*whiteListRule, error) {
 
 	data, err = json.Marshal(rules)
 	if err == nil {
-		c.Set([]byte(cache.KeyWhiteListRules), data, 3600)
+		store.Set(cache.KeyWhiteListRules, data, 3600)
 	}
 
 	return rules, nil

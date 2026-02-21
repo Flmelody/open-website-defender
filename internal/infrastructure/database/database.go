@@ -122,6 +122,7 @@ func InitDB() error {
 		&entity.IpWhiteList{},
 		&entity.IpBlackList{},
 		&entity.WafRule{},
+		&entity.WafExclusion{},
 		&entity.AccessLog{},
 		&entity.GeoBlockRule{},
 		&entity.License{},
@@ -131,6 +132,8 @@ func InitDB() error {
 		&entity.OAuthAuthorizationCode{},
 		&entity.OAuthRefreshToken{},
 		&entity.SecurityEvent{},
+		&entity.CacheVersion{},
+		&entity.BotSignature{},
 	)
 	if err != nil {
 		return err
@@ -149,6 +152,11 @@ func InitDB() error {
 	err = initDefaultSystem()
 	if err != nil {
 		logging.Sugar.Warnf("Failed to initialize default system settings: %v", err)
+	}
+
+	err = initDefaultBotSignatures()
+	if err != nil {
+		logging.Sugar.Warnf("Failed to initialize default bot signatures: %v", err)
 	}
 
 	return nil
@@ -328,5 +336,79 @@ func initDefaultWafRules() error {
 	}
 
 	logging.Sugar.Infof("Created %d default WAF rules", len(defaultRules))
+	return nil
+}
+
+func initDefaultBotSignatures() error {
+	var count int64
+	if err := DB.Model(&entity.BotSignature{}).Count(&count).Error; err != nil {
+		return err
+	}
+
+	if count > 0 {
+		logging.Sugar.Info("Bot signatures already exist, skipping default creation")
+		return nil
+	}
+
+	defaultSignatures := []entity.BotSignature{
+		// Search engine bots (allow)
+		{
+			Name:        "Googlebot",
+			Pattern:     `(?i)googlebot`,
+			MatchTarget: "ua",
+			Category:    "search_engine",
+			Action:      "allow",
+			Enabled:     boolPtr(true),
+		},
+		{
+			Name:        "Bingbot",
+			Pattern:     `(?i)bingbot`,
+			MatchTarget: "ua",
+			Category:    "search_engine",
+			Action:      "allow",
+			Enabled:     boolPtr(true),
+		},
+		{
+			Name:        "Baiduspider",
+			Pattern:     `(?i)baiduspider`,
+			MatchTarget: "ua",
+			Category:    "search_engine",
+			Action:      "allow",
+			Enabled:     boolPtr(true),
+		},
+		// Malicious scanners (block)
+		{
+			Name:        "SQLMap Scanner",
+			Pattern:     `(?i)sqlmap`,
+			MatchTarget: "ua",
+			Category:    "malicious",
+			Action:      "block",
+			Enabled:     boolPtr(true),
+		},
+		{
+			Name:        "Nikto Scanner",
+			Pattern:     `(?i)nikto`,
+			MatchTarget: "ua",
+			Category:    "malicious",
+			Action:      "block",
+			Enabled:     boolPtr(true),
+		},
+		{
+			Name:        "DirBuster Scanner",
+			Pattern:     `(?i)dirbuster`,
+			MatchTarget: "ua",
+			Category:    "malicious",
+			Action:      "block",
+			Enabled:     boolPtr(true),
+		},
+	}
+
+	for i := range defaultSignatures {
+		if err := DB.Create(&defaultSignatures[i]).Error; err != nil {
+			logging.Sugar.Warnf("Failed to create default bot signature '%s': %v", defaultSignatures[i].Name, err)
+		}
+	}
+
+	logging.Sugar.Infof("Created %d default bot signatures", len(defaultSignatures))
 	return nil
 }

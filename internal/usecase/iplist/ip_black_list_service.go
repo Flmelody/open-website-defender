@@ -60,9 +60,9 @@ type blacklistRule struct {
 }
 
 func (s *IpBlackListService) getRules() ([]blacklistRule, error) {
-	c := pkg.Cacher()
+	store := cache.Store()
 
-	data, err := c.Get([]byte(cache.KeyBlackListRules))
+	data, err := store.Get(cache.KeyBlackListRules)
 	if err == nil {
 		var rules []blacklistRule
 		if err := json.Unmarshal(data, &rules); err == nil {
@@ -85,7 +85,7 @@ func (s *IpBlackListService) getRules() ([]blacklistRule, error) {
 
 	data, err = json.Marshal(rules)
 	if err == nil {
-		c.Set([]byte(cache.KeyBlackListRules), data, 3600)
+		store.Set(cache.KeyBlackListRules, data, 3600)
 	}
 
 	return rules, nil

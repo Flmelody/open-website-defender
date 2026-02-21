@@ -122,6 +122,13 @@ func BotManagement() gin.HandlerFunc {
 			return
 		}
 
+		// Block blacklisted IPs immediately
+		if bl, _ := iplist.GetIpBlackListService().FindByIP(c.ClientIP()); bl != nil {
+			response.Forbidden(c, "access denied")
+			c.Abort()
+			return
+		}
+
 		// Skip whitelisted IPs
 		if wl, _ := iplist.GetIpWhiteListService().FindByIP(c.ClientIP()); wl != nil {
 			c.Next()

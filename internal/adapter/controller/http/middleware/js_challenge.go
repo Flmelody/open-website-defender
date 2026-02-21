@@ -222,12 +222,22 @@ func generateNonce() string {
 }
 
 func challengeHTML(nonce, signature string, difficulty int) string {
+	rootPath := viper.GetString("ROOT_PATH")
+	if rootPath == "" {
+		rootPath = "/wall"
+	}
+	adminPath := viper.GetString("ADMIN_PATH")
+	if adminPath == "" {
+		adminPath = "/admin"
+	}
+
 	prefix := strings.Repeat("0", difficulty)
 	var buf bytes.Buffer
 	_ = challengeTemplate.Execute(&buf, map[string]string{
-		"Nonce":     nonce,
-		"Signature": signature,
-		"Prefix":    prefix,
+		"Nonce":      nonce,
+		"Signature":  signature,
+		"Prefix":     prefix,
+		"FaviconURL": fmt.Sprintf("%s%s/favicon.ico", rootPath, adminPath),
 	})
 	return buf.String()
 }

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Security Check — Defender</title>
+    <link rel="icon" href="{{.FaviconURL}}" type="image/x-icon">
     {{if eq .Provider "turnstile"}}
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     {{end}}
@@ -284,13 +285,9 @@
     {{else if eq .Provider "turnstile"}}
     <form method="POST" action="{{.VerifyAction}}" id="turnstile-form">
         <div class="cf-turnstile" data-sitekey="{{.SiteKey}}" data-theme="dark" data-callback="onTurnstileSuccess"></div>
-        <div class="turnstile-status" id="turnstile-status"></div>
     </form>
     <script>
         function onTurnstileSuccess() {
-            var s = document.getElementById('turnstile-status');
-            s.textContent = 'Verified. Redirecting...';
-            s.style.color = '#0f0';
             document.getElementById('turnstile-form').submit();
         }
     </script>

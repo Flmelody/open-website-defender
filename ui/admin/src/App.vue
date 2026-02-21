@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { computed } from 'vue'
-import { RouterView } from 'vue-router'
-import { ElConfigProvider } from 'element-plus'
+import { computed } from "vue";
+import { RouterView } from "vue-router";
+import { ElConfigProvider } from "element-plus";
 // @ts-ignore
-import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
+import zhCn from "element-plus/dist/locale/zh-cn.mjs";
 // @ts-ignore
-import en from 'element-plus/dist/locale/en.mjs'
+import en from "element-plus/dist/locale/en.mjs";
 // @ts-ignore
-import de from 'element-plus/dist/locale/de.mjs'
+import de from "element-plus/dist/locale/de.mjs";
 // @ts-ignore
-import fr from 'element-plus/dist/locale/fr.mjs'
+import fr from "element-plus/dist/locale/fr.mjs";
 // @ts-ignore
-import ja from 'element-plus/dist/locale/ja.mjs'
+import ja from "element-plus/dist/locale/ja.mjs";
 // @ts-ignore
-import ru from 'element-plus/dist/locale/ru.mjs'
-import { useI18n } from 'vue-i18n'
+import ru from "element-plus/dist/locale/ru.mjs";
+import { useI18n } from "vue-i18n";
 
-const { locale } = useI18n()
+const { locale } = useI18n();
 
 const localeMap: Record<string, any> = {
   zh: zhCn,
@@ -24,12 +24,12 @@ const localeMap: Record<string, any> = {
   de: de,
   fr: fr,
   ja: ja,
-  ru: ru
-}
+  ru: ru,
+};
 
 const elLocale = computed(() => {
-  return localeMap[locale.value] || en
-})
+  return localeMap[locale.value] || en;
+});
 </script>
 
 <template>

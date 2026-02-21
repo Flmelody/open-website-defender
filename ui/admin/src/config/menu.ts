@@ -1,71 +1,100 @@
-import { DataBoard, Moon, Sunny, User, Lock, Document, Location, Key, Setting, Link, Connection, Warning } from '@element-plus/icons-vue'
-import type { Component } from 'vue'
+import {
+  Aim,
+  Connection,
+  DataBoard,
+  Document,
+  Key,
+  Link,
+  Location,
+  Lock,
+  Monitor,
+  Moon,
+  Setting,
+  Stamp,
+  Sunny,
+  User,
+  Warning,
+} from "@element-plus/icons-vue";
+import type { Component } from "vue";
 
 export interface MenuItem {
-  index: string
-  icon: Component
-  label: string
+  index: string;
+  icon: Component;
+  label: string;
+  children?: MenuItem[];
+  requireMode?: string;
 }
 
 export const menuItems: MenuItem[] = [
   {
-    index: '/dashboard',
+    index: "/dashboard",
     icon: DataBoard,
-    label: 'menu.dashboard'
+    label: "menu.dashboard",
   },
   {
-    index: '/waf-rules',
+    index: "/waf-rules",
     icon: Lock,
-    label: 'menu.waf_rules'
+    label: "menu.waf_rules",
   },
   {
-    index: '/access-logs',
+    index: "/access-logs",
     icon: Document,
-    label: 'menu.access_logs'
+    label: "menu.access_logs",
   },
   {
-    index: '/ip-white-list',
+    index: "/ip-white-list",
     icon: Sunny,
-    label: 'menu.ip_white_list'
+    label: "menu.ip_white_list",
   },
   {
-    index: '/ip-black-list',
+    index: "/ip-black-list",
     icon: Moon,
-    label: 'menu.ip_black_list'
+    label: "menu.ip_black_list",
   },
   {
-    index: '/security-events',
+    index: "/security-events",
     icon: Warning,
-    label: 'menu.security_events'
+    label: "menu.security_events",
   },
   {
-    index: '/geo-block',
+    index: "/geo-block",
     icon: Location,
-    label: 'menu.geo_block'
+    label: "menu.geo_block",
   },
   {
-    index: '/authorized-domains',
-    icon: Link,
-    label: 'menu.authorized_domains'
+    index: "/security-policies",
+    icon: Aim,
+    label: "menu.security_policies",
+    children: [
+      { index: "/bot-management", icon: Monitor, label: "menu.bot_management" },
+    ],
   },
   {
-    index: '/licenses',
-    icon: Key,
-    label: 'menu.licenses'
+    index: "/access-control",
+    icon: Stamp,
+    label: "menu.access_control",
+    children: [
+      {
+        index: "/authorized-domains",
+        icon: Link,
+        label: "menu.authorized_domains",
+      },
+      { index: "/licenses", icon: Key, label: "menu.licenses" },
+      {
+        index: "/oauth-clients",
+        icon: Connection,
+        label: "menu.oauth_clients",
+      },
+    ],
   },
   {
-    index: '/oauth-clients',
-    icon: Connection,
-    label: 'menu.oauth_clients'
-  },
-  {
-    index: '/users',
+    index: "/users",
     icon: User,
-    label: 'menu.users_db'
+    label: "menu.users_db",
   },
   {
-    index: '/system-settings',
+    index: "/system-settings",
     icon: Setting,
-    label: 'menu.system_settings'
-  }
-]
+    label: "menu.system_settings",
+  },
+];

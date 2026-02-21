@@ -7,16 +7,20 @@
           <span class="command blink-cursor">./list_users.sh</span>
         </div>
         <div class="header-right">
-          <el-button type="primary" size="small" @click="handleAdd">{{ t('user.new_user') }}</el-button>
-          <el-button size="small" @click="fetchData">{{ t('common.refresh') }}</el-button>
+          <el-button type="primary" size="small" @click="handleAdd">{{
+            t("user.new_user")
+          }}</el-button>
+          <el-button size="small" @click="fetchData">{{
+            t("common.refresh")
+          }}</el-button>
         </div>
       </div>
 
       <div class="data-grid">
-        <el-table 
-          :data="tableData" 
-          v-loading="loading" 
-          style="width: 100%" 
+        <el-table
+          :data="tableData"
+          v-loading="loading"
+          style="width: 100%"
           class="hacker-table"
         >
           <el-table-column prop="id" label="ID" width="80">
@@ -27,29 +31,65 @@
           <el-table-column prop="username" :label="t('user.username')">
             <template #default="scope">
               <span class="bright-text">{{ scope.row.username }}</span>
-              <el-tag v-if="scope.row.is_admin" size="small" type="success" class="admin-tag">ADMIN</el-tag>
-              <el-tag v-if="scope.row.totp_enabled" size="small" type="warning" class="admin-tag">2FA</el-tag>
+              <el-tag
+                v-if="scope.row.is_admin"
+                size="small"
+                type="success"
+                class="admin-tag"
+                >ADMIN</el-tag
+              >
+              <el-tag
+                v-if="scope.row.totp_enabled"
+                size="small"
+                type="warning"
+                class="admin-tag"
+                >2FA</el-tag
+              >
             </template>
           </el-table-column>
-          <el-table-column prop="email" :label="t('user.email')" show-overflow-tooltip>
+          <el-table-column
+            prop="email"
+            :label="t('user.email')"
+            show-overflow-tooltip
+          >
             <template #default="scope">
-              <span v-if="scope.row.email" class="dim-text">{{ scope.row.email }}</span>
-              <span v-else class="null-value">{{ t('user.undefined') }}</span>
+              <span v-if="scope.row.email" class="dim-text">{{
+                scope.row.email
+              }}</span>
+              <span v-else class="null-value">{{ t("user.undefined") }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="git_token" :label="t('user.git_token')" show-overflow-tooltip>
+          <el-table-column
+            prop="git_token"
+            :label="t('user.git_token')"
+            show-overflow-tooltip
+          >
             <template #default="scope">
-              <span v-if="scope.row.git_token" class="token-mask">****************</span>
-              <span v-else class="null-value">{{ t('user.undefined') }}</span>
+              <span v-if="scope.row.git_token" class="token-mask"
+                >****************</span
+              >
+              <span v-else class="null-value">{{ t("user.undefined") }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="scopes" :label="t('user.authorized_domains')" show-overflow-tooltip>
+          <el-table-column
+            prop="scopes"
+            :label="t('user.authorized_domains')"
+            show-overflow-tooltip
+          >
             <template #default="scope">
-              <span v-if="scope.row.scopes" class="bright-text">{{ scope.row.scopes }}</span>
-              <span v-else class="null-value">{{ t('user.unrestricted') }}</span>
+              <span v-if="scope.row.scopes" class="bright-text">{{
+                scope.row.scopes
+              }}</span>
+              <span v-else class="null-value">{{
+                t("user.unrestricted")
+              }}</span>
             </template>
           </el-table-column>
-          <el-table-column :label="t('user.enabled')" width="100" align="center">
+          <el-table-column
+            :label="t('user.enabled')"
+            width="100"
+            align="center"
+          >
             <template #default="scope">
               <el-switch
                 v-model="scope.row.enabled"
@@ -59,7 +99,11 @@
               />
             </template>
           </el-table-column>
-          <el-table-column :label="t('common.actions')" width="340" align="right">
+          <el-table-column
+            :label="t('common.actions')"
+            width="340"
+            align="right"
+          >
             <template #default="scope">
               <div class="ops-cell">
                 <el-button
@@ -69,7 +113,7 @@
                   @click="handleEdit(scope.row)"
                   class="action-link"
                 >
-                  {{ t('common.edit') }}
+                  {{ t("common.edit") }}
                 </el-button>
                 <el-button
                   type="warning"
@@ -78,7 +122,7 @@
                   @click="handleViewAuthorizations(scope.row)"
                   class="action-link oauth-btn"
                 >
-                  {{ t('user.oauth_authorizations') }}
+                  {{ t("user.oauth_authorizations") }}
                 </el-button>
                 <el-button
                   v-if="scope.row.totp_enabled"
@@ -88,7 +132,7 @@
                   @click="handleReset2FA(scope.row)"
                   class="action-link delete"
                 >
-                  {{ t('user.reset_2fa') }}
+                  {{ t("user.reset_2fa") }}
                 </el-button>
                 <el-button
                   v-else
@@ -98,7 +142,7 @@
                   @click="handleSetup2FA(scope.row)"
                   class="action-link totp-btn"
                 >
-                  {{ t('user.setup_2fa') }}
+                  {{ t("user.setup_2fa") }}
                 </el-button>
                 <el-button
                   type="danger"
@@ -108,7 +152,7 @@
                   @click="handleDelete(scope.row)"
                   class="action-link delete"
                 >
-                  {{ t('common.delete') }}
+                  {{ t("common.delete") }}
                 </el-button>
               </div>
             </template>
@@ -117,7 +161,9 @@
       </div>
 
       <div class="card-footer no-select">
-        <span class="status-text">{{ t('common.total_records', {total: total}) }}</span>
+        <span class="status-text">{{
+          t("common.total_records", { total: total })
+        }}</span>
         <el-pagination
           v-model:current-page="queryParams.page"
           v-model:page-size="queryParams.size"
@@ -155,29 +201,56 @@
               show-password
               :placeholder="form.id ? t('user.unchanged') : '_'"
             />
-            <el-button type="primary" size="default" @click="generatePassword" class="generate-btn">
-              {{ t('user.generate') }}
+            <el-button
+              type="primary"
+              size="default"
+              @click="generatePassword"
+              class="generate-btn"
+            >
+              {{ t("user.generate") }}
             </el-button>
-            <el-button size="default" @click="copyPassword" :disabled="!form.password" class="copy-pwd-btn">
+            <el-button
+              size="default"
+              @click="copyPassword"
+              :disabled="!form.password"
+              class="copy-pwd-btn"
+            >
               <el-icon><CopyDocument /></el-icon>
             </el-button>
           </div>
         </el-form-item>
         <el-form-item :label="'> ' + t('user.email')" prop="email">
-          <el-input v-model="form.email" :placeholder="t('user.email_placeholder')" />
+          <el-input
+            v-model="form.email"
+            :placeholder="t('user.email_placeholder')"
+          />
         </el-form-item>
         <el-form-item :label="'> ' + t('user.git_token')" prop="git_token">
           <div class="git-token-row">
-            <el-input v-model="form.git_token" type="password" show-password placeholder="_" />
-            <el-button type="primary" size="default" @click="generateGitToken" class="generate-btn">
-              {{ t('user.generate') }}
+            <el-input
+              v-model="form.git_token"
+              type="password"
+              show-password
+              placeholder="_"
+            />
+            <el-button
+              type="primary"
+              size="default"
+              @click="generateGitToken"
+              class="generate-btn"
+            >
+              {{ t("user.generate") }}
             </el-button>
           </div>
         </el-form-item>
         <el-form-item prop="is_admin">
           <el-checkbox v-model="form.is_admin" :label="t('user.is_admin')" />
         </el-form-item>
-        <el-form-item v-show="!form.is_admin" :label="'> ' + t('user.authorized_domains')" prop="scopes">
+        <el-form-item
+          v-show="!form.is_admin"
+          :label="'> ' + t('user.authorized_domains')"
+          prop="scopes"
+        >
           <el-select
             v-model="scopesArray"
             multiple
@@ -187,16 +260,27 @@
             :placeholder="t('user.authorized_domains_placeholder')"
             style="width: 100%"
           >
-            <el-option v-for="d in domainOptions" :key="d" :label="d" :value="d" />
+            <el-option
+              v-for="d in domainOptions"
+              :key="d"
+              :label="d"
+              :value="d"
+            />
           </el-select>
-          <div class="scope-hint">{{ t('user.authorized_domains_hint') }}</div>
+          <div class="scope-hint">{{ t("user.authorized_domains_hint") }}</div>
         </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="dialogVisible = false">{{ t('common.cancel') }}</el-button>
-          <el-button type="primary" :loading="formLoading" @click="handleSubmit">
-            {{ t('common.confirm') }}
+          <el-button @click="dialogVisible = false">{{
+            t("common.cancel")
+          }}</el-button>
+          <el-button
+            type="primary"
+            :loading="formLoading"
+            @click="handleSubmit"
+          >
+            {{ t("common.confirm") }}
           </el-button>
         </div>
       </template>
@@ -213,20 +297,29 @@
       <div class="token-result">
         <div class="token-warning">
           <el-icon class="warning-icon"><WarningFilled /></el-icon>
-          <span>{{ t('user.token_warning') }}</span>
+          <span>{{ t("user.token_warning") }}</span>
         </div>
         <div class="token-display">
           <code class="token-value">{{ generatedToken }}</code>
-          <el-button type="primary" size="small" class="copy-btn" @click="copyToken">
+          <el-button
+            type="primary"
+            size="small"
+            class="copy-btn"
+            @click="copyToken"
+          >
             <el-icon><CopyDocument /></el-icon>
-            {{ t('user.copy') }}
+            {{ t("user.copy") }}
           </el-button>
         </div>
-        <div v-if="copiedVisible" class="copied-hint">{{ t('user.copied') }}</div>
+        <div v-if="copiedVisible" class="copied-hint">
+          {{ t("user.copied") }}
+        </div>
       </div>
       <template #footer>
         <div class="dialog-footer">
-          <el-button type="primary" @click="closeTokenDialog">{{ t('user.understood') }}</el-button>
+          <el-button type="primary" @click="closeTokenDialog">{{
+            t("user.understood")
+          }}</el-button>
         </div>
       </template>
     </el-dialog>
@@ -242,15 +335,24 @@
           <el-icon class="is-loading"><Loading /></el-icon>
         </div>
         <div v-else-if="authorizations.length === 0" class="auth-empty">
-          <span class="dim-text">{{ t('user.no_authorizations') }}</span>
+          <span class="dim-text">{{ t("user.no_authorizations") }}</span>
         </div>
         <div v-else>
-          <div v-for="auth in authorizations" :key="auth.client_id" class="auth-item">
+          <div
+            v-for="auth in authorizations"
+            :key="auth.client_id"
+            class="auth-item"
+          >
             <div class="auth-info">
               <div class="auth-client-name">{{ auth.client_name }}</div>
               <div class="auth-meta">
-                <span class="dim-text">{{ t('user.auth_scope') }}: {{ auth.scope }}</span>
-                <span class="dim-text"> | {{ t('user.auth_since') }}: {{ formatTime(auth.authorized_at) }}</span>
+                <span class="dim-text"
+                  >{{ t("user.auth_scope") }}: {{ auth.scope }}</span
+                >
+                <span class="dim-text">
+                  | {{ t("user.auth_since") }}:
+                  {{ formatTime(auth.authorized_at) }}</span
+                >
               </div>
             </div>
             <el-button
@@ -258,7 +360,7 @@
               size="small"
               @click="handleRevokeAuthorization(auth)"
             >
-              {{ t('user.auth_revoke') }}
+              {{ t("user.auth_revoke") }}
             </el-button>
           </div>
         </div>
@@ -274,22 +376,29 @@
     >
       <div class="totp-setup">
         <div v-if="totpSetupData">
-          <p class="totp-instruction">{{ t('user.scan_qr') }}</p>
+          <p class="totp-instruction">{{ t("user.scan_qr") }}</p>
           <div class="totp-qr-wrapper">
             <img :src="totpSetupData.qr_code" alt="QR Code" class="totp-qr" />
           </div>
           <div class="totp-manual-key">
-            <span class="totp-key-label">{{ t('user.manual_key') }}</span>
+            <span class="totp-key-label">{{ t("user.manual_key") }}</span>
             <div class="totp-key-row">
               <code class="totp-key-value">{{ totpSetupData.secret }}</code>
-              <el-button type="primary" size="small" class="totp-copy-btn" @click="copyManualKey">
+              <el-button
+                type="primary"
+                size="small"
+                class="totp-copy-btn"
+                @click="copyManualKey"
+              >
                 <el-icon><CopyDocument /></el-icon>
               </el-button>
             </div>
           </div>
           <div class="totp-verify-section">
             <div class="totp-verify-row">
-              <span class="totp-verify-label">{{ t('user.verify_code') }}:</span>
+              <span class="totp-verify-label"
+                >{{ t("user.verify_code") }}:</span
+              >
               <el-input
                 v-model="totpVerifyCode"
                 maxlength="6"
@@ -305,14 +414,16 @@
       </div>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="totpDialogVisible = false">{{ t('common.cancel') }}</el-button>
+          <el-button @click="totpDialogVisible = false">{{
+            t("common.cancel")
+          }}</el-button>
           <el-button
             type="primary"
             :loading="totpConfirmLoading"
             @click="handleConfirm2FA"
             :disabled="totpVerifyCode.length !== 6"
           >
-            {{ t('user.enable_2fa') }}
+            {{ t("user.enable_2fa") }}
           </el-button>
         </div>
       </template>
@@ -321,429 +432,461 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed, watch } from 'vue'
-import request from '@/utils/request'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { CopyDocument, WarningFilled, Loading } from '@element-plus/icons-vue'
-import { useI18n } from 'vue-i18n'
+import { ref, onMounted, reactive, computed, watch } from "vue";
+import request from "@/utils/request";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { CopyDocument, WarningFilled, Loading } from "@element-plus/icons-vue";
+import { useI18n } from "vue-i18n";
 
 interface User {
-  id: number
-  username: string
-  email?: string
-  git_token?: string
-  is_admin?: boolean
-  enabled?: boolean
-  scopes?: string
-  totp_enabled?: boolean
+  id: number;
+  username: string;
+  email?: string;
+  git_token?: string;
+  is_admin?: boolean;
+  enabled?: boolean;
+  scopes?: string;
+  totp_enabled?: boolean;
 }
 
-const { t } = useI18n()
-const tableData = ref<User[]>([])
-const total = ref(0)
-const loading = ref(false)
+const { t } = useI18n();
+const tableData = ref<User[]>([]);
+const total = ref(0);
+const loading = ref(false);
 const queryParams = reactive({
   page: 1,
-  size: 10
-})
+  size: 10,
+});
 
-const dialogVisible = ref(false)
-const dialogTitle = ref('')
-const formRef = ref()
-const formLoading = ref(false)
-const isEditMode = ref(false)
+const dialogVisible = ref(false);
+const dialogTitle = ref("");
+const formRef = ref();
+const formLoading = ref(false);
+const isEditMode = ref(false);
 
-const domainOptions = ref<string[]>([])
-const scopesArray = ref<string[]>([])
-const tokenDialogVisible = ref(false)
-const generatedToken = ref('')
-const copiedVisible = ref(false)
-const pendingToken = ref('')
+const domainOptions = ref<string[]>([]);
+const scopesArray = ref<string[]>([]);
+const tokenDialogVisible = ref(false);
+const generatedToken = ref("");
+const copiedVisible = ref(false);
+const pendingToken = ref("");
 
 const form = reactive({
   id: 0,
-  username: '',
-  password: '',
-  email: '',
-  git_token: '',
+  username: "",
+  password: "",
+  email: "",
+  git_token: "",
   is_admin: false,
   enabled: true,
-  scopes: ''
-})
+  scopes: "",
+});
 
-watch(() => form.is_admin, (val) => {
-  if (val) {
-    form.scopes = ''
-    scopesArray.value = []
-  }
-})
+watch(
+  () => form.is_admin,
+  (val) => {
+    if (val) {
+      form.scopes = "";
+      scopesArray.value = [];
+    }
+  },
+);
 
 watch(scopesArray, (val) => {
-  form.scopes = val.join(', ')
-})
+  form.scopes = val.join(", ");
+});
 
-const domainPattern = /^(\*\.)?([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/
+const domainPattern =
+  /^(\*\.)?([a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 
-const scopesValidator = (_rule: any, _value: string, callback: (err?: Error) => void) => {
+const scopesValidator = (
+  _rule: any,
+  _value: string,
+  callback: (err?: Error) => void,
+) => {
   for (const item of scopesArray.value) {
     if (item && !domainPattern.test(item)) {
-      callback(new Error(t('user.authorized_domains_invalid')))
-      return
+      callback(new Error(t("user.authorized_domains_invalid")));
+      return;
     }
   }
-  callback()
-}
+  callback();
+};
 
 const rules = computed(() => ({
-  username: [{ required: true, message: t('login.required'), trigger: 'blur' }],
-  password: [{ required: !isEditMode.value, message: t('login.required'), trigger: 'blur' }],
-  scopes: [{ validator: scopesValidator, trigger: ['blur', 'change'] }]
-}))
+  username: [{ required: true, message: t("login.required"), trigger: "blur" }],
+  password: [
+    {
+      required: !isEditMode.value,
+      message: t("login.required"),
+      trigger: "blur",
+    },
+  ],
+  scopes: [{ validator: scopesValidator, trigger: ["blur", "change"] }],
+}));
 
 const fetchDomainOptions = async () => {
   try {
-    const res: any = await request.get('/authorized-domains', { params: { all: 'true' } })
-    domainOptions.value = (res || []).map((d: any) => d.name)
+    const res: any = await request.get("/authorized-domains", {
+      params: { all: "true" },
+    });
+    domainOptions.value = (res || []).map((d: any) => d.name);
   } catch {
     // handled
   }
-}
+};
 
 const fetchData = async () => {
-  loading.value = true
+  loading.value = true;
   try {
-    const res: any = await request.get('/users', { params: queryParams })
-    tableData.value = res.list || []
-    total.value = res.total || 0
+    const res: any = await request.get("/users", { params: queryParams });
+    tableData.value = res.list || [];
+    total.value = res.total || 0;
   } catch (error) {
     // handled
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const handleAdd = () => {
-  dialogTitle.value = t('user.title_create')
-  form.id = 0
-  form.username = ''
-  form.password = ''
-  form.email = ''
-  form.git_token = ''
-  form.is_admin = false
-  form.enabled = true
-  form.scopes = ''
-  scopesArray.value = []
-  isEditMode.value = false
-  pendingToken.value = ''
-  dialogVisible.value = true
-}
+  dialogTitle.value = t("user.title_create");
+  form.id = 0;
+  form.username = "";
+  form.password = "";
+  form.email = "";
+  form.git_token = "";
+  form.is_admin = false;
+  form.enabled = true;
+  form.scopes = "";
+  scopesArray.value = [];
+  isEditMode.value = false;
+  pendingToken.value = "";
+  dialogVisible.value = true;
+};
 
 const handleEdit = (row: User) => {
-  dialogTitle.value = t('user.title_edit')
-  form.id = row.id
-  form.username = row.username
-  form.password = ''
-  form.email = row.email || ''
-  form.git_token = ''
-  form.is_admin = row.is_admin || false
-  form.enabled = row.enabled !== false
-  form.scopes = row.scopes || ''
-  scopesArray.value = row.scopes ? row.scopes.split(',').map((s: string) => s.trim()).filter(Boolean) : []
-  isEditMode.value = true
-  pendingToken.value = ''
-  dialogVisible.value = true
-}
+  dialogTitle.value = t("user.title_edit");
+  form.id = row.id;
+  form.username = row.username;
+  form.password = "";
+  form.email = row.email || "";
+  form.git_token = "";
+  form.is_admin = row.is_admin || false;
+  form.enabled = row.enabled !== false;
+  form.scopes = row.scopes || "";
+  scopesArray.value = row.scopes
+    ? row.scopes
+        .split(",")
+        .map((s: string) => s.trim())
+        .filter(Boolean)
+    : [];
+  isEditMode.value = true;
+  pendingToken.value = "";
+  dialogVisible.value = true;
+};
 
 const handleToggleEnabled = async (row: User, val: boolean) => {
   try {
-    await request.put(`/users/${row.id}`, { enabled: val })
-    ElMessage.success(t('common.updated'))
+    await request.put(`/users/${row.id}`, { enabled: val });
+    ElMessage.success(t("common.updated"));
   } catch {
-    row.enabled = !val
+    row.enabled = !val;
   }
-}
+};
 
 const handleDelete = (row: User) => {
   ElMessageBox.confirm(
-    t('user.delete_confirm', { name: row.username }),
-    t('common.warning'),
+    t("user.delete_confirm", { name: row.username }),
+    t("common.warning"),
     {
-      confirmButtonText: t('common.delete'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning',
-    }
+      confirmButtonText: t("common.delete"),
+      cancelButtonText: t("common.cancel"),
+      type: "warning",
+    },
   ).then(async () => {
     try {
-      await request.delete(`/users/${row.id}`)
-      ElMessage.success(t('common.deleted'))
-      fetchData()
+      await request.delete(`/users/${row.id}`);
+      ElMessage.success(t("common.deleted"));
+      fetchData();
     } catch (error) {
       // handled
     }
-  })
-}
+  });
+};
 
 const handleSubmit = async () => {
-  if (!formRef.value) return
+  if (!formRef.value) return;
   await formRef.value.validate(async (valid: boolean) => {
     if (valid) {
-      formLoading.value = true
+      formLoading.value = true;
       try {
         if (form.id === 0) {
-          await request.post('/users', form)
-          ElMessage.success(t('common.created'))
+          await request.post("/users", form);
+          ElMessage.success(t("common.created"));
         } else {
-          await request.put(`/users/${form.id}`, form)
-          ElMessage.success(t('common.updated'))
+          await request.put(`/users/${form.id}`, form);
+          ElMessage.success(t("common.updated"));
         }
-        dialogVisible.value = false
-        fetchData()
+        dialogVisible.value = false;
+        fetchData();
         if (pendingToken.value) {
-          generatedToken.value = pendingToken.value
-          copiedVisible.value = false
-          tokenDialogVisible.value = true
-          pendingToken.value = ''
+          generatedToken.value = pendingToken.value;
+          copiedVisible.value = false;
+          tokenDialogVisible.value = true;
+          pendingToken.value = "";
         }
       } catch (error) {
         // handled
       } finally {
-        formLoading.value = false
+        formLoading.value = false;
       }
     }
-  })
-}
+  });
+};
 
 const generateRandomHex = (bytes: number): string => {
-  const arr = new Uint8Array(bytes)
-  crypto.getRandomValues(arr)
-  return Array.from(arr, b => b.toString(16).padStart(2, '0')).join('')
-}
+  const arr = new Uint8Array(bytes);
+  crypto.getRandomValues(arr);
+  return Array.from(arr, (b) => b.toString(16).padStart(2, "0")).join("");
+};
 
 const generatePassword = () => {
-  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ'
-  const lower = 'abcdefghjkmnpqrstuvwxyz'
-  const digits = '23456789'
-  const special = '!@#$%^&*_+-='
-  const all = upper + lower + digits + special
+  const upper = "ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const lower = "abcdefghjkmnpqrstuvwxyz";
+  const digits = "23456789";
+  const special = "!@#$%^&*_+-=";
+  const all = upper + lower + digits + special;
 
-  const pick = (charset: string) => charset[Math.floor(Math.random() * charset.length)]
+  const pick = (charset: string) =>
+    charset[Math.floor(Math.random() * charset.length)];
 
   // Ensure at least 2 of each category
   const required = [
-    pick(upper), pick(upper),
-    pick(lower), pick(lower),
-    pick(digits), pick(digits),
-    pick(special), pick(special),
-  ]
+    pick(upper),
+    pick(upper),
+    pick(lower),
+    pick(lower),
+    pick(digits),
+    pick(digits),
+    pick(special),
+    pick(special),
+  ];
 
   // Fill remaining with random from all
-  const remaining = Array.from({ length: 8 }, () => pick(all))
-  const chars = [...required, ...remaining]
+  const remaining = Array.from({ length: 8 }, () => pick(all));
+  const chars = [...required, ...remaining];
 
   // Shuffle
   for (let i = chars.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [chars[i], chars[j]] = [chars[j], chars[i]]
+    [chars[i], chars[j]] = [chars[j], chars[i]];
   }
 
-  form.password = chars.join('')
-}
+  form.password = chars.join("");
+};
 
 const copyPassword = async () => {
-  if (!form.password) return
+  if (!form.password) return;
   try {
-    await navigator.clipboard.writeText(form.password)
-    ElMessage.success(t('user.copied'))
+    await navigator.clipboard.writeText(form.password);
+    ElMessage.success(t("user.copied"));
   } catch {
-    const textarea = document.createElement('textarea')
-    textarea.value = form.password
-    textarea.style.position = 'fixed'
-    textarea.style.opacity = '0'
-    document.body.appendChild(textarea)
-    textarea.select()
-    document.execCommand('copy')
-    document.body.removeChild(textarea)
-    ElMessage.success(t('user.copied'))
+    const textarea = document.createElement("textarea");
+    textarea.value = form.password;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+    ElMessage.success(t("user.copied"));
   }
-}
+};
 
 const generateGitToken = () => {
-  const token = generateRandomHex(32)
-  form.git_token = token
-  pendingToken.value = token
-}
+  const token = generateRandomHex(32);
+  form.git_token = token;
+  pendingToken.value = token;
+};
 
 const copyToken = async () => {
   try {
-    await navigator.clipboard.writeText(generatedToken.value)
-    copiedVisible.value = true
-    ElMessage.success(t('user.copied'))
+    await navigator.clipboard.writeText(generatedToken.value);
+    copiedVisible.value = true;
+    ElMessage.success(t("user.copied"));
   } catch {
-    const textarea = document.createElement('textarea')
-    textarea.value = generatedToken.value
-    textarea.style.position = 'fixed'
-    textarea.style.opacity = '0'
-    document.body.appendChild(textarea)
-    textarea.select()
-    document.execCommand('copy')
-    document.body.removeChild(textarea)
-    copiedVisible.value = true
-    ElMessage.success(t('user.copied'))
+    const textarea = document.createElement("textarea");
+    textarea.value = generatedToken.value;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+    copiedVisible.value = true;
+    ElMessage.success(t("user.copied"));
   }
-}
+};
 
 const closeTokenDialog = () => {
-  tokenDialogVisible.value = false
-  generatedToken.value = ''
-}
+  tokenDialogVisible.value = false;
+  generatedToken.value = "";
+};
 
 // OAuth Authorizations
 interface OAuthAuthorization {
-  client_id: string
-  client_name: string
-  scope: string
-  authorized_at: string
+  client_id: string;
+  client_name: string;
+  scope: string;
+  authorized_at: string;
 }
 
-const authDialogVisible = ref(false)
-const authDialogTitle = ref('')
-const authLoading = ref(false)
-const authorizations = ref<OAuthAuthorization[]>([])
-const authUserId = ref(0)
+const authDialogVisible = ref(false);
+const authDialogTitle = ref("");
+const authLoading = ref(false);
+const authorizations = ref<OAuthAuthorization[]>([]);
+const authUserId = ref(0);
 
 const formatTime = (isoStr: string) => {
-  return new Date(isoStr).toLocaleString()
-}
+  return new Date(isoStr).toLocaleString();
+};
 
 const handleViewAuthorizations = async (row: User) => {
-  authUserId.value = row.id
-  authDialogTitle.value = `OAUTH > ${row.username}`
-  authDialogVisible.value = true
-  authLoading.value = true
+  authUserId.value = row.id;
+  authDialogTitle.value = `OAUTH > ${row.username}`;
+  authDialogVisible.value = true;
+  authLoading.value = true;
   try {
-    const res: any = await request.get(`/users/${row.id}/oauth-authorizations`)
-    authorizations.value = res || []
+    const res: any = await request.get(`/users/${row.id}/oauth-authorizations`);
+    authorizations.value = res || [];
   } catch {
-    authorizations.value = []
+    authorizations.value = [];
   } finally {
-    authLoading.value = false
+    authLoading.value = false;
   }
-}
+};
 
 const handleRevokeAuthorization = (auth: OAuthAuthorization) => {
   ElMessageBox.confirm(
-    t('user.auth_revoke_confirm', { name: auth.client_name }),
-    t('common.warning'),
+    t("user.auth_revoke_confirm", { name: auth.client_name }),
+    t("common.warning"),
     {
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning',
-    }
+      confirmButtonText: t("common.confirm"),
+      cancelButtonText: t("common.cancel"),
+      type: "warning",
+    },
   ).then(async () => {
     try {
-      await request.delete(`/users/${authUserId.value}/oauth-authorizations/${auth.client_id}`)
-      ElMessage.success(t('user.auth_revoked'))
+      await request.delete(
+        `/users/${authUserId.value}/oauth-authorizations/${auth.client_id}`,
+      );
+      ElMessage.success(t("user.auth_revoked"));
       // Refresh the list
-      const res: any = await request.get(`/users/${authUserId.value}/oauth-authorizations`)
-      authorizations.value = res || []
+      const res: any = await request.get(
+        `/users/${authUserId.value}/oauth-authorizations`,
+      );
+      authorizations.value = res || [];
     } catch {
       // handled
     }
-  })
-}
+  });
+};
 
 // 2FA Management
 interface TotpSetupData {
-  secret: string
-  qr_code: string
+  secret: string;
+  qr_code: string;
 }
 
-const totpDialogVisible = ref(false)
-const totpSetupData = ref<TotpSetupData | null>(null)
-const totpVerifyCode = ref('')
-const totpConfirmLoading = ref(false)
-const totpTargetUserId = ref(0)
+const totpDialogVisible = ref(false);
+const totpSetupData = ref<TotpSetupData | null>(null);
+const totpVerifyCode = ref("");
+const totpConfirmLoading = ref(false);
+const totpTargetUserId = ref(0);
 
 const handleSetup2FA = async (row: User) => {
-  totpTargetUserId.value = row.id
-  totpSetupData.value = null
-  totpVerifyCode.value = ''
-  totpDialogVisible.value = true
+  totpTargetUserId.value = row.id;
+  totpSetupData.value = null;
+  totpVerifyCode.value = "";
+  totpDialogVisible.value = true;
   try {
-    const res: any = await request.post(`/users/${row.id}/totp/setup`)
-    totpSetupData.value = res
+    const res: any = await request.post(`/users/${row.id}/totp/setup`);
+    totpSetupData.value = res;
   } catch {
-    totpDialogVisible.value = false
+    totpDialogVisible.value = false;
   }
-}
+};
 
 const copyManualKey = async () => {
-  if (!totpSetupData.value) return
+  if (!totpSetupData.value) return;
   try {
-    await navigator.clipboard.writeText(totpSetupData.value.secret)
-    ElMessage.success(t('user.copied'))
+    await navigator.clipboard.writeText(totpSetupData.value.secret);
+    ElMessage.success(t("user.copied"));
   } catch {
-    const textarea = document.createElement('textarea')
-    textarea.value = totpSetupData.value.secret
-    textarea.style.position = 'fixed'
-    textarea.style.opacity = '0'
-    document.body.appendChild(textarea)
-    textarea.select()
-    document.execCommand('copy')
-    document.body.removeChild(textarea)
-    ElMessage.success(t('user.copied'))
+    const textarea = document.createElement("textarea");
+    textarea.value = totpSetupData.value.secret;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+    ElMessage.success(t("user.copied"));
   }
-}
+};
 
 const handleConfirm2FA = async () => {
-  if (totpVerifyCode.value.length !== 6) return
-  totpConfirmLoading.value = true
+  if (totpVerifyCode.value.length !== 6) return;
+  totpConfirmLoading.value = true;
   try {
-    await request.post(`/users/${totpTargetUserId.value}/totp/confirm`, { code: totpVerifyCode.value })
-    ElMessage.success(t('user.two_factor_enabled'))
-    totpDialogVisible.value = false
-    fetchData()
+    await request.post(`/users/${totpTargetUserId.value}/totp/confirm`, {
+      code: totpVerifyCode.value,
+    });
+    ElMessage.success(t("user.two_factor_enabled"));
+    totpDialogVisible.value = false;
+    fetchData();
   } catch {
-    totpVerifyCode.value = ''
+    totpVerifyCode.value = "";
   } finally {
-    totpConfirmLoading.value = false
+    totpConfirmLoading.value = false;
   }
-}
+};
 
 const handleReset2FA = (row: User) => {
   ElMessageBox.confirm(
-    t('user.reset_2fa_confirm', { name: row.username }),
-    t('common.warning'),
+    t("user.reset_2fa_confirm", { name: row.username }),
+    t("common.warning"),
     {
-      confirmButtonText: t('common.confirm'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning',
-    }
+      confirmButtonText: t("common.confirm"),
+      cancelButtonText: t("common.cancel"),
+      type: "warning",
+    },
   ).then(async () => {
     try {
-      await request.delete(`/users/${row.id}/totp`)
-      ElMessage.success(t('user.two_factor_disabled'))
-      fetchData()
+      await request.delete(`/users/${row.id}/totp`);
+      ElMessage.success(t("user.two_factor_disabled"));
+      fetchData();
     } catch {
       // handled
     }
-  })
-}
+  });
+};
 
 const handleSizeChange = (val: number) => {
-  queryParams.size = val
-  fetchData()
-}
+  queryParams.size = val;
+  fetchData();
+};
 
 const handleCurrentChange = (val: number) => {
-  queryParams.page = val
-  fetchData()
-}
+  queryParams.page = val;
+  fetchData();
+};
 
 onMounted(() => {
-  fetchData()
-  fetchDomainOptions()
-})
+  fetchData();
+  fetchDomainOptions();
+});
 </script>
 
 <style scoped>
@@ -770,14 +913,14 @@ onMounted(() => {
 }
 
 .header-left {
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: 15px;
   display: flex;
   gap: 10px;
 }
 
 .prefix {
-  color: #0F0;
+  color: #0f0;
   font-weight: bold;
   text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
 }
@@ -787,16 +930,18 @@ onMounted(() => {
 }
 
 .blink-cursor::after {
-  content: '_';
+  content: "_";
   animation: blink 1s step-end infinite;
 }
 
 @keyframes blink {
-  50% { opacity: 0; }
+  50% {
+    opacity: 0;
+  }
 }
 
 .hacker-table {
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
 }
 
 .dim-text {
@@ -845,7 +990,6 @@ onMounted(() => {
   color: rgba(64, 158, 255, 0.9) !important;
 }
 
-
 .card-footer {
   padding: 12px 25px;
   border-top: 1px solid #005000;
@@ -857,20 +1001,20 @@ onMounted(() => {
 }
 
 .status-text {
-  color: #0F0;
+  color: #0f0;
   font-size: 13px;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
 }
 
 .hacker-form :deep(.el-form-item__label) {
-  color: #0F0 !important;
+  color: #0f0 !important;
   font-weight: bold;
   font-size: 14px;
 }
 
 .admin-tag {
   margin-left: 10px;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-weight: bold;
   letter-spacing: 1px;
 }
@@ -902,12 +1046,12 @@ onMounted(() => {
 .copy-pwd-btn {
   background: transparent !important;
   border: 1px solid #005000 !important;
-  color: #0F0 !important;
+  color: #0f0 !important;
 }
 
 .copy-pwd-btn:hover:not(:disabled) {
   background: rgba(0, 60, 0, 0.4) !important;
-  border-color: #0F0 !important;
+  border-color: #0f0 !important;
 }
 
 .copy-pwd-btn:disabled {
@@ -916,7 +1060,7 @@ onMounted(() => {
 
 /* Token result dialog styles */
 .token-result {
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
 }
 
 .token-warning {
@@ -949,7 +1093,7 @@ onMounted(() => {
 
 .token-value {
   flex: 1;
-  color: #0F0;
+  color: #0f0;
   font-size: 13px;
   word-break: break-all;
   line-height: 1.5;
@@ -962,7 +1106,7 @@ onMounted(() => {
 
 .copied-hint {
   margin-top: 10px;
-  color: #0F0;
+  color: #0f0;
   font-size: 12px;
   text-align: right;
 }
@@ -971,18 +1115,18 @@ onMounted(() => {
   color: #8a8;
   font-size: 12px;
   margin-top: 4px;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
 }
 
 /* OAuth Authorization dialog */
 .auth-list {
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
 }
 
 .auth-loading {
   text-align: center;
   padding: 30px;
-  color: #0F0;
+  color: #0f0;
 }
 
 .auth-empty {
@@ -1002,7 +1146,7 @@ onMounted(() => {
 }
 
 .auth-client-name {
-  color: #0F0;
+  color: #0f0;
   font-weight: bold;
   font-size: 15px;
   margin-bottom: 4px;
@@ -1015,7 +1159,7 @@ onMounted(() => {
 
 /* 2FA Setup dialog */
 .totp-setup {
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
 }
 
 .totp-instruction {
@@ -1063,7 +1207,7 @@ onMounted(() => {
 }
 
 .totp-key-value {
-  color: #0F0;
+  color: #0f0;
   font-size: 12px;
   word-break: break-all;
   letter-spacing: 1px;
@@ -1075,13 +1219,13 @@ onMounted(() => {
   flex-shrink: 0;
   background: transparent !important;
   border: 1px solid #005000 !important;
-  color: #0F0 !important;
+  color: #0f0 !important;
   padding: 4px 8px !important;
 }
 
 .totp-copy-btn:hover {
   background: rgba(0, 60, 0, 0.4) !important;
-  border-color: #0F0 !important;
+  border-color: #0f0 !important;
 }
 
 .totp-verify-section {
@@ -1089,7 +1233,7 @@ onMounted(() => {
 }
 
 .totp-verify-label {
-  color: #0F0;
+  color: #0f0;
   font-size: 13px;
   font-weight: bold;
   flex-shrink: 0;
@@ -1106,7 +1250,7 @@ onMounted(() => {
 }
 
 :deep(.totp-verify-input .el-input__inner) {
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: 18px;
   letter-spacing: 6px;
   text-align: center;
@@ -1115,7 +1259,6 @@ onMounted(() => {
 .totp-loading {
   text-align: center;
   padding: 40px;
-  color: #0F0;
+  color: #0f0;
 }
-
 </style>

@@ -7,8 +7,12 @@
           <span class="command blink-cursor">./list_blacklist.sh</span>
         </div>
         <div class="header-right">
-          <el-button type="primary" size="small" @click="handleAdd">{{ t('ip_list.new_ip') }}</el-button>
-          <el-button size="small" @click="fetchData">{{ t('common.refresh') }}</el-button>
+          <el-button type="primary" size="small" @click="handleAdd">{{
+            t("ip_list.new_ip")
+          }}</el-button>
+          <el-button size="small" @click="fetchData">{{
+            t("common.refresh")
+          }}</el-button>
         </div>
       </div>
 
@@ -29,24 +33,46 @@
               <span class="bright-text">{{ scope.row.ip }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="remark" :label="t('ip_list.remark')" min-width="120">
+          <el-table-column
+            prop="remark"
+            :label="t('ip_list.remark')"
+            min-width="120"
+          >
             <template #default="scope">
-              <span v-if="scope.row.remark" class="remark-text">{{ scope.row.remark }}</span>
+              <span v-if="scope.row.remark" class="remark-text">{{
+                scope.row.remark
+              }}</span>
               <span v-else class="dim-text">-</span>
             </template>
           </el-table-column>
-          <el-table-column prop="expires_at" :label="t('ip_list.expires_at')" width="180">
+          <el-table-column
+            prop="expires_at"
+            :label="t('ip_list.expires_at')"
+            width="180"
+          >
             <template #default="scope">
-              <span v-if="scope.row.expires_at" class="expires-text">{{ formatExpiry(scope.row.expires_at) }}</span>
-              <span v-else class="dim-text">{{ t('ip_list.permanent') }}</span>
+              <span v-if="scope.row.expires_at" class="expires-text">{{
+                formatExpiry(scope.row.expires_at)
+              }}</span>
+              <span v-else class="dim-text">{{ t("ip_list.permanent") }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="created_at" :label="t('common.created_at')" width="180">
+          <el-table-column
+            prop="created_at"
+            :label="t('common.created_at')"
+            width="180"
+          >
             <template #default="scope">
-              <span class="dim-text">{{ new Date(scope.row.created_at).toLocaleString() }}</span>
+              <span class="dim-text">{{
+                new Date(scope.row.created_at).toLocaleString()
+              }}</span>
             </template>
           </el-table-column>
-          <el-table-column :label="t('common.actions')" width="120" align="right">
+          <el-table-column
+            :label="t('common.actions')"
+            width="120"
+            align="right"
+          >
             <template #default="scope">
               <div class="ops-cell">
                 <el-button
@@ -56,7 +82,7 @@
                   @click="handleDelete(scope.row)"
                   class="action-link delete"
                 >
-                  {{ t('common.delete') }}
+                  {{ t("common.delete") }}
                 </el-button>
               </div>
             </template>
@@ -65,7 +91,9 @@
       </div>
 
       <div class="card-footer no-select">
-        <span class="status-text">{{ t('common.total_records', {total: total}) }}</span>
+        <span class="status-text">{{
+          t("common.total_records", { total: total })
+        }}</span>
         <el-pagination
           v-model:current-page="queryParams.page"
           v-model:page-size="queryParams.size"
@@ -92,12 +120,26 @@
         label-position="top"
         class="hacker-form"
       >
-        <el-form-item :label="'> ' + t('ip_list.ip_address')" prop="ip">
+        <el-form-item prop="ip">
+          <template #label>
+            <span class="label-with-tip"
+              >> {{ t("ip_list.ip_address") }}
+              <el-tooltip
+                :content="t('ip_list.ip_hint')"
+                placement="top"
+                effect="dark"
+              >
+                <el-icon class="info-icon"><InfoFilled /></el-icon>
+              </el-tooltip>
+            </span>
+          </template>
           <el-input v-model="form.ip" placeholder="192.168.1.1" />
-          <div class="field-hint">{{ t('ip_list.ip_hint') }}</div>
         </el-form-item>
         <el-form-item :label="'> ' + t('ip_list.remark')" prop="remark">
-          <el-input v-model="form.remark" :placeholder="t('ip_list.remark_placeholder')" />
+          <el-input
+            v-model="form.remark"
+            :placeholder="t('ip_list.remark_placeholder')"
+          />
         </el-form-item>
         <el-form-item :label="'> ' + t('ip_list.duration')" prop="duration">
           <el-select v-model="form.duration" style="width: 100%">
@@ -112,9 +154,15 @@
       </el-form>
       <template #footer>
         <div class="dialog-footer">
-          <el-button @click="dialogVisible = false">{{ t('common.cancel') }}</el-button>
-          <el-button type="primary" :loading="formLoading" @click="handleSubmit">
-            {{ t('common.confirm') }}
+          <el-button @click="dialogVisible = false">{{
+            t("common.cancel")
+          }}</el-button>
+          <el-button
+            type="primary"
+            :loading="formLoading"
+            @click="handleSubmit"
+          >
+            {{ t("common.confirm") }}
           </el-button>
         </div>
       </template>
@@ -123,162 +171,169 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, reactive, computed } from 'vue'
-import request from '@/utils/request'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { useI18n } from 'vue-i18n'
+import { ref, onMounted, reactive, computed } from "vue";
+import request from "@/utils/request";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { InfoFilled } from "@element-plus/icons-vue";
+import { useI18n } from "vue-i18n";
 
 interface IpItem {
-  id: number
-  ip: string
-  remark: string
-  expires_at: string | null
-  created_at: string
+  id: number;
+  ip: string;
+  remark: string;
+  expires_at: string | null;
+  created_at: string;
 }
 
-const { t } = useI18n()
-const tableData = ref<IpItem[]>([])
-const total = ref(0)
-const loading = ref(false)
+const { t } = useI18n();
+const tableData = ref<IpItem[]>([]);
+const total = ref(0);
+const loading = ref(false);
 const queryParams = reactive({
   page: 1,
-  size: 10
-})
+  size: 10,
+});
 
-const dialogVisible = ref(false)
-const dialogTitle = ref('')
-const formRef = ref()
-const formLoading = ref(false)
+const dialogVisible = ref(false);
+const dialogTitle = ref("");
+const formRef = ref();
+const formLoading = ref(false);
 
 const form = reactive({
-  ip: '',
-  remark: '',
-  duration: 'permanent'
-})
+  ip: "",
+  remark: "",
+  duration: "permanent",
+});
 
 const durationToMs: Record<string, number> = {
-  '1h': 3600000,
-  '6h': 21600000,
-  '24h': 86400000,
-  '7d': 604800000,
-  '30d': 2592000000
-}
+  "1h": 3600000,
+  "6h": 21600000,
+  "24h": 86400000,
+  "7d": 604800000,
+  "30d": 2592000000,
+};
 
 const formatExpiry = (expiresAt: string) => {
-  const expiry = new Date(expiresAt)
-  const now = new Date()
-  const diff = expiry.getTime() - now.getTime()
-  if (diff <= 0) return t('ip_list.expired')
-  const hours = Math.floor(diff / 3600000)
-  const minutes = Math.floor((diff % 3600000) / 60000)
+  const expiry = new Date(expiresAt);
+  const now = new Date();
+  const diff = expiry.getTime() - now.getTime();
+  if (diff <= 0) return t("ip_list.expired");
+  const hours = Math.floor(diff / 3600000);
+  const minutes = Math.floor((diff % 3600000) / 60000);
   if (hours >= 24) {
-    const days = Math.floor(hours / 24)
-    return `${days}d ${hours % 24}h`
+    const days = Math.floor(hours / 24);
+    return `${days}d ${hours % 24}h`;
   }
-  if (hours > 0) return `${hours}h ${minutes}m`
-  return `${minutes}m`
-}
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+};
 
-const ipValidator = (_rule: any, value: string, callback: (err?: Error) => void) => {
-  if (!value) return callback()
-  const ipv4Seg = '(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)'
-  const wildSeg = `(${ipv4Seg}|\\*)`
-  const ipv4 = `^${ipv4Seg}\\.${ipv4Seg}\\.${ipv4Seg}\\.${ipv4Seg}$`
-  const cidr = `^${ipv4Seg}\\.${ipv4Seg}\\.${ipv4Seg}\\.${ipv4Seg}/(3[0-2]|[12]?\\d)$`
-  const wildcard = `^${wildSeg}\\.${wildSeg}\\.${wildSeg}\\.${wildSeg}$`
-  const pattern = new RegExp(`${ipv4}|${cidr}|${wildcard}`)
+const ipValidator = (
+  _rule: any,
+  value: string,
+  callback: (err?: Error) => void,
+) => {
+  if (!value) return callback();
+  const ipv4Seg = "(25[0-5]|2[0-4]\\d|[01]?\\d\\d?)";
+  const wildSeg = `(${ipv4Seg}|\\*)`;
+  const ipv4 = `^${ipv4Seg}\\.${ipv4Seg}\\.${ipv4Seg}\\.${ipv4Seg}$`;
+  const cidr = `^${ipv4Seg}\\.${ipv4Seg}\\.${ipv4Seg}\\.${ipv4Seg}/(3[0-2]|[12]?\\d)$`;
+  const wildcard = `^${wildSeg}\\.${wildSeg}\\.${wildSeg}\\.${wildSeg}$`;
+  const pattern = new RegExp(`${ipv4}|${cidr}|${wildcard}`);
   if (!pattern.test(value)) {
-    callback(new Error(t('ip_list.ip_invalid')))
+    callback(new Error(t("ip_list.ip_invalid")));
   } else {
-    callback()
+    callback();
   }
-}
+};
 
 const rules = computed(() => ({
   ip: [
-    { required: true, message: t('login.required'), trigger: 'blur' },
-    { validator: ipValidator, trigger: ['blur', 'change'] }
-  ]
-}))
+    { required: true, message: t("login.required"), trigger: "blur" },
+    { validator: ipValidator, trigger: ["blur", "change"] },
+  ],
+}));
 
 const fetchData = async () => {
-  loading.value = true
+  loading.value = true;
   try {
-    const res: any = await request.get('/ip-black-list', { params: queryParams })
-    tableData.value = res.list || []
-    total.value = res.total || 0
+    const res: any = await request.get("/ip-black-list", {
+      params: queryParams,
+    });
+    tableData.value = res.list || [];
+    total.value = res.total || 0;
   } catch (error) {
     // handled
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-}
+};
 
 const handleAdd = () => {
-  dialogTitle.value = t('ip_list.title_create')
-  form.ip = ''
-  form.remark = ''
-  form.duration = 'permanent'
-  dialogVisible.value = true
-}
+  dialogTitle.value = t("ip_list.title_create");
+  form.ip = "";
+  form.remark = "";
+  form.duration = "permanent";
+  dialogVisible.value = true;
+};
 
 const handleDelete = (row: IpItem) => {
   ElMessageBox.confirm(
-    t('ip_list.delete_confirm', { ip: row.ip }),
-    t('common.warning'),
+    t("ip_list.delete_confirm", { ip: row.ip }),
+    t("common.warning"),
     {
-      confirmButtonText: t('common.remove'),
-      cancelButtonText: t('common.cancel'),
-      type: 'warning',
-    }
+      confirmButtonText: t("common.remove"),
+      cancelButtonText: t("common.cancel"),
+      type: "warning",
+    },
   ).then(async () => {
     try {
-      await request.delete(`/ip-black-list/${row.id}`)
-      ElMessage.success(t('common.deleted'))
-      fetchData()
+      await request.delete(`/ip-black-list/${row.id}`);
+      ElMessage.success(t("common.deleted"));
+      fetchData();
     } catch (error) {
       // handled
     }
-  })
-}
+  });
+};
 
 const handleSubmit = async () => {
-  if (!formRef.value) return
+  if (!formRef.value) return;
   await formRef.value.validate(async (valid: boolean) => {
     if (valid) {
-      formLoading.value = true
+      formLoading.value = true;
       try {
-        const payload: any = { ip: form.ip, remark: form.remark }
-        if (form.duration !== 'permanent' && durationToMs[form.duration]) {
-          const expiresAt = new Date(Date.now() + durationToMs[form.duration])
-          payload.expires_at = expiresAt.toISOString()
+        const payload: any = { ip: form.ip, remark: form.remark };
+        if (form.duration !== "permanent" && durationToMs[form.duration]) {
+          const expiresAt = new Date(Date.now() + durationToMs[form.duration]);
+          payload.expires_at = expiresAt.toISOString();
         }
-        await request.post('/ip-black-list', payload)
-        ElMessage.success(t('common.added'))
-        dialogVisible.value = false
-        fetchData()
+        await request.post("/ip-black-list", payload);
+        ElMessage.success(t("common.added"));
+        dialogVisible.value = false;
+        fetchData();
       } catch (error) {
         // handled
       } finally {
-        formLoading.value = false
+        formLoading.value = false;
       }
     }
-  })
-}
+  });
+};
 
 const handleSizeChange = (val: number) => {
-  queryParams.size = val
-  fetchData()
-}
+  queryParams.size = val;
+  fetchData();
+};
 
 const handleCurrentChange = (val: number) => {
-  queryParams.page = val
-  fetchData()
-}
+  queryParams.page = val;
+  fetchData();
+};
 
 onMounted(() => {
-  fetchData()
-})
+  fetchData();
+});
 </script>
 
 <style scoped>
@@ -305,14 +360,14 @@ onMounted(() => {
 }
 
 .header-left {
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: 15px;
   display: flex;
   gap: 10px;
 }
 
 .prefix {
-  color: #0F0;
+  color: #0f0;
   font-weight: bold;
   text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
 }
@@ -322,16 +377,18 @@ onMounted(() => {
 }
 
 .blink-cursor::after {
-  content: '_';
+  content: "_";
   animation: blink 1s step-end infinite;
 }
 
 @keyframes blink {
-  50% { opacity: 0; }
+  50% {
+    opacity: 0;
+  }
 }
 
 .hacker-table {
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
 }
 
 .dim-text {
@@ -351,7 +408,7 @@ onMounted(() => {
 
 .expires-text {
   color: #f80;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: 13px;
 }
 
@@ -371,13 +428,13 @@ onMounted(() => {
 }
 
 .status-text {
-  color: #0F0;
+  color: #0f0;
   font-size: 13px;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
 }
 
 .hacker-form :deep(.el-form-item__label) {
-  color: #0F0 !important;
+  color: #0f0 !important;
   font-weight: bold;
   font-size: 14px;
 }
@@ -387,12 +444,5 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
-}
-
-.field-hint {
-  color: #8a8;
-  font-size: 12px;
-  margin-top: 4px;
-  font-family: 'Courier New', monospace;
 }
 </style>

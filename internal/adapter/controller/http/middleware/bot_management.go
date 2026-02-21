@@ -10,6 +10,7 @@ import (
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
 	"open-website-defender/internal/usecase/bot"
+	"open-website-defender/internal/usecase/iplist"
 	"open-website-defender/internal/usecase/system"
 	"open-website-defender/internal/usecase/threat"
 	"strings"
@@ -27,8 +28,14 @@ func RenderCaptchaPage(c *gin.Context, provider, siteKey, redirectURL string, st
 		rootPath = "/wall"
 	}
 
+	adminPath := viper.GetString("ADMIN_PATH")
+	if adminPath == "" {
+		adminPath = "/admin"
+	}
+
 	verifyAction := fmt.Sprintf("%s/captcha/verify?redirect=%s", rootPath, url.QueryEscape(redirectURL))
 	generateURL := fmt.Sprintf("%s/captcha/generate", rootPath)
+	faviconURL := fmt.Sprintf("%s%s/favicon.ico", rootPath, adminPath)
 
 	c.Header("Content-Type", "text/html; charset=utf-8")
 	c.Header("Cache-Control", "no-store, no-cache, must-revalidate")
@@ -39,6 +46,7 @@ func RenderCaptchaPage(c *gin.Context, provider, siteKey, redirectURL string, st
 		"SiteKey":      siteKey,
 		"VerifyAction": verifyAction,
 		"GenerateURL":  generateURL,
+		"FaviconURL":   faviconURL,
 	})
 	c.String(statusCode, buf.String())
 }
@@ -110,6 +118,12 @@ func BotManagement() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		settings, err := system.GetSystemService().GetSettings()
 		if err != nil || settings == nil || !settings.BotManagementEnabled {
+			c.Next()
+			return
+		}
+
+		// Skip whitelisted IPs
+		if wl, _ := iplist.GetIpWhiteListService().FindByIP(c.ClientIP()); wl != nil {
 			c.Next()
 			return
 		}

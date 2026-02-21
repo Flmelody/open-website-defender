@@ -188,6 +188,11 @@ func (s *SystemService) UpdateSettings(input *UpdateSystemSettingsDTO) error {
 
 	event.Bus().Publish(event.SystemSettingsChanged)
 
+	// Immediately repopulate cache with fresh data to prevent a TOCTOU race:
+	// a concurrent GetSettings() may have read stale data from DB before our write
+	// and could re-cache it after the event-driven cache.Del().
+	_, _ = s.GetSettings()
+
 	// Restart cache sync if interval changed
 	cache.RestartSync(input.CacheSyncInterval)
 

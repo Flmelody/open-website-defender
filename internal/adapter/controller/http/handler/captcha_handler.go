@@ -3,7 +3,6 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	"open-website-defender/internal/adapter/controller/http/middleware"
 	"open-website-defender/internal/adapter/controller/http/response"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
@@ -13,32 +12,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
-
-// PreviewCaptcha renders the CAPTCHA challenge page for testing/preview purposes.
-// It reads the provider and site key from system settings, with query parameter overrides.
-func PreviewCaptcha(c *gin.Context) {
-	provider := "builtin"
-	siteKey := ""
-
-	// Load from system settings first
-	if settings, err := system.GetSystemService().GetSettings(); err == nil && settings != nil {
-		if settings.CaptchaProvider != "" {
-			provider = settings.CaptchaProvider
-		}
-		siteKey = settings.CaptchaSiteKey
-	}
-
-	// Allow query parameter overrides for testing
-	if q := c.Query("provider"); q != "" {
-		provider = q
-	}
-	if q := c.Query("site_key"); q != "" {
-		siteKey = q
-	}
-
-	// For preview, use empty redirect so VerifyCaptcha returns JSON success
-	middleware.RenderCaptchaPage(c, provider, siteKey, "", http.StatusOK)
-}
 
 // GenerateCaptcha generates a new built-in image CAPTCHA.
 func GenerateCaptcha(c *gin.Context) {

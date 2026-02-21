@@ -67,7 +67,8 @@ func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 			api.POST("/oauth/revoke", handler.OAuthRevoke)
 		}
 
-		// CAPTCHA endpoints (public)
+		// CAPTCHA endpoints (public, skip challenge rendering so captcha page can load its own resources)
+		middleware.ChallengeSkipRoute(appConfig.RootPath+"/captcha/preview", appConfig.RootPath+"/captcha/generate", appConfig.RootPath+"/captcha/verify")
 		api.GET("/captcha/preview", handler.PreviewCaptcha)
 		api.GET("/captcha/generate", handler.GenerateCaptcha)
 		api.POST("/captcha/verify", handler.VerifyCaptcha)

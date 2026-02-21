@@ -85,7 +85,7 @@ func JSChallenge() gin.HandlerFunc {
 		}
 
 		// Skip routes explicitly marked to bypass JS Challenge (e.g. nginx auth subrequest)
-		if jsChallengeSkipRoutes[c.FullPath()] {
+		if jsChallengeSkipRoutes[c.FullPath()] || challengeSkipRoutes[c.FullPath()] {
 			c.Next()
 			return
 		}

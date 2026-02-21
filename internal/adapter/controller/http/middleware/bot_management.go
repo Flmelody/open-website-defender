@@ -47,6 +47,18 @@ func RenderCaptchaPage(c *gin.Context, provider, siteKey, redirectURL string, st
 var captchaTemplateHTML string
 var captchaTemplate = template.Must(template.New("captcha").Parse(captchaTemplateHTML))
 
+// challengeSkipRoutes holds route paths that should bypass challenge rendering
+// (CaptchaPage and JSChallenge). Bot signature matching (block/allow) still applies.
+var challengeSkipRoutes = make(map[string]bool)
+
+// ChallengeSkipRoute marks route paths to bypass challenge rendering middleware.
+// BotManagement signature matching still runs — only challenge page rendering is skipped.
+func ChallengeSkipRoute(paths ...string) {
+	for _, p := range paths {
+		challengeSkipRoutes[p] = true
+	}
+}
+
 // captchaConfigured returns true if a captcha provider is properly configured.
 func captchaConfigured(settings *system.SystemSettingsDTO) bool {
 	switch settings.CaptchaProvider {
@@ -155,6 +167,12 @@ func BotManagement() gin.HandlerFunc {
 func CaptchaPage() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if !c.GetBool("bot_captcha") {
+			c.Next()
+			return
+		}
+
+		// Skip routes that must not be blocked by challenge rendering (e.g. captcha endpoints)
+		if challengeSkipRoutes[c.FullPath()] {
 			c.Next()
 			return
 		}

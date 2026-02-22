@@ -103,6 +103,17 @@ onMounted(async () => {
   })
 })
 
+const getFullRedirectUrl = () => {
+  const fullUrl = window.location.href
+  const marker = 'redirect='
+  const idx = fullUrl.indexOf(marker)
+  if (idx === -1) return ''
+  const url = decodeURIComponent(fullUrl.substring(idx + marker.length))
+  // Only allow relative paths to prevent open redirect
+  if (!url.startsWith('/') || url.startsWith('//')) return ''
+  return url
+}
+
 const completeLogin = (token) => {
   localStorage.setItem('flmelody.token', token)
 
@@ -117,12 +128,12 @@ const completeLogin = (token) => {
 
   request.defaults.headers.common['Defender-Authorization'] = `Bearer ${token}`
 
-  if (!route.query.redirect) {
+  const redirectUrl = getFullRedirectUrl()
+  if (!redirectUrl) {
     errors.general = '无效的访问，请从正确的入口访问'
     return
   }
-  const redirectUrl = route.query.redirect
-  window.location.href = decodeURIComponent(redirectUrl)
+  window.location.href = redirectUrl
 }
 
 const handleLogin = async () => {
@@ -277,7 +288,8 @@ const handleCancel2FA = () => {
             <div class="input-line trust-line">
               <label class="checkbox">
                 <input type="checkbox" v-model="trustDevice">
-                <span class="checkbox-text">> Trust this device [ <span class="check-mark" :class="{ checked: trustDevice }">✓</span> ]</span>
+                <span class="checkbox-text">> Trust this device [ <span class="check-mark"
+                                                                        :class="{ checked: trustDevice }">✓</span> ]</span>
               </label>
             </div>
 

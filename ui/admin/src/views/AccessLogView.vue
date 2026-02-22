@@ -56,11 +56,13 @@
 
       <div class="data-grid">
         <el-table
+          ref="tableRef"
           :data="tableData"
           v-loading="loading"
           style="width: 100%"
           class="hacker-table"
           row-key="id"
+          @row-click="handleRowClick"
         >
           <el-table-column type="expand">
             <template #default="{ row }">
@@ -336,6 +338,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
+const tableRef = ref();
 const tableData = ref<any[]>([]);
 const total = ref(0);
 const loading = ref(false);
@@ -433,6 +436,12 @@ const handleBlockIp = (row: any) => {
       // handled
     }
   });
+};
+
+const handleRowClick = (row: any, column: any, event: Event) => {
+  const target = event.target as HTMLElement;
+  if (target.closest('.action-link') || target.closest('.el-button')) return;
+  tableRef.value?.toggleRowExpansion(row);
 };
 
 const handleSizeChange = (val: number) => {
@@ -622,6 +631,10 @@ onMounted(() => {
 </style>
 
 <style>
+/* Clickable rows */
+.hacker-table .el-table__body tr {
+  cursor: pointer;
+}
 /* Expand row background override */
 .hacker-table .el-table__expanded-cell {
   background: rgba(0, 20, 0, 0.6) !important;

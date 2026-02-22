@@ -10,6 +10,7 @@ import (
 	"open-website-defender/internal/infrastructure/event"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
+	"time"
 
 	"open-website-defender/internal/adapter/repository"
 	_interface "open-website-defender/internal/usecase/interface"
@@ -27,11 +28,31 @@ var (
 
 func GetIpWhiteListService() *IpWhiteListService {
 	ipWhiteListOnce.Do(func() {
-		ipWhiteListService = &IpWhiteListService{
+		svc := &IpWhiteListService{
 			repo: repository.NewIpWhiteListRepository(database.DB),
 		}
+		go svc.cleanupLoop()
+		ipWhiteListService = svc
 	})
 	return ipWhiteListService
+}
+
+// cleanupLoop periodically removes expired whitelist entries.
+func (s *IpWhiteListService) cleanupLoop() {
+	ticker := time.NewTicker(10 * time.Minute)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		deleted, err := s.repo.DeleteExpired()
+		if err != nil {
+			logging.Sugar.Errorf("Failed to cleanup expired whitelist entries: %v", err)
+			continue
+		}
+		if deleted > 0 {
+			logging.Sugar.Infof("Cleaned up %d expired whitelist entries", deleted)
+			event.Bus().Publish(event.WhiteListChanged)
+		}
+	}
 }
 
 func (s *IpWhiteListService) getRules() ([]*whiteListRule, error) {
@@ -52,7 +73,7 @@ func (s *IpWhiteListService) getRules() ([]*whiteListRule, error) {
 
 	rules := make([]*whiteListRule, 0, len(list))
 	for _, item := range list {
-		rules = append(rules, &whiteListRule{IP: item.Ip, Domain: item.Domain})
+		rules = append(rules, &whiteListRule{IP: item.Ip, Domain: item.Domain, ExpiresAt: item.ExpiresAt})
 	}
 
 	data, err = json.Marshal(rules)
@@ -77,8 +98,10 @@ func (s *IpWhiteListService) Create(input *CreateIpWhiteListDto) (*IpWhiteListDt
 	}
 
 	item := &entity.IpWhiteList{
-		Ip:     input.Ip,
-		Domain: input.Domain,
+		Ip:        input.Ip,
+		Domain:    input.Domain,
+		Remark:    input.Remark,
+		ExpiresAt: input.ExpiresAt,
 	}
 
 	if err := s.repo.Create(item); err != nil {
@@ -91,6 +114,8 @@ func (s *IpWhiteListService) Create(input *CreateIpWhiteListDto) (*IpWhiteListDt
 		ID:        item.ID,
 		Ip:        item.Ip,
 		Domain:    item.Domain,
+		Remark:    item.Remark,
+		ExpiresAt: item.ExpiresAt,
 		CreatedAt: item.CreatedAt,
 	}, nil
 }
@@ -116,6 +141,8 @@ func (s *IpWhiteListService) Update(id uint, input *UpdateIpWhiteListDto) (*IpWh
 		item.Ip = input.Ip
 	}
 	item.Domain = input.Domain
+	item.Remark = input.Remark
+	item.ExpiresAt = input.ExpiresAt
 
 	if err := s.repo.Update(item); err != nil {
 		return nil, fmt.Errorf("failed to update whitelist item: %w", err)
@@ -127,6 +154,8 @@ func (s *IpWhiteListService) Update(id uint, input *UpdateIpWhiteListDto) (*IpWh
 		ID:        item.ID,
 		Ip:        item.Ip,
 		Domain:    item.Domain,
+		Remark:    item.Remark,
+		ExpiresAt: item.ExpiresAt,
 		CreatedAt: item.CreatedAt,
 	}, nil
 }
@@ -159,6 +188,8 @@ func (s *IpWhiteListService) List(page, size int) ([]*IpWhiteListDto, int64, err
 			ID:        item.ID,
 			Ip:        item.Ip,
 			Domain:    item.Domain,
+			Remark:    item.Remark,
+			ExpiresAt: item.ExpiresAt,
 			CreatedAt: item.CreatedAt,
 		})
 	}
@@ -172,11 +203,58 @@ func (s *IpWhiteListService) FindByIP(ip string) (*IpWhiteListDto, error) {
 		return nil, err
 	}
 
+	now := time.Now().UTC()
 	for _, rule := range rules {
+		// Skip expired entries
+		if rule.ExpiresAt != nil && rule.ExpiresAt.Before(now) {
+			continue
+		}
 		if pkg.MatchIP(rule.IP, ip) {
 			return &IpWhiteListDto{Ip: rule.IP, Domain: rule.Domain}, nil
 		}
 	}
 
 	return nil, nil
+}
+
+// GrantTemporaryAccess creates a temporary whitelist entry with a TTL.
+// If the IP already has a permanent entry covering this domain, it skips.
+// If the IP has a temporary entry covering this domain, it renews the expiry.
+func (s *IpWhiteListService) GrantTemporaryAccess(ip, domain string, ttlSeconds int, remark string) error {
+	existing, err := s.repo.FindByIP(ip)
+	if err != nil {
+		return err
+	}
+	if existing != nil {
+		if existing.Domain == "" || existing.Domain == domain || pkg.MatchDomain(existing.Domain, domain) {
+			if existing.ExpiresAt == nil {
+				// Permanent entry already covers this domain, skip
+				return nil
+			}
+			// Temporary entry — renew expiry
+			expiresAt := time.Now().UTC().Add(time.Duration(ttlSeconds) * time.Second)
+			existing.ExpiresAt = &expiresAt
+			if err := s.repo.Update(existing); err != nil {
+				return fmt.Errorf("failed to renew temporary whitelist: %w", err)
+			}
+			event.Bus().Publish(event.WhiteListChanged)
+			return nil
+		}
+	}
+
+	expiresAt := time.Now().UTC().Add(time.Duration(ttlSeconds) * time.Second)
+	item := &entity.IpWhiteList{
+		Ip:        ip,
+		Domain:    domain,
+		Remark:    remark,
+		ExpiresAt: &expiresAt,
+	}
+
+	if err := s.repo.Create(item); err != nil {
+		return fmt.Errorf("failed to grant temporary whitelist access: %w", err)
+	}
+
+	logging.Sugar.Infof("Granted temporary whitelist access for IP %s domain %s (%ds): %s", ip, domain, ttlSeconds, remark)
+	event.Bus().Publish(event.WhiteListChanged)
+	return nil
 }

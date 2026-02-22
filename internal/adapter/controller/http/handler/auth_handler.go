@@ -182,6 +182,10 @@ func Auth(c *gin.Context) {
 						response.Forbidden(c, "Domain not in user scope")
 						return
 					}
+					// Auto-trust: create temporary whitelist for GCM's subsequent OAuth requests
+					if err := whiteListService.GrantTemporaryAccess(clientIP, requestedDomain, 300, "git-token-auto-trust"); err != nil {
+						logging.Sugar.Warnf("Failed to grant temporary whitelist for git token auto-trust: %v", err)
+					}
 					logging.Sugar.Infof("Access granted via git token for user: %s", parts[0])
 					response.Success(c, userInfo)
 					return

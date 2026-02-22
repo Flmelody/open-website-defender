@@ -3,6 +3,7 @@ package repository
 import (
 	"open-website-defender/internal/domain/entity"
 	_interface "open-website-defender/internal/usecase/interface"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -60,4 +61,10 @@ func (r *IpWhiteListRepository) FindByIP(ip string) (*entity.IpWhiteList, error)
 		return nil, nil
 	}
 	return &item, err
+}
+
+// DeleteExpired removes all whitelist entries whose ExpiresAt is in the past.
+func (r *IpWhiteListRepository) DeleteExpired() (int64, error) {
+	result := r.db.Where("expires_at IS NOT NULL AND expires_at < ?", time.Now().UTC()).Delete(&entity.IpWhiteList{})
+	return result.RowsAffected, result.Error
 }

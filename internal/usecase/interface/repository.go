@@ -22,6 +22,7 @@ type IpWhiteListRepository interface {
 	FindByID(id uint) (*entity.IpWhiteList, error)
 	List(limit, offset int) ([]*entity.IpWhiteList, int64, error)
 	FindByIP(ip string) (*entity.IpWhiteList, error)
+	DeleteExpired() (int64, error)
 }
 
 type IpBlackListRepository interface {

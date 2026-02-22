@@ -108,8 +108,10 @@ func CreateIpWhiteList(c *gin.Context) {
 	}
 
 	input := &iplist.CreateIpWhiteListDto{
-		Ip:     req.Ip,
-		Domain: req.Domain,
+		Ip:        req.Ip,
+		Domain:    req.Domain,
+		Remark:    req.Remark,
+		ExpiresAt: req.ExpiresAt,
 	}
 
 	dto, err := service.Create(input)
@@ -149,8 +151,10 @@ func UpdateIpWhiteList(c *gin.Context) {
 	}
 
 	input := &iplist.UpdateIpWhiteListDto{
-		Ip:     req.Ip,
-		Domain: req.Domain,
+		Ip:        req.Ip,
+		Domain:    req.Domain,
+		Remark:    req.Remark,
+		ExpiresAt: req.ExpiresAt,
 	}
 
 	dto, err := service.Update(uint(id), input)

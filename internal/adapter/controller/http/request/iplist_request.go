@@ -14,13 +14,17 @@ type ListIpBlackListRequest struct {
 }
 
 type CreateIpWhiteListRequest struct {
-	Ip     string `json:"ip" binding:"required"`
-	Domain string `json:"domain"`
+	Ip        string     `json:"ip" binding:"required"`
+	Domain    string     `json:"domain"`
+	Remark    string     `json:"remark"`
+	ExpiresAt *time.Time `json:"expires_at"`
 }
 
 type UpdateIpWhiteListRequest struct {
-	Ip     string `json:"ip" binding:"required"`
-	Domain string `json:"domain"`
+	Ip        string     `json:"ip" binding:"required"`
+	Domain    string     `json:"domain"`
+	Remark    string     `json:"remark"`
+	ExpiresAt *time.Time `json:"expires_at"`
 }
 
 type ListIpWhiteListRequest struct {

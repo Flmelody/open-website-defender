@@ -39,9 +39,35 @@
             </template>
           </el-table-column>
           <el-table-column
+            prop="remark"
+            :label="t('ip_list.remark')"
+            min-width="120"
+          >
+            <template #default="scope">
+              <span v-if="scope.row.remark" class="remark-text">{{
+                scope.row.remark
+              }}</span>
+              <span v-else class="dim-text">-</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="expires_at"
+            :label="t('ip_list.expires_at')"
+            width="180"
+          >
+            <template #default="scope">
+              <span v-if="scope.row.expires_at" class="expires-text">{{
+                formatExpiry(scope.row.expires_at)
+              }}</span>
+              <span v-else class="dim-text">{{
+                t("ip_list.permanent")
+              }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
             prop="created_at"
             :label="t('common.created_at')"
-            width="200"
+            width="180"
           >
             <template #default="scope">
               <span class="dim-text">{{
@@ -147,6 +173,25 @@
             />
           </el-select>
         </el-form-item>
+        <el-form-item :label="'> ' + t('ip_list.remark')" prop="remark">
+          <el-input
+            v-model="form.remark"
+            :placeholder="t('ip_list.remark_placeholder')"
+          />
+        </el-form-item>
+        <el-form-item :label="'> ' + t('ip_list.duration')" prop="duration">
+          <el-select v-model="form.duration" style="width: 100%">
+            <el-option
+              :label="t('ip_list.permanent')"
+              value="permanent"
+            />
+            <el-option :label="t('ip_list.duration_1h')" value="1h" />
+            <el-option :label="t('ip_list.duration_6h')" value="6h" />
+            <el-option :label="t('ip_list.duration_24h')" value="24h" />
+            <el-option :label="t('ip_list.duration_7d')" value="7d" />
+            <el-option :label="t('ip_list.duration_30d')" value="30d" />
+          </el-select>
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -177,6 +222,8 @@ interface IpItem {
   id: number;
   ip: string;
   domain: string;
+  remark: string;
+  expires_at: string | null;
   created_at: string;
 }
 
@@ -200,10 +247,35 @@ const editId = ref(0);
 const form = reactive({
   ip: "",
   domain: "",
+  remark: "",
+  duration: "permanent",
 });
 
 const domainOptions = ref<string[]>([]);
 const myIpLoading = ref(false);
+
+const durationToMs: Record<string, number> = {
+  "1h": 3600000,
+  "6h": 21600000,
+  "24h": 86400000,
+  "7d": 604800000,
+  "30d": 2592000000,
+};
+
+const formatExpiry = (expiresAt: string) => {
+  const expiry = new Date(expiresAt);
+  const now = new Date();
+  const diff = expiry.getTime() - now.getTime();
+  if (diff <= 0) return t("ip_list.expired");
+  const hours = Math.floor(diff / 3600000);
+  const minutes = Math.floor((diff % 3600000) / 60000);
+  if (hours >= 24) {
+    const days = Math.floor(hours / 24);
+    return `${days}d ${hours % 24}h`;
+  }
+  if (hours > 0) return `${hours}h ${minutes}m`;
+  return `${minutes}m`;
+};
 
 const fetchMyIp = async () => {
   myIpLoading.value = true;
@@ -293,6 +365,8 @@ const handleAdd = () => {
   dialogTitle.value = t("ip_list.title_create");
   form.ip = "";
   form.domain = "";
+  form.remark = "";
+  form.duration = "permanent";
   isEditMode.value = false;
   editId.value = 0;
   dialogVisible.value = true;
@@ -302,6 +376,8 @@ const handleEdit = (row: IpItem) => {
   dialogTitle.value = t("ip_list.title_edit");
   form.ip = row.ip;
   form.domain = row.domain;
+  form.remark = row.remark || "";
+  form.duration = "permanent"; // Edit always resets duration; existing expiry shown in table
   isEditMode.value = true;
   editId.value = row.id;
   dialogVisible.value = true;
@@ -333,11 +409,22 @@ const handleSubmit = async () => {
     if (valid) {
       formLoading.value = true;
       try {
+        const payload: any = {
+          ip: form.ip,
+          domain: form.domain,
+          remark: form.remark,
+        };
+        if (form.duration !== "permanent" && durationToMs[form.duration]) {
+          const expiresAt = new Date(
+            Date.now() + durationToMs[form.duration],
+          );
+          payload.expires_at = expiresAt.toISOString();
+        }
         if (isEditMode.value) {
-          await request.put(`/ip-white-list/${editId.value}`, form);
+          await request.put(`/ip-white-list/${editId.value}`, payload);
           ElMessage.success(t("common.updated"));
         } else {
-          await request.post("/ip-white-list", form);
+          await request.post("/ip-white-list", payload);
           ElMessage.success(t("common.added"));
         }
         dialogVisible.value = false;
@@ -430,6 +517,17 @@ onMounted(() => {
   color: #fff;
   font-weight: bold;
   font-size: 15px;
+}
+
+.remark-text {
+  color: #ff0;
+  font-size: 13px;
+}
+
+.expires-text {
+  color: #f80;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
 }
 
 .action-link {

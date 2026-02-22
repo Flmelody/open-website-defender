@@ -17,23 +17,30 @@ type IpBlackListDto struct {
 }
 
 type CreateIpWhiteListDto struct {
-	Ip     string `json:"ip" binding:"required"`
-	Domain string `json:"domain" binding:"required"`
+	Ip        string     `json:"ip" binding:"required"`
+	Domain    string     `json:"domain" binding:"required"`
+	Remark    string     `json:"remark"`
+	ExpiresAt *time.Time `json:"expires_at"`
 }
 
 type UpdateIpWhiteListDto struct {
-	Ip     string `json:"ip"`
-	Domain string `json:"domain"`
+	Ip        string     `json:"ip"`
+	Domain    string     `json:"domain"`
+	Remark    string     `json:"remark"`
+	ExpiresAt *time.Time `json:"expires_at"`
 }
 
 type IpWhiteListDto struct {
-	ID        uint      `json:"id"`
-	Ip        string    `json:"ip"`
-	Domain    string    `json:"domain"`
-	CreatedAt time.Time `json:"created_at"`
+	ID        uint       `json:"id"`
+	Ip        string     `json:"ip"`
+	Domain    string     `json:"domain"`
+	Remark    string     `json:"remark"`
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
+	CreatedAt time.Time  `json:"created_at"`
 }
 
 type whiteListRule struct {
-	IP     string `json:"ip"`
-	Domain string `json:"domain"`
+	IP        string     `json:"ip"`
+	Domain    string     `json:"domain"`
+	ExpiresAt *time.Time `json:"expires_at,omitempty"`
 }

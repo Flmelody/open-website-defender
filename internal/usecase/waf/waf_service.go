@@ -8,6 +8,8 @@ import (
 	"open-website-defender/internal/infrastructure/database"
 	"open-website-defender/internal/infrastructure/event"
 	"open-website-defender/internal/infrastructure/logging"
+	"open-website-defender/internal/usecase/system"
+	"open-website-defender/internal/usecase/waf/semantic"
 	"regexp"
 	"sort"
 	"strconv"
@@ -30,6 +32,7 @@ type compiledRule struct {
 	Operator    string
 	Target      string
 	Action      string
+	Category    string
 	Priority    int
 	RedirectURL string
 	RateLimit   int
@@ -98,6 +101,7 @@ func (s *WafService) getCompiledRules() ([]compiledRule, error) {
 			Operator:    r.Operator,
 			Target:      r.Target,
 			Action:      r.Action,
+			Category:    r.Category,
 			Priority:    r.Priority,
 			RedirectURL: r.RedirectURL,
 			RateLimit:   r.RateLimit,
@@ -296,6 +300,16 @@ func (s *WafService) CheckRequestContext(ctx *RequestContext) *WafCheckResult {
 
 	exclusions := s.getExclusions()
 
+	semanticEnabled := isSemanticAnalysisEnabled()
+
+	// Track values already checked by semantic analysis during regex confirmation,
+	// so the independent fallback doesn't re-check them.
+	var sqliChecked, xssChecked map[string]struct{}
+	if semanticEnabled {
+		sqliChecked = make(map[string]struct{})
+		xssChecked = make(map[string]struct{})
+	}
+
 	for _, rule := range rules {
 		// Skip response-only targets in request checking
 		if rule.Target == "response_body" || rule.Target == "response_headers" {
@@ -310,18 +324,97 @@ func (s *WafService) CheckRequestContext(ctx *RequestContext) *WafCheckResult {
 		targets := getTargetValues(ctx, rule.Target)
 		for _, target := range targets {
 			if matchValue(&rule, target) {
-				return &WafCheckResult{
+				result := &WafCheckResult{
 					Blocked:     rule.Action == "block",
 					RuleName:    rule.Name,
 					Action:      rule.Action,
 					RedirectURL: rule.RedirectURL,
 					RateLimit:   rule.RateLimit,
 				}
+
+				// Semantic analysis confirmation for sqli/xss categories
+				if semanticEnabled && (rule.Category == "sqli" || rule.Category == "xss") {
+					confirmed := false
+					if rule.Category == "sqli" {
+						sqliChecked[target] = struct{}{}
+						isSQLi, fp := semantic.IsSQLi(target)
+						confirmed = isSQLi
+						result.SemanticFingerprint = fp
+					} else if rule.Category == "xss" {
+						xssChecked[target] = struct{}{}
+						confirmed = semantic.IsXSS(target)
+					}
+					result.SemanticConfirmed = confirmed
+
+					// If semantic analysis doesn't confirm,
+					// treat as false positive and skip this rule match
+					if !confirmed {
+						continue
+					}
+				}
+
+				return result
+			}
+		}
+	}
+
+	// Independent semantic detection fallback:
+	// When semantic analysis is enabled and no regex rule matched,
+	// scan all request fields for SQLi/XSS using semantic analysis alone.
+	// Skip values already checked during regex confirmation phase.
+	if semanticEnabled {
+		allTargets := []string{ctx.Path, ctx.Query, ctx.UA, ctx.Body}
+		for _, v := range ctx.Headers {
+			allTargets = append(allTargets, v)
+		}
+		for _, v := range ctx.Cookies {
+			allTargets = append(allTargets, v)
+		}
+		for _, target := range allTargets {
+			if target == "" {
+				continue
+			}
+			// Check SQLi
+			if _, checked := sqliChecked[target]; !checked {
+				if isSQLi, fp := semantic.IsSQLi(target); isSQLi {
+					return &WafCheckResult{
+						Blocked:             true,
+						RuleName:            "Semantic SQLi Detection",
+						Action:              "block",
+						SemanticConfirmed:   true,
+						SemanticFingerprint: fp,
+					}
+				}
+			}
+			// Check XSS
+			if _, checked := xssChecked[target]; !checked {
+				if semantic.IsXSS(target) {
+					return &WafCheckResult{
+						Blocked:           true,
+						RuleName:          "Semantic XSS Detection",
+						Action:            "block",
+						SemanticConfirmed: true,
+					}
+				}
 			}
 		}
 	}
 
 	return nil
+}
+
+// isSemanticAnalysisEnabled checks if semantic analysis is enabled via system settings.
+func isSemanticAnalysisEnabled() (enabled bool) {
+	defer func() {
+		if r := recover(); r != nil {
+			enabled = false
+		}
+	}()
+	settings, err := system.GetSystemService().GetSettings()
+	if err != nil || settings == nil {
+		return false
+	}
+	return settings.SemanticAnalysisEnabled
 }
 
 func (s *WafService) invalidateCache() {

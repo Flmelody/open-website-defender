@@ -385,6 +385,9 @@ export default {
     license_header: "EN-TÊTE_LICENCE",
     save: "[ ENREGISTRER ]",
     reset: "[ RÉINITIALISER ]",
+    section_semantic_analysis: "ANALYSE S\u00c9MANTIQUE",
+    semantic_analysis_enabled: "ANALYSE_S\u00c9MANTIQUE_ACTIV\u00c9E",
+    semantic_analysis_desc: "Utilise la tokenisation et la correspondance d'empreintes pour d\u00e9tecter les attaques SQLi/XSS. R\u00e9duit les faux positifs des r\u00e8gles regex et d\u00e9tecte les attaques contournant les regex.",
     section_cache: "GESTION DU CACHE",
     cache_desc:
       "Vider tous les caches côté serveur. Utilisez cette option si les données ne sont pas à jour après une modification de configuration.",

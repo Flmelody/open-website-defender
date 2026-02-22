@@ -382,6 +382,9 @@ export default {
     license_header: "ライセンス_ヘッダー",
     save: "[ 保存 ]",
     reset: "[ リセット ]",
+    section_semantic_analysis: "セマンティック分析",
+    semantic_analysis_enabled: "セマンティック分析有効",
+    semantic_analysis_desc: "トークン化とフィンガープリントマッチングを使用してSQLi/XSS攻撃を検出します。正規表現ルールの誤検知を減らし、正規表現を回避する攻撃を捕捉します。",
     section_cache: "キャッシュ管理",
     cache_desc:
       "サーバー側のすべてのキャッシュをクリアします。設定変更後にデータが更新されない場合に使用してください。",

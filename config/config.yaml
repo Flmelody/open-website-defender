@@ -78,6 +78,10 @@ rate-limit:
 # Request filtering configuration (SQLi, XSS, Path Traversal detection)
 request-filtering:
   enabled: true
+  # Semantic analysis engine (libinjection-style tokenize → fingerprint → match)
+  # Reduces false positives and catches regex-bypassing attacks
+  semantic-analysis:
+    enabled: true
 
 # Geo-IP blocking configuration
 geo-blocking:

@@ -381,6 +381,9 @@ export default {
     license_header: "LICENSE_HEADER",
     save: "[ SAVE ]",
     reset: "[ RESET ]",
+    section_semantic_analysis: "SEMANTIC ANALYSIS",
+    semantic_analysis_enabled: "SEMANTIC_ANALYSIS_ENABLED",
+    semantic_analysis_desc: "Uses tokenization and fingerprint matching to detect SQLi/XSS attacks. Reduces false positives from regex rules and catches regex-bypassing attacks.",
     section_cache: "CACHE MANAGEMENT",
     cache_desc:
       "Clear all server-side caches. Use this if you experience stale data after configuration changes.",

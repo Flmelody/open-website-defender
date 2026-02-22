@@ -260,6 +260,27 @@
           </div>
         </el-form>
 
+        <!-- Semantic Analysis -->
+        <div class="settings-section separator">
+          <div class="section-title no-select">
+            <span class="prefix">&gt;</span> {{ t("system.section_semantic_analysis") }}
+            <el-tooltip
+              :content="t('system.semantic_analysis_desc')"
+              placement="right"
+              effect="dark"
+              :show-after="200"
+            >
+              <el-icon class="info-icon"><InfoFilled /></el-icon>
+            </el-tooltip>
+          </div>
+
+          <el-form label-position="top" class="hacker-form">
+            <el-form-item :label="t('system.semantic_analysis_enabled')">
+              <el-switch v-model="form.semantic_analysis_enabled" />
+            </el-form-item>
+          </el-form>
+        </div>
+
         <!-- Cache Management -->
         <div class="settings-section separator">
           <div class="section-title no-select">
@@ -335,6 +356,7 @@ const form = reactive({
   captcha_secret_key: "",
   captcha_cookie_ttl: 86400,
   cache_sync_interval: 0,
+  semantic_analysis_enabled: false,
 });
 
 const originalValues = reactive({
@@ -351,6 +373,7 @@ const originalValues = reactive({
   captcha_secret_key: "",
   captcha_cookie_ttl: 86400,
   cache_sync_interval: 0,
+  semantic_analysis_enabled: false,
 });
 
 const rules = computed(() => ({
@@ -379,6 +402,7 @@ const fetchData = async () => {
     form.captcha_secret_key = res.captcha_secret_key || "";
     form.captcha_cookie_ttl = res.captcha_cookie_ttl || 86400;
     form.cache_sync_interval = res.cache_sync_interval || 0;
+    form.semantic_analysis_enabled = res.semantic_analysis_enabled || false;
     Object.assign(originalValues, { ...form });
   } finally {
     loading.value = false;

@@ -65,8 +65,13 @@ func WAF() gin.HandlerFunc {
 
 		result := service.CheckRequestContext(ctx)
 		if result != nil {
-			logging.Sugar.Warnf("WAF rule matched: %s (action=%s, path=%s, ip=%s)",
-				result.RuleName, result.Action, path, c.ClientIP())
+			if result.SemanticFingerprint != "" {
+				logging.Sugar.Warnf("WAF rule matched: %s (action=%s, path=%s, ip=%s, fingerprint=%s)",
+					result.RuleName, result.Action, path, c.ClientIP(), result.SemanticFingerprint)
+			} else {
+				logging.Sugar.Warnf("WAF rule matched: %s (action=%s, path=%s, ip=%s)",
+					result.RuleName, result.Action, path, c.ClientIP())
+			}
 
 			// Store for access logging
 			c.Set("waf_action", "blocked_waf")

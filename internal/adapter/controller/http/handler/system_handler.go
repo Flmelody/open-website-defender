@@ -49,6 +49,8 @@ func UpdateSystemSettings(c *gin.Context) {
 		CaptchaCookieTTL:     req.CaptchaCookieTTL,
 
 		CacheSyncInterval: req.CacheSyncInterval,
+
+		SemanticAnalysisEnabled: req.SemanticAnalysisEnabled,
 	}
 
 	if err := service.UpdateSettings(input); err != nil {

@@ -386,6 +386,9 @@ export default {
     license_header: "LIZENZ_HEADER",
     save: "[ SPEICHERN ]",
     reset: "[ ZURÜCKSETZEN ]",
+    section_semantic_analysis: "SEMANTISCHE ANALYSE",
+    semantic_analysis_enabled: "SEMANTISCHE_ANALYSE_AKTIVIERT",
+    semantic_analysis_desc: "Verwendet Tokenisierung und Fingerprint-Abgleich zur Erkennung von SQLi/XSS-Angriffen. Reduziert Fehlalarme durch Regex-Regeln und erkennt Regex-umgehende Angriffe.",
     section_cache: "CACHE-VERWALTUNG",
     cache_desc:
       "Alle serverseitigen Caches leeren. Verwenden Sie dies, wenn nach Konfigurationsänderungen veraltete Daten angezeigt werden.",

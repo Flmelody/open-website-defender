@@ -34,6 +34,11 @@ type OAuthConfig struct {
 }
 
 type RequestFilteringConfig struct {
+	Enabled          bool                   `mapstructure:"enabled"`
+	SemanticAnalysis SemanticAnalysisConfig `mapstructure:"semantic-analysis"`
+}
+
+type SemanticAnalysisConfig struct {
 	Enabled bool `mapstructure:"enabled"`
 }
 

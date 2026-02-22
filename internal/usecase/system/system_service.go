@@ -80,6 +80,9 @@ func (s *SystemService) GetSettings() (*SystemSettingsDTO, error) {
 
 		// Cache defaults from config
 		CacheSyncInterval: viper.GetInt("cache.sync-interval"),
+
+		// Semantic Analysis defaults from config
+		SemanticAnalysisEnabled: viper.GetBool("request-filtering.semantic-analysis.enabled"),
 	}
 
 	// Apply sensible defaults for zero values
@@ -141,6 +144,11 @@ func (s *SystemService) GetSettings() (*SystemSettingsDTO, error) {
 		if sys.CacheSettings.SyncInterval != nil {
 			dto.CacheSyncInterval = *sys.CacheSettings.SyncInterval
 		}
+
+		// Semantic Analysis overrides
+		if sys.SemanticAnalysis.Enabled != nil {
+			dto.SemanticAnalysisEnabled = *sys.SemanticAnalysis.Enabled
+		}
 	}
 
 	// Cache for 10 minutes
@@ -180,6 +188,11 @@ func (s *SystemService) UpdateSettings(input *UpdateSystemSettingsDTO) error {
 	// Cache
 	sys.CacheSettings = entity.CacheSettings{
 		SyncInterval: &input.CacheSyncInterval,
+	}
+
+	// Semantic Analysis
+	sys.SemanticAnalysis = entity.SemanticAnalysisSettings{
+		Enabled: &input.SemanticAnalysisEnabled,
 	}
 
 	if err := s.systemRepo.Save(sys); err != nil {

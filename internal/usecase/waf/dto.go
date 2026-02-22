@@ -50,11 +50,13 @@ type WafRuleDto struct {
 }
 
 type WafCheckResult struct {
-	Blocked     bool
-	RuleName    string
-	Action      string // block, log, redirect, challenge, rate-limit
-	RedirectURL string
-	RateLimit   int
+	Blocked             bool
+	RuleName            string
+	Action              string // block, log, redirect, challenge, rate-limit
+	RedirectURL         string
+	RateLimit           int
+	SemanticConfirmed   bool
+	SemanticFingerprint string
 }
 
 // RequestContext provides all request data for WAF inspection.

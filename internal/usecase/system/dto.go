@@ -19,6 +19,9 @@ type SystemSettingsDTO struct {
 
 	// Cache
 	CacheSyncInterval int `json:"cache_sync_interval"`
+
+	// Semantic Analysis
+	SemanticAnalysisEnabled bool `json:"semantic_analysis_enabled"`
 }
 
 type UpdateSystemSettingsDTO struct {
@@ -39,4 +42,7 @@ type UpdateSystemSettingsDTO struct {
 
 	// Cache
 	CacheSyncInterval int `json:"cache_sync_interval"`
+
+	// Semantic Analysis
+	SemanticAnalysisEnabled bool `json:"semantic_analysis_enabled"`
 }

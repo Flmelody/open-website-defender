@@ -3,10 +3,15 @@ package entity
 import "time"
 
 type System struct {
-	ID            uint                  `gorm:"primarykey"`
-	Security      Security              `json:"security" gorm:"serializer:json;column:security"`
-	BotManagement BotManagementSettings `json:"bot_management" gorm:"serializer:json;column:bot_management"`
-	CacheSettings CacheSettings         `json:"cache_settings" gorm:"serializer:json;column:cache_settings"`
+	ID               uint                     `gorm:"primarykey"`
+	Security         Security                 `json:"security" gorm:"serializer:json;column:security"`
+	BotManagement    BotManagementSettings    `json:"bot_management" gorm:"serializer:json;column:bot_management"`
+	CacheSettings    CacheSettings            `json:"cache_settings" gorm:"serializer:json;column:cache_settings"`
+	SemanticAnalysis SemanticAnalysisSettings `json:"semantic_analysis" gorm:"serializer:json;column:semantic_analysis"`
+}
+
+type SemanticAnalysisSettings struct {
+	Enabled *bool `json:"enabled"`
 }
 
 type Security struct {

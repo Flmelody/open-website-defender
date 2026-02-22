@@ -277,7 +277,7 @@ const handleCancel2FA = () => {
             <div class="input-line trust-line">
               <label class="checkbox">
                 <input type="checkbox" v-model="trustDevice">
-                <span class="checkbox-text">> Trust this device</span>
+                <span class="checkbox-text">> Trust this device [ <span class="check-mark" :class="{ checked: trustDevice }">✓</span> ]</span>
               </label>
             </div>
 
@@ -476,8 +476,12 @@ input:-webkit-autofill:active {
   color: #0F0;
 }
 
-.checkbox input:checked + .checkbox-text {
-  color: #0F0;
+.check-mark {
+  visibility: hidden;
+}
+
+.check-mark.checked {
+  visibility: visible;
   text-shadow: 0 0 5px #0F0;
 }
 

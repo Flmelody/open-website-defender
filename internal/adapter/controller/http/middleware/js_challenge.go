@@ -90,18 +90,6 @@ func JSChallenge() gin.HandlerFunc {
 			return
 		}
 
-		// Skip programmatic clients (git, curl, wget, etc.)
-		ua := c.GetHeader("User-Agent")
-		if ua == "" || strings.HasPrefix(ua, "git/") {
-			c.Next()
-			return
-		}
-
-		// Skip requests carrying authentication tokens (API clients, licenses, git tokens)
-		if c.GetHeader("Defender-Authorization") != "" {
-			c.Next()
-			return
-		}
 		if settings, err := system.GetSystemService().GetSettings(); err == nil && settings != nil {
 			if (settings.GitTokenHeader != "" && c.GetHeader(settings.GitTokenHeader) != "") ||
 				(settings.LicenseHeader != "" && c.GetHeader(settings.LicenseHeader) != "") {

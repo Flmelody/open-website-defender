@@ -136,11 +136,11 @@ func BotManagement() gin.HandlerFunc {
 		}
 
 		// Skip requests carrying configurable authentication tokens (git token, license)
-		if (settings.GitTokenHeader != "" && c.GetHeader(settings.GitTokenHeader) != "") ||
+		/*if (settings.GitTokenHeader != "" && c.GetHeader(settings.GitTokenHeader) != "") ||
 			(settings.LicenseHeader != "" && c.GetHeader(settings.LicenseHeader) != "") {
 			c.Next()
 			return
-		}
+		}*/
 
 		service := bot.GetBotService()
 
@@ -155,8 +155,8 @@ func BotManagement() gin.HandlerFunc {
 
 		result := service.CheckRequest(ua, headers, c.ClientIP())
 		if result == nil {
-			// No signature matched — apply default challenge for all unknown traffic
-			applyChallenge(c, settings)
+			// No signature matched — let through, only challenge matched bots
+			c.Next()
 			return
 		}
 

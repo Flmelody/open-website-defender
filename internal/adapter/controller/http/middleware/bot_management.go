@@ -135,6 +135,13 @@ func BotManagement() gin.HandlerFunc {
 			return
 		}
 
+		// Skip requests carrying configurable authentication tokens (git token, license)
+		if (settings.GitTokenHeader != "" && c.GetHeader(settings.GitTokenHeader) != "") ||
+			(settings.LicenseHeader != "" && c.GetHeader(settings.LicenseHeader) != "") {
+			c.Next()
+			return
+		}
+
 		service := bot.GetBotService()
 
 		ua := c.GetHeader("User-Agent")

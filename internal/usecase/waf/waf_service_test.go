@@ -51,7 +51,7 @@ func seedDefaultRules(t *testing.T, db *gorm.DB) {
 		{Name: "SQLi - Union Select", Pattern: `(?i)(union\s+(all\s+)?select)`, Category: "sqli", Action: "block", Enabled: boolPtr(true)},
 		{Name: "SQLi - Common Patterns", Pattern: `(?i)(;\s*(drop|alter|truncate|delete|insert|update)\s)`, Category: "sqli", Action: "block", Enabled: boolPtr(true)},
 		{Name: "SQLi - Boolean Injection", Pattern: `(?i)('\s*(or|and)\s*'?\d*\s*[=<>])`, Category: "sqli", Action: "block", Enabled: boolPtr(true)},
-		{Name: "SQLi - Comment Injection", Pattern: `(?i)('\s*--\s*$|/\*.*?\*/)`, Category: "sqli", Action: "block", Enabled: boolPtr(true)},
+		{Name: "SQLi - Comment Injection", Pattern: `(?i)('\s*--\s*$|(?:^|[\s'();,=])\/\*.*?\*\/)`, Category: "sqli", Action: "block", Enabled: boolPtr(true)},
 		{Name: "XSS - Script Tag", Pattern: `(?i)(<script[\s>]|</script>)`, Category: "xss", Action: "block", Enabled: boolPtr(true)},
 		{Name: "XSS - Event Handler", Pattern: `(?i)(on(error|load|click|mouseover|focus|blur|submit|change)\s*=)`, Category: "xss", Action: "block", Enabled: boolPtr(true)},
 		{Name: "XSS - JavaScript Protocol", Pattern: `(?i)(javascript\s*:|vbscript\s*:)`, Category: "xss", Action: "block", Enabled: boolPtr(true)},
@@ -84,7 +84,7 @@ func getDefaultPatterns() []compiledRule {
 		{"SQLi - Union Select", `(?i)(union\s+(all\s+)?select)`, "block"},
 		{"SQLi - Common Patterns", `(?i)(;\s*(drop|alter|truncate|delete|insert|update)\s)`, "block"},
 		{"SQLi - Boolean Injection", `(?i)('\s*(or|and)\s*'?\d*\s*[=<>])`, "block"},
-		{"SQLi - Comment Injection", `(?i)('\s*--\s*$|/\*.*?\*/)`, "block"},
+		{"SQLi - Comment Injection", `(?i)('\s*--\s*$|(?:^|[\s'();,=])\/\*.*?\*\/)`, "block"},
 		{"XSS - Script Tag", `(?i)(<script[\s>]|</script>)`, "block"},
 		{"XSS - Event Handler", `(?i)(on(error|load|click|mouseover|focus|blur|submit|change)\s*=)`, "block"},
 		{"XSS - JavaScript Protocol", `(?i)(javascript\s*:|vbscript\s*:)`, "block"},
@@ -145,6 +145,8 @@ func TestSQLiPatterns(t *testing.T) {
 		{"SQL block comment in query", "id=1 /* injection */ --", true},
 
 		// Should NOT match
+		{"Accept header image", "image/avif,image/webp,image/svg+xml,image/*,*/*;q=0.8", false},
+		{"Accept header html", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8", false},
 		{"normal select query word", "select your options from the menu", false},
 		{"normal word union", "the european union is large", false},
 		{"normal semicolon", "Hello; how are you?", false},

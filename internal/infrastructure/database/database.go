@@ -270,7 +270,7 @@ func initDefaultWafRules() error {
 		},
 		{
 			Name:     "SQLi - Comment Injection",
-			Pattern:  `(?i)('\s*--\s*$|/\*.*?\*/)`,
+			Pattern:  `(?i)('\s*--\s*$|(?:^|[\s'();,=])\/\*.*?\*\/)`,
 			Category: "sqli",
 			Action:   "block",
 			Enabled:  boolPtr(true),

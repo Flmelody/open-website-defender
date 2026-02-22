@@ -134,6 +134,7 @@ func InitDB() error {
 		&entity.SecurityEvent{},
 		&entity.CacheVersion{},
 		&entity.BotSignature{},
+		&entity.TrustedDevice{},
 	)
 	if err != nil {
 		return err

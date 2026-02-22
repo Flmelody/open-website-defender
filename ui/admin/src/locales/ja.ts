@@ -60,6 +60,7 @@ export default {
     two_factor_code: "> 認証コード:",
     btn_verify: "[ 確認 ]",
     back: "[ 戻る ]",
+    trust_device: "このデバイスを信頼する",
   },
   user: {
     new_user: "[ 新規ユーザー ]",

@@ -248,9 +248,12 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	trustedDeviceCookie, _ := c.Cookie("flmelody.trusted_device")
+
 	input := &user.LoginInputDTO{
-		Username: req.Username,
-		Password: req.Password,
+		Username:           req.Username,
+		Password:           req.Password,
+		TrustedDeviceToken: trustedDeviceCookie,
 	}
 
 	output, err := service.GuardLogin(input)
@@ -329,9 +332,12 @@ func AdminLogin(c *gin.Context) {
 		return
 	}
 
+	trustedDeviceCookie, _ := c.Cookie("flmelody.trusted_device")
+
 	input := &user.LoginInputDTO{
-		Username: req.Username,
-		Password: req.Password,
+		Username:           req.Username,
+		Password:           req.Password,
+		TrustedDeviceToken: trustedDeviceCookie,
 	}
 
 	output, err := service.AdminLogin(input)
@@ -389,6 +395,7 @@ func Verify2FA(c *gin.Context) {
 	output, err := service.Verify2FALogin(&user.TwoFALoginInputDTO{
 		ChallengeToken: req.ChallengeToken,
 		Code:           req.Code,
+		TrustDevice:    req.TrustDevice,
 	})
 	if err != nil {
 		if errors.Is(err, domainError.ErrInvalidCredentials) || errors.Is(err, domainError.ErrTotpInvalidCode) {
@@ -406,6 +413,16 @@ func Verify2FA(c *gin.Context) {
 		logging.Sugar.Errorf("2FA verification failed: %v", err)
 		response.InternalServerError(c, "Verification failed, please try again later")
 		return
+	}
+
+	// Set trusted device cookie if token was generated
+	if output.TrustedDeviceToken != "" {
+		days := viper.GetInt("security.trusted-device-days")
+		if days == 0 && !viper.IsSet("security.trusted-device-days") {
+			days = 7
+		}
+		maxAge := days * 86400
+		c.SetCookie("flmelody.trusted_device", output.TrustedDeviceToken, maxAge, "/", "", false, true)
 	}
 
 	loginResponse := LoginResponse{

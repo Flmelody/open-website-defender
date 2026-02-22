@@ -57,6 +57,7 @@ type SecurityConfig struct {
 	TokenExpirationHrs     int          `mapstructure:"token-expiration-hours"`
 	AdminRecoveryKey       string       `mapstructure:"admin-recovery-key"`
 	AdminRecoveryLocalOnly bool         `mapstructure:"admin-recovery-local-only"`
+	TrustedDeviceDays      int          `mapstructure:"trusted-device-days"`
 	CORS                   CORSConfig   `mapstructure:"cors"`
 	Headers                HeaderConfig `mapstructure:"headers"`
 }

@@ -60,6 +60,7 @@ export default {
     two_factor_code: "> 2FA Code:",
     btn_verify: "[ VERIFY ]",
     back: "[ BACK ]",
+    trust_device: "Trust this device",
   },
   user: {
     new_user: "[ NEW_USER ]",

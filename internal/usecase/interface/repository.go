@@ -78,3 +78,10 @@ type OAuthRefreshTokenRepository interface {
 	FindActiveByUserID(userID uint) ([]*entity.OAuthRefreshToken, error)
 	DeleteExpired() error
 }
+
+type TrustedDeviceRepository interface {
+	Create(device *entity.TrustedDevice) error
+	FindValidByToken(token string) (*entity.TrustedDevice, error)
+	DeleteByUserID(userID uint) error
+	DeleteExpired() error
+}

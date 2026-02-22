@@ -66,11 +66,12 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
-  async function verify2FA(code: string): Promise<void> {
+  async function verify2FA(code: string, trustDevice: boolean = false): Promise<void> {
     try {
       const res = await request.post<any, LoginResponse>("/admin-login/2fa", {
         challenge_token: pendingChallengeToken.value,
         code,
+        trust_device: trustDevice,
       });
 
       if (res.token) {

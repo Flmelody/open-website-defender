@@ -11,6 +11,7 @@ const requires2FA = ref(false)
 const challengeToken = ref('')
 const totpCode = ref('')
 const totpInputRef = ref(null)
+const trustDevice = ref(false)
 
 const formData = reactive({
   username: '',
@@ -161,7 +162,8 @@ const handleVerify2FA = async () => {
   try {
     const data = await request.post('/login/2fa', {
       challenge_token: challengeToken.value,
-      code: totpCode.value
+      code: totpCode.value,
+      trust_device: trustDevice.value
     })
 
     if (data.token) {
@@ -182,6 +184,7 @@ const handleCancel2FA = () => {
   requires2FA.value = false
   challengeToken.value = ''
   totpCode.value = ''
+  trustDevice.value = false
   errors.general = ''
 }
 </script>
@@ -269,6 +272,13 @@ const handleCancel2FA = () => {
                 class="totp-input"
                 placeholder="000000"
               >
+            </div>
+
+            <div class="input-line trust-line">
+              <label class="checkbox">
+                <input type="checkbox" v-model="trustDevice">
+                <span class="checkbox-text">> Trust this device</span>
+              </label>
             </div>
 
             <div class="error-text system" v-if="errors.general">

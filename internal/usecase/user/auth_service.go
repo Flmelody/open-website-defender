@@ -2,16 +2,20 @@ package user
 
 import (
 	"bytes"
+	"crypto/rand"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"image/png"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/pquerna/otp/totp"
 	"github.com/spf13/viper"
 	"open-website-defender/internal/adapter/repository"
+	"open-website-defender/internal/domain/entity"
 	domainError "open-website-defender/internal/domain/error"
 	"open-website-defender/internal/infrastructure/cache"
 	"open-website-defender/internal/infrastructure/database"
@@ -20,7 +24,8 @@ import (
 )
 
 type AuthService struct {
-	userRepo _interface.UserRepository
+	userRepo           _interface.UserRepository
+	trustedDeviceRepo  _interface.TrustedDeviceRepository
 }
 
 var (
@@ -31,15 +36,17 @@ var (
 func GetAuthService() *AuthService {
 	authOnce.Do(func() {
 		authService = &AuthService{
-			userRepo: repository.NewUserRepository(database.DB),
+			userRepo:          repository.NewUserRepository(database.DB),
+			trustedDeviceRepo: repository.NewTrustedDeviceRepository(database.DB),
 		}
 	})
 	return authService
 }
 
-func NewAuthService(userRepo _interface.UserRepository) *AuthService {
+func NewAuthService(userRepo _interface.UserRepository, trustedDeviceRepo _interface.TrustedDeviceRepository) *AuthService {
 	return &AuthService{
-		userRepo: userRepo,
+		userRepo:          userRepo,
+		trustedDeviceRepo: trustedDeviceRepo,
 	}
 }
 
@@ -106,6 +113,21 @@ func (s *AuthService) GuardLogin(input *LoginInputDTO) (*GuardLoginOutputDTO, er
 	}
 
 	if user.TotpEnabled {
+		// Check trusted device cookie
+		if input.TrustedDeviceToken != "" {
+			if s.CheckTrustedDevice(user.ID, input.TrustedDeviceToken) {
+				token, err := pkg.GenerateToken(user.Username, user.ID)
+				if err != nil {
+					return nil, err
+				}
+				return &GuardLoginOutputDTO{
+					RequiresTwoFA: false,
+					Token:         token,
+					User:          userInfo,
+				}, nil
+			}
+		}
+
 		challengeToken, err := pkg.Generate2FAToken(user.Username, user.ID)
 		if err != nil {
 			return nil, err
@@ -161,6 +183,21 @@ func (s *AuthService) AdminLogin(input *LoginInputDTO) (*AdminLoginOutputDTO, er
 	}
 
 	if user.TotpEnabled {
+		// Check trusted device cookie
+		if input.TrustedDeviceToken != "" {
+			if s.CheckTrustedDevice(user.ID, input.TrustedDeviceToken) {
+				token, err := pkg.GenerateToken(user.Username, user.ID)
+				if err != nil {
+					return nil, err
+				}
+				return &AdminLoginOutputDTO{
+					RequiresTwoFA: false,
+					Token:         token,
+					User:          userInfo,
+				}, nil
+			}
+		}
+
 		challengeToken, err := pkg.Generate2FAToken(user.Username, user.ID)
 		if err != nil {
 			return nil, err
@@ -215,7 +252,7 @@ func (s *AuthService) Verify2FALogin(input *TwoFALoginInputDTO) (*LoginOutputDTO
 		return nil, err
 	}
 
-	return &LoginOutputDTO{
+	output := &LoginOutputDTO{
 		Token: token,
 		User: &UserInfoDTO{
 			ID:          user.ID,
@@ -225,7 +262,52 @@ func (s *AuthService) Verify2FALogin(input *TwoFALoginInputDTO) (*LoginOutputDTO
 			Email:       user.Email,
 			TotpEnabled: user.TotpEnabled,
 		},
-	}, nil
+	}
+
+	// Generate trusted device token if requested
+	if input.TrustDevice {
+		days := viper.GetInt("security.trusted-device-days")
+		if days == 0 && !viper.IsSet("security.trusted-device-days") {
+			days = 7
+		}
+		if days > 0 {
+			deviceToken, err := s.createTrustedDevice(user.ID, days)
+			if err == nil {
+				output.TrustedDeviceToken = deviceToken
+			}
+		}
+	}
+
+	return output, nil
+}
+
+func (s *AuthService) CheckTrustedDevice(userID uint, token string) bool {
+	if token == "" {
+		return false
+	}
+	device, err := s.trustedDeviceRepo.FindValidByToken(token)
+	if err != nil || device == nil {
+		return false
+	}
+	return device.UserID == userID
+}
+
+func (s *AuthService) createTrustedDevice(userID uint, days int) (string, error) {
+	b := make([]byte, 32)
+	if _, err := rand.Read(b); err != nil {
+		return "", err
+	}
+	token := hex.EncodeToString(b)
+
+	device := &entity.TrustedDevice{
+		UserID:    userID,
+		Token:     token,
+		ExpiresAt: time.Now().UTC().Add(time.Duration(days) * 24 * time.Hour),
+	}
+	if err := s.trustedDeviceRepo.Create(device); err != nil {
+		return "", err
+	}
+	return token, nil
 }
 
 func (s *AuthService) SetupTotp(userID uint) (*TotpSetupOutputDTO, error) {
@@ -310,6 +392,10 @@ func (s *AuthService) DisableTotp(userID uint) error {
 	if err := s.userRepo.Update(user); err != nil {
 		return fmt.Errorf("failed to disable TOTP: %w", err)
 	}
+
+	// Invalidate all trusted devices for this user
+	_ = s.trustedDeviceRepo.DeleteByUserID(userID)
+
 	return nil
 }
 
@@ -392,6 +478,10 @@ func (s *AuthService) RecoverAdmin2FA(username, password, recoveryKey string) er
 	if err := s.userRepo.Update(user); err != nil {
 		return fmt.Errorf("failed to reset 2FA: %w", err)
 	}
+
+	// Invalidate all trusted devices for this user
+	_ = s.trustedDeviceRepo.DeleteByUserID(user.ID)
+
 	return nil
 }
 

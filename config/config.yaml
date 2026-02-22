@@ -44,6 +44,8 @@ security:
   admin-recovery-key: ""
   # Only allow 2FA recovery from localhost (default: true)
   admin-recovery-local-only: true
+  # Days to trust a device after successful 2FA (default: 7, set 0 to disable)
+  trusted-device-days: 7
 
   # CORS configuration
   cors:

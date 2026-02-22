@@ -37,13 +37,15 @@ type UserDTO struct {
 }
 
 type LoginInputDTO struct {
-	Username string
-	Password string
+	Username           string
+	Password           string
+	TrustedDeviceToken string
 }
 
 type LoginOutputDTO struct {
-	Token string
-	User  *UserInfoDTO
+	Token              string
+	TrustedDeviceToken string
+	User               *UserInfoDTO
 }
 
 type UserInfoDTO struct {
@@ -78,4 +80,5 @@ type TotpSetupOutputDTO struct {
 type TwoFALoginInputDTO struct {
 	ChallengeToken string
 	Code           string
+	TrustDevice    bool
 }

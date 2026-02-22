@@ -60,6 +60,7 @@ export default {
     two_factor_code: "> 验证码:",
     btn_verify: "[ 验证 ]",
     back: "[ 返回 ]",
+    trust_device: "信任此设备",
   },
   user: {
     new_user: "[ 新增用户 ]",

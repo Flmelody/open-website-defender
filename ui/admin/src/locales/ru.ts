@@ -60,6 +60,7 @@ export default {
     two_factor_code: "> Код 2FA:",
     btn_verify: "[ ПОДТВЕРДИТЬ ]",
     back: "[ НАЗАД ]",
+    trust_device: "Доверять этому устройству",
   },
   user: {
     new_user: "[ НОВЫЙ_ПОЛЬЗОВАТЕЛЬ ]",

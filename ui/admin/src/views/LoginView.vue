@@ -87,6 +87,12 @@
               />
             </div>
 
+            <div class="trust-device-wrapper">
+              <el-checkbox v-model="trustDevice" class="trust-checkbox">
+                {{ t("login.trust_device") }}
+              </el-checkbox>
+            </div>
+
             <div class="action-area totp-actions">
               <el-button
                 class="login-button back-button"
@@ -135,6 +141,7 @@ const loading = ref(false);
 const matrixCanvas = ref<HTMLCanvasElement | null>(null);
 const totpInputRef = ref();
 const totpCode = ref("");
+const trustDevice = ref(false);
 
 const loginForm = reactive({
   username: "",
@@ -187,7 +194,7 @@ const handleVerify2FA = async () => {
   if (totpCode.value.length !== 6) return;
   loading.value = true;
   try {
-    await authStore.verify2FA(totpCode.value);
+    await authStore.verify2FA(totpCode.value, trustDevice.value);
     ElMessage.success(t("login.access_granted"));
     router.push({ name: "dashboard" });
   } catch (error: any) {
@@ -203,6 +210,7 @@ const handleVerify2FA = async () => {
 const handleCancel2FA = () => {
   authStore.cancelChallenge();
   totpCode.value = "";
+  trustDevice.value = false;
 };
 
 // Matrix Effect - Enhanced for Authenticity
@@ -459,6 +467,31 @@ onUnmounted(() => {
 .back-button {
   border-color: rgba(0, 255, 0, 0.4) !important;
   color: rgba(0, 255, 0, 0.6) !important;
+}
+
+.trust-device-wrapper {
+  margin-top: 20px;
+}
+
+:deep(.trust-checkbox .el-checkbox__label) {
+  color: #0f0 !important;
+  font-family: "Courier New", monospace;
+  font-size: 14px;
+  text-shadow: 0 0 3px rgba(0, 255, 0, 0.3);
+}
+
+:deep(.trust-checkbox .el-checkbox__input.is-checked .el-checkbox__inner) {
+  background-color: rgba(0, 255, 0, 0.2) !important;
+  border-color: #0f0 !important;
+}
+
+:deep(.trust-checkbox .el-checkbox__inner) {
+  background-color: rgba(0, 20, 0, 0.5) !important;
+  border-color: rgba(0, 255, 0, 0.4) !important;
+}
+
+:deep(.trust-checkbox .el-checkbox__inner::after) {
+  border-color: #0f0 !important;
 }
 
 .copyright {

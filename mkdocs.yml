@@ -6,6 +6,8 @@ repo_name: Flmelody/open-website-defender
 
 theme:
   name: material
+  logo: assets/images/website-defender-logo.png
+  favicon: assets/images/website-defender-logo.png
   palette:
     - scheme: default
       primary: indigo

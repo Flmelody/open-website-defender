@@ -88,9 +88,10 @@
             </div>
 
             <div class="trust-device-wrapper">
-              <el-checkbox v-model="trustDevice" class="trust-checkbox">
-                {{ t("login.trust_device") }}
-              </el-checkbox>
+              <label class="trust-checkbox-custom">
+                <input type="checkbox" v-model="trustDevice">
+                <span class="checkbox-text">> {{ t("login.trust_device") }} [ <span class="check-mark" :class="{ checked: trustDevice }">✓</span> ]</span>
+              </label>
             </div>
 
             <div class="action-area totp-actions">
@@ -473,25 +474,30 @@ onUnmounted(() => {
   margin-top: 20px;
 }
 
-:deep(.trust-checkbox .el-checkbox__label) {
-  color: #0f0 !important;
+.trust-checkbox-custom {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.trust-checkbox-custom input {
+  display: none;
+}
+
+.trust-checkbox-custom .checkbox-text {
+  color: #0f0;
   font-family: "Courier New", monospace;
   font-size: 14px;
   text-shadow: 0 0 3px rgba(0, 255, 0, 0.3);
 }
 
-:deep(.trust-checkbox .el-checkbox__input.is-checked .el-checkbox__inner) {
-  background-color: rgba(0, 255, 0, 0.2) !important;
-  border-color: #0f0 !important;
+.trust-checkbox-custom .check-mark {
+  visibility: hidden;
 }
 
-:deep(.trust-checkbox .el-checkbox__inner) {
-  background-color: rgba(0, 20, 0, 0.5) !important;
-  border-color: rgba(0, 255, 0, 0.4) !important;
-}
-
-:deep(.trust-checkbox .el-checkbox__inner::after) {
-  border-color: #0f0 !important;
+.trust-checkbox-custom .check-mark.checked {
+  visibility: visible;
+  text-shadow: 0 0 5px #0f0;
 }
 
 .copyright {

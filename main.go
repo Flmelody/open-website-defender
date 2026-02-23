@@ -160,20 +160,18 @@ func main() {
 		logging.Sugar.Fatalf("Failed to embed admin folder")
 		return
 	}
-	r.Use(static.Serve(appConfig.RootPath+appConfig.AdminPath, adminFS))
 	guardFS, err := static.EmbedFolder(server, "ui/guard/dist")
 	if err != nil {
 		logging.Sugar.Fatalf("Failed to embed guard folder")
 		return
 	}
-	r.Use(static.Serve(appConfig.RootPath+appConfig.GuardPath, guardFS))
 	r.NoRoute(func(c *gin.Context) {
 		if strings.HasPrefix(c.Request.URL.Path, appConfig.RootPath+appConfig.AdminPath) {
-			c.FileFromFS("ui/admin/dist/index.html", http.FS(server))
+			c.FileFromFS("ui/admin/dist/", http.FS(server))
 			return
 		}
 		if strings.HasPrefix(c.Request.URL.Path, appConfig.RootPath+appConfig.GuardPath) {
-			c.FileFromFS("ui/guard/dist/index.html", http.FS(server))
+			c.FileFromFS("ui/guard/dist/", http.FS(server))
 			return
 		}
 		if strings.HasPrefix(c.Request.URL.Path, appConfig.RootPath) {
@@ -234,6 +232,10 @@ func main() {
 
 	// JS Challenge (Proof-of-Work) middleware — always registered, controlled by DB settings at runtime
 	r.Use(middleware.JSChallenge())
+
+	// Static files — after security middleware so challenges/blocks apply to all requests
+	r.Use(static.Serve(appConfig.RootPath+appConfig.AdminPath, adminFS))
+	r.Use(static.Serve(appConfig.RootPath+appConfig.GuardPath, guardFS))
 
 	// Register routes AFTER all middleware so they are included in the handler chain
 	_http.Setup(r, appConfig)

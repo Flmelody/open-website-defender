@@ -7,41 +7,47 @@ Website Defender is designed for simple, single-binary deployment with minimal d
 | Feature | Description |
 |---------|-------------|
 | **Single binary** | Frontend assets (admin dashboard and guard page) are embedded via Go's `go:embed` |
-| **Configuration** | Via `config/config.yaml` or environment variables |
+| **Configuration** | Via `config/config.yaml` for runtime settings; `.env` for build-time paths |
 | **Graceful shutdown** | Handles `SIGINT`/`SIGTERM` signals for clean shutdown |
 | **Trusted proxies** | Configurable list of proxy IPs for correct client IP detection |
 | **Database** | SQLite (default, zero-config) or PostgreSQL/MySQL for production |
 
 ## Quick Deployment
 
-### 1. Set Build-Time Environment Variables
+### Option A: Download Pre-built Binary
 
-The frontend API address is **compiled into the binary** at build time. You **must** set `BACKEND_HOST` to match your actual deployment URL before building, otherwise the frontend cannot reach the backend and login will fail.
-
-Create a `.env` file in the project root:
+Download the latest release for your platform from [GitHub Releases](https://github.com/Flmelody/open-website-defender/releases). The release archive contains the binary and a default `config.yaml`:
 
 ```bash
-# REQUIRED: change to your actual deployment URL
-BACKEND_HOST=https://defender.example.com/wall
+tar -xzf open-website-defender-linux-amd64.tar.gz
+cd open-website-defender-linux-amd64
+
+# Edit runtime config as needed
+vim config/config.yaml
+
+# Run
+./open-website-defender
+```
+
+Pre-built binaries use the default paths (`/wall`, `/admin`, `/guard`). If you need custom paths, build from source (see Option B).
+
+### Option B: Build from Source
+
+#### 1. Set Build-Time Paths (Optional)
+
+The URL paths (`ROOT_PATH`, `ADMIN_PATH`, `GUARD_PATH`) are compiled into the binary at build time. The defaults work for most deployments:
+
+```bash
+# .env (only needed if changing default paths)
 ROOT_PATH=/wall
 ADMIN_PATH=/admin
 GUARD_PATH=/guard
-GUARD_DOMAIN=
-PORT=9999
 ```
 
-Or export them directly:
+!!! note "Build-Time vs Runtime"
+    Only URL paths are baked into the binary. Settings like `backend-host`, `guard-domain`, database, and server port are all runtime configuration in `config.yaml` — no rebuild needed to change them.
 
-```bash
-export BACKEND_HOST=https://defender.example.com/wall
-```
-
-!!! danger "Common Pitfall"
-    If you build with the default `BACKEND_HOST=http://localhost:9999/wall` and deploy to a remote server, the admin dashboard will try to call `localhost:9999` in the user's browser -- API requests will fail and **you won't be able to log in**. Always set `BACKEND_HOST` to the public URL of your Defender instance before building.
-
-For the full list of build-time variables, see [Environment Variables](../configuration/environment-variables.md).
-
-### 2. Build the Binary
+#### 2. Build the Binary
 
 ```bash
 git clone https://github.com/Flmelody/open-website-defender.git
@@ -49,7 +55,17 @@ cd open-website-defender
 ./scripts/build.sh
 ```
 
-### 3. Configure
+#### 3. Multi-Platform Release Build
+
+To build for multiple platforms (for GitHub releases):
+
+```bash
+./scripts/release.sh
+```
+
+This produces archives for linux/amd64, linux/arm64, darwin/amd64, darwin/arm64, and windows/amd64 in the `dist/` directory.
+
+### 2. Configure
 
 Create or edit `config/config.yaml`:
 
@@ -66,6 +82,10 @@ default-user:
 
 trustedProxies:
   - "127.0.0.1"
+
+# Optional: only needed for cross-origin deployments
+# wall:
+#   backend-host: "https://defender.example.com/wall"
 ```
 
 !!! warning "Production Checklist"
@@ -79,15 +99,20 @@ trustedProxies:
 
 For the full configuration reference, see [Configuration](../configuration/index.md).
 
-### 4. Run
+### 3. Run
 
 ```bash
 ./app
 ```
 
-The application listens on port `9999` by default.
+The application listens on port `9999` by default. Change it in `config.yaml`:
 
-### 5. Configure Nginx
+```yaml
+server:
+  port: 8080
+```
+
+### 4. Configure Nginx
 
 Set up Nginx to use Website Defender as the auth provider. See [Nginx Setup](nginx-setup.md) for the complete configuration guide.
 

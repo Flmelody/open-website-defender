@@ -18,3 +18,4 @@ logs/
 
 # MkDocs build output
 site/
+/dist/

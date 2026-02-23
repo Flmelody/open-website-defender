@@ -57,6 +57,7 @@ plugins:
             JS Challenge: JS 挑战
             Security Events: 安全事件
             Webhook: Webhook 通知
+            Bot Management: 机器人管理
             Configuration: 配置说明
             Environment Variables: 环境变量
             Database: 数据库
@@ -85,6 +86,7 @@ nav:
       - JS Challenge: features/js-challenge.md
       - Security Events: features/security-events.md
       - Webhook: features/webhook.md
+      - Bot Management: features/bot-management.md
   - Configuration:
       - Configuration: configuration/index.md
       - Environment Variables: configuration/environment-variables.md

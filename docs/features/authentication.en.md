@@ -47,6 +47,23 @@ security:
     - Leave `admin-recovery-key` empty to completely disable the recovery endpoint.
     - The recovery endpoint requires valid username and password in addition to the recovery key.
 
+### Trusted Devices
+
+After successful 2FA verification, users can choose to mark their device as trusted. A trusted device stores a secure token (via cookie) that allows subsequent logins to skip the 2FA step for a configurable period.
+
+- Default trust duration: **7 days**
+- Configured via `security.trusted-device-days` in `config/config.yaml`
+- Set to `0` to disable trusted devices entirely (2FA will be required on every login)
+- When a user's 2FA is disabled or reset, all their trusted device tokens are automatically invalidated
+
+```yaml
+security:
+  trusted-device-days: 7  # set to 0 to disable
+```
+
+!!! note "How It Works"
+    On each login, if the request includes a valid trusted device token, the server verifies it against the database. If the token is valid and not expired, 2FA is bypassed and a JWT is issued directly. When a user completes 2FA and opts to trust the device, a cryptographically random token is generated, stored in the database with an expiration timestamp, and returned to the client.
+
 For 2FA management details, see [User Management](user-management.md).
 
 ## Cookie-based Authentication
@@ -63,6 +80,17 @@ Designed for machine access (CI/CD pipelines, scripts, automated tools). Git tok
 
 !!! tip "Use Git Tokens for Automation"
     Git tokens are ideal for integrating with tools like Git clients, CI runners, or monitoring systems that need to access protected services without interactive login.
+
+### Auto-Trust (Temporary Whitelist)
+
+When a request is successfully authenticated via a git token, the client IP is automatically added to a **temporary whitelist** for the requested domain. This temporary entry lasts for 300 seconds (5 minutes) and is automatically renewed on each subsequent git token authentication from the same IP.
+
+This mechanism is designed to improve performance for git operations (such as `git clone` or `git push`) that trigger many sequential HTTP requests. After the initial git token authentication, follow-up requests from the same IP are matched by the whitelist and skip token validation entirely.
+
+- Temporary whitelist entries are scoped to the specific domain of the original request
+- Entries expire automatically after 5 minutes of inactivity
+- If a permanent whitelist entry already covers the IP and domain, no temporary entry is created
+- Temporary entries are visible in the admin dashboard alongside regular whitelist entries
 
 ## License Token Authentication
 

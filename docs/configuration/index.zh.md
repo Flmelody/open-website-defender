@@ -41,6 +41,8 @@ security:
   jwt-secret: ""
   # 令牌过期时间（小时），默认 24
   token-expiration-hours: 24
+  # 受信任设备记忆天数（默认 7）
+  trusted-device-days: 7
   # 管理员 2FA 恢复密钥（留空则禁用恢复端点）
   admin-recovery-key: ""
   # 仅允许本地访问 2FA 恢复端点（默认 true）
@@ -83,6 +85,9 @@ rate-limit:
 # ==================================================
 request-filtering:
   enabled: true
+  # 语义分析引擎（更深层的 SQLi/XSS 检测）
+  semantic-analysis:
+    enabled: true
 
 # ==================================================
 # 地域封锁配置
@@ -95,9 +100,20 @@ geo-blocking:
   # 封锁的国家代码通过管理后台 API 管理（POST /geo-block-rules）
 
 # ==================================================
+# 缓存配置
+# ==================================================
+cache:
+  # 最大内存缓存大小（MB），默认 100
+  # size-mb: 100
+  # 多实例同步轮询间隔（秒），0 = 禁用
+  # sync-interval: 0
+
+# ==================================================
 # 服务器配置
 # ==================================================
 server:
+  # 监听端口（默认 9999，也可通过 PORT 环境变量设置）
+  # port: 9999
   # 最大请求体大小（MB），默认 10
   max-body-size-mb: 10
 
@@ -159,6 +175,29 @@ webhook:
     - scan_detected
 
 # ==================================================
+# Wall（前端运行时配置）
+# 这些值会在运行时注入到前端 HTML 中
+# ==================================================
+# wall:
+#   backend-host: ""       # 跨域部署时的 API 基础 URL
+#   guard-domain: ""       # SSO 跨子域名共享 Cookie 的域
+
+# ==================================================
+# 机器人管理配置
+# ==================================================
+bot-management:
+  enabled: false
+  # 对重复违规者从 JS 挑战升级到验证码
+  challenge-escalation: false
+  # 验证码提供商配置
+  captcha:
+    # 提供商：hcaptcha 或 turnstile
+    provider: ""
+    site-key: ""
+    secret-key: ""
+    cookie-ttl: 86400
+
+# ==================================================
 # 信任代理列表
 # ==================================================
 trustedProxies:
@@ -176,6 +215,161 @@ trustedProxies:
 
 !!! tip "配置热加载"
     部分配置项支持通过管理后台的"重载配置"功能或 `POST /system/reload` API 热加载，无需重启服务。
+
+---
+
+## 各配置段详解
+
+### 数据库
+
+配置数据库后端。Website Defender 支持 SQLite、PostgreSQL 和 MySQL。
+
+详细的多数据库配置示例请参阅 [数据库](database.md)。
+
+### 缓存
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `size-mb` | `100` | 最大内存缓存大小（MB） |
+| `sync-interval` | `0`（禁用） | 多实例同步轮询间隔（秒） |
+
+### 安全
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `jwt-secret` | `""`（随机） | JWT 令牌签名密钥 |
+| `token-expiration-hours` | `24` | JWT 令牌有效期（小时） |
+| `trusted-device-days` | `7` | 受信任设备记忆天数 |
+| `admin-recovery-key` | `""`（禁用） | 管理员 2FA 恢复密钥 |
+| `admin-recovery-local-only` | `true` | 限制 2FA 恢复仅限本地访问 |
+| `cors.allowed-origins` | `[]`（宽松） | 允许的 CORS 源列表 |
+| `cors.allow-credentials` | `true` | 是否允许 CORS 携带凭据 |
+| `headers.hsts-enabled` | `false` | 启用 HTTP 严格传输安全 |
+| `headers.frame-options` | `"DENY"` | X-Frame-Options 响应头 |
+
+!!! warning "生产环境安全设置"
+    生产环境中务必设置：
+
+    - 稳定的 `jwt-secret` 以确保令牌在重启后仍然有效
+    - 明确的 `cors.allowed-origins` 替代宽松的默认设置
+    - 如使用 HTTPS，启用 `hsts-enabled: true`
+
+### 速率限制
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `enabled` | `true` | 启用或禁用速率限制 |
+| `requests-per-minute` | `100` | 每个 IP 全局每分钟请求限制 |
+| `login.requests-per-minute` | `5` | 登录端点每个 IP 限制 |
+| `login.lockout-duration` | `300` | 登录锁定时长（秒） |
+
+更多详情请参阅 [速率限制](../features/rate-limiting.md)。
+
+### 请求过滤（WAF）
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `enabled` | `true` | 启用或禁用 WAF |
+| `semantic-analysis.enabled` | `true` | 启用语义分析引擎进行更深层的 SQLi/XSS 检测 |
+
+更多详情请参阅 [WAF 规则](../features/waf.md)。
+
+### 地域封锁
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `enabled` | `false` | 启用或禁用地域 IP 封锁 |
+| `database-path` | `""` | MaxMind GeoLite2-Country `.mmdb` 文件路径 |
+
+更多详情请参阅 [地域 IP 封锁](../features/geo-blocking.md)。
+
+### 服务器
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `port` | `9999` | 监听端口（也可通过 `PORT` 环境变量设置） |
+| `max-body-size-mb` | `10` | 最大请求体大小（MB） |
+
+### 默认用户
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `username` | `defender` | 首次启动时创建的默认管理员用户名 |
+| `password` | `defender` | 首次启动时创建的默认管理员密码 |
+
+!!! warning "修改默认凭据"
+    首次登录后请立即修改默认用户名和密码。
+
+### 威胁检测
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `enabled` | `true` | 启用或禁用自动威胁检测 |
+| `status-code-threshold` | `20` | 自动封禁前的 4xx 响应次数 |
+| `status-code-window` | `60` | 4xx 计数时间窗口（秒） |
+| `rate-limit-abuse-threshold` | `5` | 自动封禁前的速率限制触发次数 |
+| `rate-limit-abuse-window` | `300` | 速率限制计数时间窗口（秒） |
+| `auto-ban-duration` | `3600` | 默认自动封禁时长（秒） |
+| `scan-threshold` | `10` | 扫描检测前的 404 响应次数 |
+| `scan-window` | `300` | 扫描计数时间窗口（秒） |
+| `scan-ban-duration` | `14400` | 扫描检测封禁时长（秒） |
+| `brute-force-threshold` | `10` | 暴力破解检测前的失败登录次数 |
+| `brute-force-window` | `600` | 暴力破解计数时间窗口（秒） |
+| `brute-force-ban-duration` | `3600` | 暴力破解封禁时长（秒） |
+
+更多详情请参阅 [威胁检测](../features/threat-detection.md)。
+
+### JS 挑战
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `enabled` | `false` | 启用或禁用 JS 挑战 |
+| `mode` | `"suspicious"` | 挑战模式：`off`、`suspicious` 或 `all` |
+| `difficulty` | `4` | 要求的前导零数量（1-6） |
+| `cookie-ttl` | `86400` | 通过 Cookie 有效期（秒） |
+| `cookie-secret` | `""` | Cookie 签名 HMAC 密钥 |
+
+更多详情请参阅 [JS 挑战](../features/js-challenge.md)。
+
+### Webhook
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `url` | `""`（禁用） | Webhook 端点 URL |
+| `timeout` | `5` | 请求超时时间（秒） |
+| `events` | `[auto_ban, brute_force, scan_detected]` | 触发通知的事件类型 |
+
+更多详情请参阅 [Webhook](../features/webhook.md)。
+
+### Wall（前端运行时配置）
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `backend-host` | `""`（同源） | API 基础 URL，仅在跨域部署时需要设置 |
+| `guard-domain` | `""` | SSO 跨子域名共享 Cookie 的域 |
+
+这些值会在运行时通过 `window.__APP_CONFIG__` 注入到前端 HTML 中。大多数部署场景下无需设置，仅当前端和后端位于不同源、或需要在多个子域名之间共享 Guard Cookie 时才需要配置。
+
+### 机器人管理
+
+| 配置项 | 默认值 | 说明 |
+|--------|--------|------|
+| `enabled` | `false` | 启用或禁用机器人管理 |
+| `challenge-escalation` | `false` | 对重复违规者从 JS 挑战升级到验证码 |
+| `captcha.provider` | `""`（禁用） | 验证码提供商：`hcaptcha` 或 `turnstile` |
+| `captcha.site-key` | `""` | 验证码提供商站点密钥 |
+| `captcha.secret-key` | `""` | 验证码提供商密钥 |
+| `captcha.cookie-ttl` | `86400` | 验证码通过 Cookie 有效期（秒） |
+
+### 信任代理
+
+`trustedProxies` 列表指定了哪些代理 IP 是可信的，用于正确解析 `X-Forwarded-For` 等转发头中的客户端 IP。在反向代理后运行时需要正确配置此项。
+
+```yaml
+trustedProxies:
+  - "127.0.0.1"
+  - "::1"
+```
 
 ---
 

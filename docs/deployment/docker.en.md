@@ -33,7 +33,7 @@ docker build -t defender .
 
 # Or with custom build arguments
 docker build \
-  --build-arg BACKEND_HOST=https://example.com/wall \
+  --build-arg ROOT_PATH=/api \
   -t defender .
 
 # Run the container (works without any volume mounts)
@@ -49,62 +49,60 @@ The Dockerfile accepts build arguments to customize the frontend at build time. 
 
 | Argument | Default | Description |
 |----------|---------|-------------|
-| `BACKEND_HOST` | `http://localhost:9999/wall` | Full URL the browser uses to reach the backend API |
 | `ROOT_PATH` | `/wall` | API route prefix |
 | `ADMIN_PATH` | `/admin` | Admin dashboard path |
 | `GUARD_PATH` | `/guard` | Guard/challenge page path |
 
-!!! warning "BACKEND_HOST Must Match Your Actual Access URL"
-    `BACKEND_HOST` is embedded into the frontend JavaScript at build time. It must match the URL that users will actually use to access the service (including the correct host and port).
-
-    For example, if you map the container to port 8080 (`-p 8080:9999`), you **must** set:
-
-    ```
-    BACKEND_HOST=http://localhost:8080/wall
-    ```
-
-    Otherwise the frontend will still try to reach port 9999, which will fail.
+!!! tip "BACKEND_HOST is Now Runtime Configuration"
+    `BACKEND_HOST` is no longer a build argument. It is configured at runtime via `wall.backend-host` in `config.yaml` or the `BACKEND_HOST` environment variable. Changing it does **not** require rebuilding the image.
 
 ### Configuration Flow
 
-All build arguments share the same variable names as the `.env` file used by `scripts/build.sh`:
+Build arguments (`ROOT_PATH`, `ADMIN_PATH`, `GUARD_PATH`) share the same variable names as the `.env` file used by `scripts/build.sh`:
 
 ```
 .env  ──▶  docker-compose.yml (${VAR:-default})  ──▶  Dockerfile ARG
                                                          ▼
 scripts/build.sh  ◀── .env                        Vite env + Go ldflags
+
+config.yaml (wall.backend-host)  ──▶  runtime config (no rebuild needed)
 ```
 
 - **`docker compose build`**: reads `.env` automatically, passes values as build args, overriding Dockerfile ARG defaults.
 - **`docker build`** (standalone): uses Dockerfile ARG defaults directly. Pass `--build-arg` to override.
+- **`BACKEND_HOST`**: resolved at runtime from `config.yaml` (`wall.backend-host`) or the `BACKEND_HOST` environment variable. Not part of the build.
 
 ## Port Configuration
 
-The `PORT` variable from `.env` drives the entire port chain — the application listening port inside the container, the Docker port mapping, and the `EXPOSE` directive:
+The application port can be configured at runtime via the `PORT` environment variable or `server.port` in `config.yaml`. In Docker Compose, `PORT` from `.env` drives both the port mapping and the application listening port:
 
 ```
 .env (PORT=8080)
-  ├──▶ build arg   ──▶ Dockerfile EXPOSE 8080
   ├──▶ ports       ──▶ "8080:8080"
   └──▶ environment ──▶ Go app listens on :8080
 ```
 
-To change the port, set `PORT` and `BACKEND_HOST` together in `.env`:
+To change the port, set `PORT` in `.env`:
 
 ```bash
 # .env
 PORT=8080
-BACKEND_HOST=http://localhost:8080/wall
 ```
 
-Then rebuild:
+Then restart:
 
 ```bash
-docker compose up -d --build
+docker compose up -d
 ```
 
-!!! note
-    `BACKEND_HOST` is baked into the frontend at build time. When changing `PORT`, always update `BACKEND_HOST` to match and rebuild the image.
+Alternatively, set the port in `config.yaml`:
+
+```yaml
+server:
+  port: 8080
+```
+
+No rebuild is needed when changing the port. If using a non-standard port and your frontend is accessed from a different origin, set `wall.backend-host` in `config.yaml` to match.
 
 ## Volumes
 
@@ -226,7 +224,7 @@ No `trustedProxies` configuration is needed in this mode. Note that `ports` mapp
     - Configure `trustedProxies` to include your reverse proxy IPs
     - Set explicit `security.cors.allowed-origins`
     - Use a named Docker volume or bind mount for `/app/data`
-    - Set `BACKEND_HOST` to the actual production URL before building
+    - Set `wall.backend-host` in `config.yaml` for cross-origin deployments
 
 ### Running Behind Nginx
 

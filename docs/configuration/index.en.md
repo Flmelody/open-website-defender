@@ -37,6 +37,8 @@ security:
   jwt-secret: ""
   # Token expiration time in hours (default: 24)
   token-expiration-hours: 24
+  # Number of days a trusted device is remembered (default: 7)
+  trusted-device-days: 7
 
   # CORS configuration
   cors:
@@ -69,6 +71,9 @@ rate-limit:
 # Request filtering configuration (WAF: SQLi, XSS, Path Traversal detection)
 request-filtering:
   enabled: true
+  # Semantic analysis engine (deeper SQLi/XSS detection)
+  semantic-analysis:
+    enabled: true
 
 # Geo-IP blocking configuration
 geo-blocking:
@@ -78,8 +83,17 @@ geo-blocking:
   database-path: ""
   # Blocked countries are managed via the admin API (POST /geo-block-rules)
 
+# Cache configuration
+cache:
+  # Maximum in-memory cache size in MB (default: 100)
+  # size-mb: 100
+  # Multi-instance sync polling interval in seconds (0 = disabled)
+  # sync-interval: 0
+
 # Server configuration
 server:
+  # Listening port (default: 9999, can also be set via PORT env var)
+  # port: 9999
   # Maximum request body size in MB (default: 10)
   max-body-size-mb: 10
 
@@ -130,6 +144,25 @@ webhook:
     - brute_force
     - scan_detected
 
+# Wall (frontend runtime) configuration
+# These values are injected into the frontend HTML at runtime.
+# wall:
+#   backend-host: ""       # API base URL for cross-origin setups
+#   guard-domain: ""       # Cookie domain for SSO across subdomains
+
+# Bot management configuration
+bot-management:
+  enabled: false
+  # Escalate from JS challenge to CAPTCHA on repeat offenders
+  challenge-escalation: false
+  # CAPTCHA provider configuration
+  captcha:
+    # Provider: hcaptcha or turnstile
+    provider: ""
+    site-key: ""
+    secret-key: ""
+    cookie-ttl: 86400
+
 # Trusted proxy IPs (for correct client IP detection behind reverse proxies)
 trustedProxies:
   - "127.0.0.1"
@@ -144,12 +177,20 @@ Configures the database backend. Website Defender supports SQLite, PostgreSQL, a
 
 For detailed database configuration with examples for each driver, see [Database](database.md).
 
+### Cache
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `size-mb` | `100` | Maximum in-memory cache size in megabytes |
+| `sync-interval` | `0` (disabled) | Multi-instance sync polling interval in seconds |
+
 ### Security
 
 | Setting | Default | Description |
 |---------|---------|-------------|
 | `jwt-secret` | `""` (random) | Secret key for JWT token signing |
 | `token-expiration-hours` | `24` | JWT token validity period in hours |
+| `trusted-device-days` | `7` | Number of days a trusted device is remembered |
 | `admin-recovery-key` | `""` (disabled) | Recovery key for resetting admin 2FA |
 | `admin-recovery-local-only` | `true` | Restrict 2FA recovery to localhost |
 | `cors.allowed-origins` | `[]` (permissive) | List of allowed CORS origins |
@@ -180,6 +221,7 @@ For more details, see [Rate Limiting](../features/rate-limiting.md).
 | Setting | Default | Description |
 |---------|---------|-------------|
 | `enabled` | `true` | Enable or disable the WAF |
+| `semantic-analysis.enabled` | `true` | Enable semantic analysis engine for deeper SQLi/XSS detection |
 
 For more details, see [WAF Rules](../features/waf.md).
 
@@ -196,6 +238,7 @@ For more details, see [Geo-IP Blocking](../features/geo-blocking.md).
 
 | Setting | Default | Description |
 |---------|---------|-------------|
+| `port` | `9999` | Listening port (can also be set via `PORT` env var) |
 | `max-body-size-mb` | `10` | Maximum request body size in megabytes |
 
 ### Default User
@@ -248,6 +291,26 @@ For more details, see [JS Challenge](../features/js-challenge.md).
 | `events` | `[auto_ban, brute_force, scan_detected]` | Event types that trigger notifications |
 
 For more details, see [Webhook](../features/webhook.md).
+
+### Wall (Frontend Runtime)
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `backend-host` | `""` (same-origin) | API base URL, only needed for cross-origin deployments |
+| `guard-domain` | `""` | Cookie domain for SSO across subdomains |
+
+These values are injected into the frontend HTML at runtime via `window.__APP_CONFIG__`. In most deployments you do not need to set them -- they are only required when the frontend and backend are served from different origins, or when you need guard cookies to be shared across subdomains.
+
+### Bot Management
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `enabled` | `false` | Enable or disable bot management |
+| `challenge-escalation` | `false` | Escalate from JS challenge to CAPTCHA on repeat offenders |
+| `captcha.provider` | `""` (disabled) | CAPTCHA provider: `hcaptcha` or `turnstile` |
+| `captcha.site-key` | `""` | CAPTCHA provider site key |
+| `captcha.secret-key` | `""` | CAPTCHA provider secret key |
+| `captcha.cookie-ttl` | `86400` | CAPTCHA pass cookie lifetime in seconds |
 
 ### Trusted Proxies
 

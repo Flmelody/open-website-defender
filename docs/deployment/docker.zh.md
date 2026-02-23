@@ -33,7 +33,7 @@ docker build -t defender .
 
 # 或使用自定义构建参数
 docker build \
-  --build-arg BACKEND_HOST=https://example.com/wall \
+  --build-arg ROOT_PATH=/api \
   -t defender .
 
 # 运行容器（无需挂载任何卷即可使用默认配置）
@@ -49,62 +49,60 @@ Dockerfile 接受以下构建参数来自定义前端配置。这些值会通过
 
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
-| `BACKEND_HOST` | `http://localhost:9999/wall` | 浏览器访问后端 API 的完整 URL |
 | `ROOT_PATH` | `/wall` | API 路由前缀 |
 | `ADMIN_PATH` | `/admin` | 管理后台路径 |
 | `GUARD_PATH` | `/guard` | 防护页路径 |
 
-!!! warning "BACKEND_HOST 必须与实际访问地址一致"
-    `BACKEND_HOST` 在构建时嵌入前端 JavaScript 中，必须与用户实际访问服务的 URL 一致（包括正确的主机和端口）。
-
-    例如，如果将容器映射到 8080 端口（`-p 8080:9999`），**必须**设置：
-
-    ```
-    BACKEND_HOST=http://localhost:8080/wall
-    ```
-
-    否则前端仍会尝试访问 9999 端口，导致请求失败。
+!!! tip "BACKEND_HOST 已改为运行时配置"
+    `BACKEND_HOST` 不再是构建参数，而是通过 `config.yaml` 中的 `wall.backend-host` 或 `BACKEND_HOST` 环境变量在运行时配置。修改此项**无需**重新构建镜像。
 
 ### 配置流向
 
-所有构建参数与 `scripts/build.sh` 使用的 `.env` 文件共享相同的变量名：
+构建参数（`ROOT_PATH`、`ADMIN_PATH`、`GUARD_PATH`）与 `scripts/build.sh` 使用的 `.env` 文件共享相同的变量名：
 
 ```
 .env  ──▶  docker-compose.yml (${VAR:-default})  ──▶  Dockerfile ARG
                                                          ▼
 scripts/build.sh  ◀── .env                        Vite 环境变量 + Go ldflags
+
+config.yaml (wall.backend-host)  ──▶  运行时配置（无需重新构建）
 ```
 
 - **`docker compose build`**：自动读取 `.env`，将变量作为构建参数传入，覆盖 Dockerfile ARG 默认值。
 - **`docker build`**（独立使用）：直接使用 Dockerfile ARG 默认值。通过 `--build-arg` 覆盖。
+- **`BACKEND_HOST`**：在运行时通过 `config.yaml`（`wall.backend-host`）或 `BACKEND_HOST` 环境变量配置，不参与构建流程。
 
 ## 端口配置
 
-`.env` 中的 `PORT` 变量驱动整个端口链路——容器内应用监听端口、Docker 端口映射和 `EXPOSE` 指令：
+应用端口可在运行时通过 `PORT` 环境变量或 `config.yaml` 中的 `server.port` 配置。使用 Docker Compose 时，`.env` 中的 `PORT` 同时驱动端口映射和应用监听端口：
 
 ```
 .env (PORT=8080)
-  ├──▶ 构建参数   ──▶ Dockerfile EXPOSE 8080
   ├──▶ 端口映射   ──▶ "8080:8080"
   └──▶ 环境变量   ──▶ Go 应用监听 :8080
 ```
 
-如需更改端口，在 `.env` 中同时设置 `PORT` 和 `BACKEND_HOST`：
+如需更改端口，在 `.env` 中设置 `PORT`：
 
 ```bash
 # .env
 PORT=8080
-BACKEND_HOST=http://localhost:8080/wall
 ```
 
-然后重新构建：
+然后重启：
 
 ```bash
-docker compose up -d --build
+docker compose up -d
 ```
 
-!!! note
-    `BACKEND_HOST` 在构建时嵌入前端。修改 `PORT` 时，务必同步更新 `BACKEND_HOST` 并重新构建镜像。
+也可以在 `config.yaml` 中设置端口：
+
+```yaml
+server:
+  port: 8080
+```
+
+更改端口无需重新构建镜像。如果使用非标准端口且前端从不同来源访问，请在 `config.yaml` 中设置 `wall.backend-host` 以匹配。
 
 ## 数据卷
 
@@ -226,7 +224,7 @@ services:
     - 配置 `trustedProxies` 包含反向代理的 IP
     - 设置明确的 `security.cors.allowed-origins`
     - 使用命名 Docker 卷或绑定挂载 `/app/data`
-    - 构建前将 `BACKEND_HOST` 设置为实际的生产环境 URL
+    - 跨域部署时在 `config.yaml` 中设置 `wall.backend-host`
 
 ### 在 Nginx 后运行
 

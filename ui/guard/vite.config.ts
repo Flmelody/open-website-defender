@@ -11,18 +11,15 @@ export default defineConfig(({mode}) => {
   const rootDir = path.resolve(__dirname, '../..')
   const env = loadEnv(mode, rootDir, '')
 
-  // 构建时读取环境变量（会被打包到代码中）
-  // 开发时从 process.env 读取，构建时固化到代码
-  const backendHost = process.env.VITE_BACKEND_HOST || env.BACKEND_HOST || 'http://localhost:9999/wall'
+  // 构建时读取环境变量（路径会被打包到代码中，BACKEND_HOST/GUARD_DOMAIN 由运行时注入）
   const rootPath = process.env.VITE_ROOT_PATH || env.ROOT_PATH || '/wall'
   const guardPath = process.env.VITE_GUARD_PATH || env.GUARD_PATH || '/guard'
-  const guardDomain = process.env.VITE_GUARD_DOMAIN || env.GUARD_DOMAIN || ''
   const adminPath = process.env.VITE_ADMIN_PATH || env.ADMIN_PATH || '/admin'
 
-  console.log('Build config:', {backendHost, rootPath, guardPath, adminPath})
+  console.log('Build config:', {rootPath, guardPath, adminPath})
 
-  // 提取后端地址（不含路径）用于 proxy
-  const backendOrigin = new URL(backendHost).origin
+  // Dev proxy target (only used in dev server, not baked into build)
+  const devBackend = process.env.VITE_BACKEND_HOST || env.BACKEND_HOST || 'http://localhost:9999'
 
   return {
     plugins: [
@@ -37,7 +34,7 @@ export default defineConfig(({mode}) => {
     server: {
       proxy: {
         '/api': {
-          target: backendOrigin,
+          target: devBackend,
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, '')
         }
@@ -45,10 +42,8 @@ export default defineConfig(({mode}) => {
     },
     base: `${rootPath}${guardPath}`,
     define: {
-      '__BUILD_BACKEND_HOST__': JSON.stringify(backendHost),
       '__BUILD_ROOT_PATH__': JSON.stringify(rootPath),
       '__BUILD_GUARD_PATH__': JSON.stringify(guardPath),
-      '__BUILD_GUARD_DOMAIN__': JSON.stringify(guardDomain),
       '__BUILD_ADMIN_PATH__': JSON.stringify(adminPath),
     }
   }

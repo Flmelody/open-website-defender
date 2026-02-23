@@ -9,13 +9,11 @@ RUN cd ui/guard && npm ci
 
 COPY ui/guard/ ./ui/guard/
 
-ARG BACKEND_HOST=http://localhost:9999/wall
 ARG ROOT_PATH=/wall
 ARG ADMIN_PATH=/admin
 ARG GUARD_PATH=/guard
 
-ENV VITE_BACKEND_HOST=$BACKEND_HOST \
-    VITE_ROOT_PATH=$ROOT_PATH \
+ENV VITE_ROOT_PATH=$ROOT_PATH \
     VITE_ADMIN_PATH=$ADMIN_PATH \
     VITE_GUARD_PATH=$GUARD_PATH
 
@@ -45,13 +43,11 @@ COPY . .
 COPY --from=frontend-builder /build/ui/guard/dist ./ui/guard/dist
 COPY --from=frontend-builder /build/ui/admin/dist ./ui/admin/dist
 
-ARG BACKEND_HOST=http://localhost:9999/wall
 ARG ROOT_PATH=/wall
 ARG ADMIN_PATH=/admin
 ARG GUARD_PATH=/guard
 
 RUN CGO_ENABLED=1 go build -ldflags "\
-    -X 'main.BackendHost=$BACKEND_HOST' \
     -X 'main.RootPath=$ROOT_PATH' \
     -X 'main.AdminPath=$ADMIN_PATH' \
     -X 'main.GuardPath=$GUARD_PATH' \

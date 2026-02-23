@@ -97,10 +97,11 @@ type BlacklistConfig struct {
 }
 
 type AppConfig struct {
-	BaseURL   string `mapstructure:"backend-host" json:"baseURL"`
-	RootPath  string `mapstructure:"root-path" json:"rootPath"`
-	AdminPath string `mapstructure:"admin-path" json:"adminPath"`
-	GuardPath string `mapstructure:"guard-path" json:"guardPath"`
+	BaseURL     string `mapstructure:"backend-host" json:"baseURL"`
+	RootPath    string `mapstructure:"root-path" json:"rootPath"`
+	AdminPath   string `mapstructure:"admin-path" json:"adminPath"`
+	GuardPath   string `mapstructure:"guard-path" json:"guardPath"`
+	GuardDomain string `mapstructure:"guard-domain" json:"guardDomain,omitempty"`
 }
 
 type ThreatDetectionConfig struct {

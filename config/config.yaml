@@ -54,7 +54,7 @@ security:
     # allowed-origins:
     #   - "https://example.com"
     #   - "https://admin.example.com"
-    allowed-origins: []
+    allowed-origins: [ ]
     allow-credentials: true
 
   # Security response headers
@@ -93,6 +93,8 @@ geo-blocking:
 
 # Server configuration
 server:
+  # Listening port (default: 9999). Can also be set via env var PORT.
+  # port: 9999
   # Maximum request body size in MB (default: 10)
   max-body-size-mb: 10
 
@@ -176,6 +178,13 @@ bot-management:
     secret-key: ""
     # CAPTCHA pass cookie TTL in seconds (default: 24 hours)
     cookie-ttl: 86400
+
+# Wall (frontend runtime) configuration
+# These override the build-time defaults without rebuilding the frontend.
+# Can also be set via environment variables: BACKEND_HOST, GUARD_DOMAIN
+# wall:
+#    backend-host: ""       # API base URL for cross-origin setups (default: same-origin via root-path)
+#    guard-domain: ""       # Cookie domain for SSO across subdomains (e.g. ".example.com")
 
 trustedProxies:
   - "127.0.0.1"

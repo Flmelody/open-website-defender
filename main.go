@@ -3,7 +3,9 @@ package main
 import (
 	"context"
 	"embed"
+	"encoding/json"
 	"flag"
+	"fmt"
 	"net/http"
 	_http "open-website-defender/internal/adapter/controller/http"
 	"open-website-defender/internal/adapter/controller/http/middleware"
@@ -25,10 +27,9 @@ import (
 )
 
 var (
-	BackendHost = "http://localhost:9999/wall"
-	RootPath    = "/wall"
-	AdminPath   = "/admin"
-	GuardPath   = "/guard"
+	RootPath  = "/wall"
+	AdminPath = "/admin"
+	GuardPath = "/guard"
 )
 
 func loadConfig() error {
@@ -58,31 +59,40 @@ func loadConfig() error {
 }
 
 func getAppConfig() *config.AppConfig {
-	backendHost := viper.GetString("BACKEND_HOST")
-	if backendHost == "" {
-		backendHost = BackendHost
-	}
-
+	// Paths: env/.env only — must match the frontend Vite build.
+	// Changing these requires rebuilding the frontend.
 	rootPath := viper.GetString("ROOT_PATH")
 	if rootPath == "" {
 		rootPath = RootPath
 	}
-
 	adminPath := viper.GetString("ADMIN_PATH")
 	if adminPath == "" {
 		adminPath = AdminPath
 	}
-
 	guardPath := viper.GetString("GUARD_PATH")
 	if guardPath == "" {
 		guardPath = GuardPath
 	}
 
+	// Runtime-changeable: env/.env → config.yaml wall.* — no rebuild needed.
+	backendHost := viper.GetString("BACKEND_HOST")
+	if backendHost == "" {
+		backendHost = viper.GetString("wall.backend-host")
+	}
+	if backendHost == "" {
+		backendHost = rootPath // same-origin: relative path is sufficient
+	}
+	guardDomain := viper.GetString("GUARD_DOMAIN")
+	if guardDomain == "" {
+		guardDomain = viper.GetString("wall.guard-domain")
+	}
+
 	appConfig := &config.AppConfig{
-		BaseURL:   backendHost,
-		RootPath:  rootPath,
-		AdminPath: adminPath,
-		GuardPath: guardPath,
+		BaseURL:     backendHost,
+		RootPath:    rootPath,
+		AdminPath:   adminPath,
+		GuardPath:   guardPath,
+		GuardDomain: guardDomain,
 	}
 
 	validatePath := func(path, name string) {
@@ -165,13 +175,49 @@ func main() {
 		logging.Sugar.Fatalf("Failed to embed guard folder")
 		return
 	}
+
+	// Prepare runtime config injection for SPA index.html files.
+	// Only inject values that can change at runtime without rebuilding the frontend.
+	// Paths are already baked into the frontend by Vite `base`.
+	runtimeCfg := map[string]string{}
+
+	// baseURL: explicit backend-host for cross-origin, otherwise rootPath for same-origin.
+	runtimeBaseURL := appConfig.RootPath
+	if v := viper.GetString("BACKEND_HOST"); v != "" {
+		runtimeBaseURL = v
+	} else if v := viper.GetString("wall.backend-host"); v != "" {
+		runtimeBaseURL = v
+	}
+	runtimeCfg["baseURL"] = runtimeBaseURL
+
+	if appConfig.GuardDomain != "" {
+		runtimeCfg["guardDomain"] = appConfig.GuardDomain
+	}
+
+	configJSON, err := json.Marshal(runtimeCfg)
+	if err != nil {
+		logging.Sugar.Fatalf("Failed to marshal runtime config: %s", err)
+		return
+	}
+	configScript := fmt.Sprintf(`<script>window.__APP_CONFIG__=%s</script>`, configJSON)
+
+	injectConfig := func(htmlPath string) []byte {
+		raw, err := server.ReadFile(htmlPath)
+		if err != nil {
+			logging.Sugar.Fatalf("Failed to read %s: %s", htmlPath, err)
+		}
+		return []byte(strings.Replace(string(raw), "</head>", configScript+"</head>", 1))
+	}
+	adminHTML := injectConfig("ui/admin/dist/index.html")
+	guardHTML := injectConfig("ui/guard/dist/index.html")
+
 	r.NoRoute(func(c *gin.Context) {
 		if strings.HasPrefix(c.Request.URL.Path, appConfig.RootPath+appConfig.AdminPath) {
-			c.FileFromFS("ui/admin/dist/", http.FS(server))
+			c.Data(http.StatusOK, "text/html; charset=utf-8", adminHTML)
 			return
 		}
 		if strings.HasPrefix(c.Request.URL.Path, appConfig.RootPath+appConfig.GuardPath) {
-			c.FileFromFS("ui/guard/dist/", http.FS(server))
+			c.Data(http.StatusOK, "text/html; charset=utf-8", guardHTML)
 			return
 		}
 		if strings.HasPrefix(c.Request.URL.Path, appConfig.RootPath) {
@@ -233,7 +279,10 @@ func main() {
 	// JS Challenge (Proof-of-Work) middleware — always registered, controlled by DB settings at runtime
 	r.Use(middleware.JSChallenge())
 
-	// Static files — after security middleware so challenges/blocks apply to all requests
+	// Static files — after security middleware so challenges/blocks apply to all requests.
+	// Paths must match the Vite `base` used during frontend build.
+	// Self-compile: .env sets paths for both Vite and Go, so they match.
+	// Pre-built binary: uses defaults; changing paths at runtime requires a frontend rebuild.
 	r.Use(static.Serve(appConfig.RootPath+appConfig.AdminPath, adminFS))
 	r.Use(static.Serve(appConfig.RootPath+appConfig.GuardPath, guardFS))
 
@@ -241,7 +290,11 @@ func main() {
 	_http.Setup(r, appConfig)
 
 	// Server configuration with timeouts
+	// Priority: OS env (Docker) → config.yaml → default
 	port := os.Getenv("PORT")
+	if port == "" {
+		port = viper.GetString("server.port")
+	}
 	if port == "" {
 		port = "9999"
 	}

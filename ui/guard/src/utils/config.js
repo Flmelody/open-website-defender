@@ -1,9 +1,9 @@
-// 编译时注入的配置（由 Vite define 替换）
+// 编译时注入的配置（路径由 Vite define 替换，baseURL/guardDomain 由运行时注入）
 const BUILD_CONFIG = {
-  baseURL: typeof __BUILD_BACKEND_HOST__ !== 'undefined' ? __BUILD_BACKEND_HOST__ : 'http://localhost:9999/wall',
+  baseURL: '/wall', // fallback for dev; overridden by runtime __APP_CONFIG__
   rootPath: typeof __BUILD_ROOT_PATH__ !== 'undefined' ? __BUILD_ROOT_PATH__ : '/wall',
   guardPath: typeof __BUILD_GUARD_PATH__ !== 'undefined' ? __BUILD_GUARD_PATH__ : '/guard',
-  guardDomain: typeof __BUILD_GUARD_DOMAIN__ !== 'undefined' ? __BUILD_GUARD_DOMAIN__ : '/guard',
+  guardDomain: '', // runtime-only via __APP_CONFIG__
   adminPath: typeof __BUILD_ADMIN_PATH__ !== 'undefined' ? __BUILD_ADMIN_PATH__ : '/admin',
 }
 
@@ -12,6 +12,10 @@ const BUILD_CONFIG = {
  * @returns {{baseURL: string, rootPath: string, guardPath: string,guardDomain: string, adminPath: string}}
  */
 export function getAppConfig() {
+  const runtime = window.__APP_CONFIG__
+  if (runtime) {
+    return { ...BUILD_CONFIG, ...runtime }
+  }
   return BUILD_CONFIG
 }
 

@@ -1,9 +1,6 @@
-// 编译时注入的配置（由 Vite define 替换）
+// 编译时注入的配置（路径由 Vite define 替换，baseURL 由运行时注入）
 const BUILD_CONFIG = {
-  baseURL:
-    typeof __BUILD_BACKEND_HOST__ !== "undefined"
-      ? __BUILD_BACKEND_HOST__
-      : "http://localhost:9999/wall",
+  baseURL: "/wall", // fallback for dev; overridden by runtime __APP_CONFIG__
   rootPath:
     typeof __BUILD_ROOT_PATH__ !== "undefined" ? __BUILD_ROOT_PATH__ : "/wall",
   guardPath:
@@ -24,6 +21,10 @@ export interface AppConfig {
 }
 
 export function getAppConfig(): AppConfig {
+  const runtime = (window as any).__APP_CONFIG__ as Partial<AppConfig> | undefined;
+  if (runtime) {
+    return { ...BUILD_CONFIG, ...runtime };
+  }
   return BUILD_CONFIG;
 }
 

@@ -31,7 +31,7 @@ func GetIpWhiteListService() *IpWhiteListService {
 		svc := &IpWhiteListService{
 			repo: repository.NewIpWhiteListRepository(database.DB),
 		}
-		go svc.cleanupLoop()
+		// go svc.cleanupLoop() // expired entries are kept, expiration is checked at query time
 		ipWhiteListService = svc
 	})
 	return ipWhiteListService

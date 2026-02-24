@@ -27,6 +27,7 @@ type IpWhiteListRepository interface {
 
 type IpBlackListRepository interface {
 	Create(ip *entity.IpBlackList) error
+	Update(ip *entity.IpBlackList) error
 	Delete(id uint) error
 	List(limit, offset int) ([]*entity.IpBlackList, int64, error)
 	FindByIP(ip string) (*entity.IpBlackList, error)

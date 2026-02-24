@@ -22,6 +22,10 @@ func (r *IpBlackListRepository) Create(ip *entity.IpBlackList) error {
 	return r.db.Create(ip).Error
 }
 
+func (r *IpBlackListRepository) Update(ip *entity.IpBlackList) error {
+	return r.db.Save(ip).Error
+}
+
 func (r *IpBlackListRepository) Delete(id uint) error {
 	return r.db.Delete(&entity.IpBlackList{}, id).Error
 }

@@ -30,7 +30,7 @@ func GetIpBlackListService() *IpBlackListService {
 		svc := &IpBlackListService{
 			repo: repository.NewIpBlackListRepository(database.DB),
 		}
-		go svc.cleanupLoop()
+		// go svc.cleanupLoop() // expired entries are kept, expiration is checked at query time
 		ipBlackListService = svc
 	})
 	return ipBlackListService
@@ -127,17 +127,31 @@ func (s *IpBlackListService) Create(input *CreateIpBlackListDto) (*IpBlackListDt
 
 // CreateAutoBlacklist adds an IP to the blacklist with an automatic expiry duration and remark.
 // Returns (true, nil) if a new ban was created, (false, nil) if already banned.
+// If the existing entry is expired, it will be overwritten with the new ban.
 func (s *IpBlackListService) CreateAutoBlacklist(ip, remark string, duration time.Duration) (bool, error) {
 	existing, err := s.repo.FindByIP(ip)
 	if err != nil {
 		return false, err
 	}
+
+	expiresAt := time.Now().UTC().Add(duration)
+
 	if existing != nil {
-		// Already blacklisted, skip
+		// If the existing entry is expired, overwrite it
+		if existing.ExpiresAt != nil && existing.ExpiresAt.Before(time.Now().UTC()) {
+			existing.Remark = remark
+			existing.ExpiresAt = &expiresAt
+			if err := s.repo.Update(existing); err != nil {
+				return false, fmt.Errorf("failed to update expired blacklist entry: %w", err)
+			}
+			logging.Sugar.Infof("Auto-blacklisted IP %s for %v (overwriting expired entry): %s", ip, duration, remark)
+			event.Bus().Publish(event.BlackListChanged)
+			return true, nil
+		}
+		// Already blacklisted and not expired, skip
 		return false, nil
 	}
 
-	expiresAt := time.Now().UTC().Add(duration)
 	item := &entity.IpBlackList{
 		Ip:        ip,
 		Remark:    remark,

@@ -125,6 +125,33 @@ func (s *IpBlackListService) Create(input *CreateIpBlackListDto) (*IpBlackListDt
 	}, nil
 }
 
+func (s *IpBlackListService) Update(id uint, input *UpdateIpBlackListDto) (*IpBlackListDto, error) {
+	item, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if item == nil {
+		return nil, errors.New("blacklist item not found")
+	}
+
+	item.Remark = input.Remark
+	item.ExpiresAt = input.ExpiresAt
+
+	if err := s.repo.Update(item); err != nil {
+		return nil, fmt.Errorf("failed to update blacklist item: %w", err)
+	}
+
+	event.Bus().Publish(event.BlackListChanged)
+
+	return &IpBlackListDto{
+		ID:        item.ID,
+		Ip:        item.Ip,
+		Remark:    item.Remark,
+		ExpiresAt: item.ExpiresAt,
+		CreatedAt: item.CreatedAt,
+	}, nil
+}
+
 // CreateAutoBlacklist adds an IP to the blacklist with an automatic expiry duration and remark.
 // Returns (true, nil) if a new ban was created, (false, nil) if already banned.
 // If the existing entry is expired, it will be overwritten with the new ban.

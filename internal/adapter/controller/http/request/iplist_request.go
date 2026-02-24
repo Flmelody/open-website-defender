@@ -8,6 +8,11 @@ type CreateIpBlackListRequest struct {
 	ExpiresAt *time.Time `json:"expires_at"`
 }
 
+type UpdateIpBlackListRequest struct {
+	Remark    string     `json:"remark"`
+	ExpiresAt *time.Time `json:"expires_at"`
+}
+
 type ListIpBlackListRequest struct {
 	Page int `form:"page"`
 	Size int `form:"size"`

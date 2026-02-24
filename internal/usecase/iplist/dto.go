@@ -8,6 +8,11 @@ type CreateIpBlackListDto struct {
 	ExpiresAt *time.Time `json:"expires_at"`
 }
 
+type UpdateIpBlackListDto struct {
+	Remark    string     `json:"remark"`
+	ExpiresAt *time.Time `json:"expires_at"`
+}
+
 type IpBlackListDto struct {
 	ID        uint       `json:"id"`
 	Ip        string     `json:"ip"`

@@ -26,6 +26,15 @@ func (r *IpBlackListRepository) Update(ip *entity.IpBlackList) error {
 	return r.db.Save(ip).Error
 }
 
+func (r *IpBlackListRepository) FindByID(id uint) (*entity.IpBlackList, error) {
+	var item entity.IpBlackList
+	err := r.db.First(&item, id).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+	return &item, err
+}
+
 func (r *IpBlackListRepository) Delete(id uint) error {
 	return r.db.Delete(&entity.IpBlackList{}, id).Error
 }

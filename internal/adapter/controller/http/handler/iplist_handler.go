@@ -44,6 +44,42 @@ func CreateIpBlackList(c *gin.Context) {
 	response.Created(c, dto)
 }
 
+func UpdateIpBlackList(c *gin.Context) {
+	service := iplist.GetIpBlackListService()
+
+	idParam := c.Param("id")
+	id, err := strconv.ParseUint(idParam, 10, 32)
+	if err != nil {
+		response.BadRequest(c, "Invalid ID")
+		return
+	}
+
+	var req request.UpdateIpBlackListRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		logging.Sugar.Errorf("Invalid request format: %v", err)
+		response.BadRequest(c, "Invalid request format: "+err.Error())
+		return
+	}
+
+	input := &iplist.UpdateIpBlackListDto{
+		Remark:    req.Remark,
+		ExpiresAt: req.ExpiresAt,
+	}
+
+	dto, err := service.Update(uint(id), input)
+	if err != nil {
+		logging.Sugar.Errorf("Failed to update blacklist item: %v", err)
+		if strings.Contains(err.Error(), "not found") {
+			response.NotFound(c, "Blacklist item not found")
+			return
+		}
+		response.InternalServerError(c, "Failed to update blacklist item")
+		return
+	}
+
+	response.Success(c, dto)
+}
+
 func DeleteIpBlackList(c *gin.Context) {
 	service := iplist.GetIpBlackListService()
 

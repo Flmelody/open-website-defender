@@ -70,11 +70,20 @@
           </el-table-column>
           <el-table-column
             :label="t('common.actions')"
-            width="120"
+            width="160"
             align="right"
           >
             <template #default="scope">
               <div class="ops-cell">
+                <el-button
+                  type="primary"
+                  link
+                  size="small"
+                  @click="handleEdit(scope.row)"
+                  class="action-link"
+                >
+                  {{ t("common.edit") }}
+                </el-button>
                 <el-button
                   type="danger"
                   link
@@ -133,7 +142,7 @@
               </el-tooltip>
             </span>
           </template>
-          <el-input v-model="form.ip" placeholder="192.168.1.1" />
+          <el-input v-model="form.ip" placeholder="192.168.1.1" :disabled="isEditMode" />
         </el-form-item>
         <el-form-item :label="'> ' + t('ip_list.remark')" prop="remark">
           <el-input
@@ -198,6 +207,9 @@ const dialogVisible = ref(false);
 const dialogTitle = ref("");
 const formRef = ref();
 const formLoading = ref(false);
+
+const isEditMode = ref(false);
+const editId = ref(0);
 
 const form = reactive({
   ip: "",
@@ -274,6 +286,18 @@ const handleAdd = () => {
   form.ip = "";
   form.remark = "";
   form.duration = "permanent";
+  isEditMode.value = false;
+  editId.value = 0;
+  dialogVisible.value = true;
+};
+
+const handleEdit = (row: IpItem) => {
+  dialogTitle.value = t("ip_list.title_edit");
+  form.ip = row.ip;
+  form.remark = row.remark || "";
+  form.duration = "permanent";
+  isEditMode.value = true;
+  editId.value = row.id;
   dialogVisible.value = true;
 };
 
@@ -308,8 +332,13 @@ const handleSubmit = async () => {
           const expiresAt = new Date(Date.now() + durationToMs[form.duration]);
           payload.expires_at = expiresAt.toISOString();
         }
-        await request.post("/ip-black-list", payload);
-        ElMessage.success(t("common.added"));
+        if (isEditMode.value) {
+          await request.put(`/ip-black-list/${editId.value}`, payload);
+          ElMessage.success(t("common.updated"));
+        } else {
+          await request.post("/ip-black-list", payload);
+          ElMessage.success(t("common.added"));
+        }
         dialogVisible.value = false;
         fetchData();
       } catch (error) {

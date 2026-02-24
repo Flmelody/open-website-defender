@@ -94,6 +94,7 @@ func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 			// IP Blacklist
 			authorized.POST("/ip-black-list", handler.CreateIpBlackList)
 			authorized.GET("/ip-black-list", handler.ListIpBlackList)
+			authorized.PUT("/ip-black-list/:id", handler.UpdateIpBlackList)
 			authorized.DELETE("/ip-black-list/:id", handler.DeleteIpBlackList)
 
 			// IP Whitelist

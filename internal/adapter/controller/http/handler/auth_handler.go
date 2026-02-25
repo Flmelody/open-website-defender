@@ -426,7 +426,11 @@ func Verify2FA(c *gin.Context) {
 			days = 7
 		}
 		maxAge := days * 86400
-		c.SetCookie("flmelody.trusted_device", output.TrustedDeviceToken, maxAge, "/", "", false, true)
+		guardDomain := viper.GetString("wall.guard-domain")
+		if guardDomain == "" {
+			guardDomain = viper.GetString("GUARD_DOMAIN")
+		}
+		c.SetCookie("flmelody.trusted_device", output.TrustedDeviceToken, maxAge, "/", guardDomain, false, true)
 	}
 
 	loginResponse := LoginResponse{

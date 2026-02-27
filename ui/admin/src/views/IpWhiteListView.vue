@@ -30,7 +30,18 @@
           </el-table-column>
           <el-table-column prop="ip" :label="t('ip_list.ip_address')">
             <template #default="scope">
-              <span class="bright-text">{{ scope.row.ip }}</span>
+              <span class="ip-cell" @mouseenter="scope.row._hover = true" @mouseleave="scope.row._hover = false">
+                <span class="bright-text">{{ scope.row.ip }}</span>
+                <el-icon
+                  v-if="scope.row.starred || scope.row._hover"
+                  class="star-icon"
+                  :class="{ starred: scope.row.starred }"
+                  @click.stop="toggleStar(scope.row)"
+                >
+                  <StarFilled v-if="scope.row.starred" />
+                  <Star v-else />
+                </el-icon>
+              </span>
             </template>
           </el-table-column>
           <el-table-column prop="domain" :label="t('ip_list.domain')">
@@ -215,7 +226,7 @@
 import { ref, onMounted, reactive, computed } from "vue";
 import request from "@/utils/request";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { InfoFilled } from "@element-plus/icons-vue";
+import { InfoFilled, Star, StarFilled } from "@element-plus/icons-vue";
 import { useI18n } from "vue-i18n";
 
 interface IpItem {
@@ -223,6 +234,7 @@ interface IpItem {
   ip: string;
   domain: string;
   remark: string;
+  starred: boolean;
   expires_at: string | null;
   created_at: string;
 }
@@ -352,12 +364,28 @@ const fetchData = async () => {
     const res: any = await request.get("/ip-white-list", {
       params: queryParams,
     });
-    tableData.value = res.list || [];
+    tableData.value = (res.list || []).map((item: any) => ({ ...item, _hover: false }));
     total.value = res.total || 0;
   } catch (error) {
     // handled
   } finally {
     loading.value = false;
+  }
+};
+
+const toggleStar = async (row: IpItem) => {
+  try {
+    const newStarred = !row.starred;
+    await request.put(`/ip-white-list/${row.id}`, {
+      ip: row.ip,
+      domain: row.domain,
+      remark: row.remark,
+      starred: newStarred,
+      expires_at: row.expires_at,
+    });
+    row.starred = newStarred;
+  } catch (error) {
+    // handled
   }
 };
 
@@ -517,6 +545,27 @@ onMounted(() => {
   color: #fff;
   font-weight: bold;
   font-size: 15px;
+}
+
+.ip-cell {
+  white-space: nowrap;
+}
+
+.star-icon {
+  cursor: pointer;
+  color: #555;
+  font-size: 13px;
+  margin-left: 6px;
+  vertical-align: -1px;
+  transition: color 0.2s;
+}
+
+.star-icon:hover {
+  color: #fc0;
+}
+
+.star-icon.starred {
+  color: #fc0;
 }
 
 .remark-text {

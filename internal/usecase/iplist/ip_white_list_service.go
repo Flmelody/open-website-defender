@@ -115,6 +115,7 @@ func (s *IpWhiteListService) Create(input *CreateIpWhiteListDto) (*IpWhiteListDt
 		Ip:        item.Ip,
 		Domain:    item.Domain,
 		Remark:    item.Remark,
+		Starred:   item.Starred,
 		ExpiresAt: item.ExpiresAt,
 		CreatedAt: item.CreatedAt,
 	}, nil
@@ -142,6 +143,9 @@ func (s *IpWhiteListService) Update(id uint, input *UpdateIpWhiteListDto) (*IpWh
 	}
 	item.Domain = input.Domain
 	item.Remark = input.Remark
+	if input.Starred != nil {
+		item.Starred = *input.Starred
+	}
 	item.ExpiresAt = input.ExpiresAt
 
 	if err := s.repo.Update(item); err != nil {
@@ -155,6 +159,7 @@ func (s *IpWhiteListService) Update(id uint, input *UpdateIpWhiteListDto) (*IpWh
 		Ip:        item.Ip,
 		Domain:    item.Domain,
 		Remark:    item.Remark,
+		Starred:   item.Starred,
 		ExpiresAt: item.ExpiresAt,
 		CreatedAt: item.CreatedAt,
 	}, nil
@@ -189,6 +194,7 @@ func (s *IpWhiteListService) List(page, size int) ([]*IpWhiteListDto, int64, err
 			Ip:        item.Ip,
 			Domain:    item.Domain,
 			Remark:    item.Remark,
+			Starred:   item.Starred,
 			ExpiresAt: item.ExpiresAt,
 			CreatedAt: item.CreatedAt,
 		})

@@ -29,6 +29,7 @@ type UpdateIpWhiteListRequest struct {
 	Ip        string     `json:"ip" binding:"required"`
 	Domain    string     `json:"domain"`
 	Remark    string     `json:"remark"`
+	Starred   *bool      `json:"starred"`
 	ExpiresAt *time.Time `json:"expires_at"`
 }
 

@@ -190,6 +190,7 @@ func UpdateIpWhiteList(c *gin.Context) {
 		Ip:        req.Ip,
 		Domain:    req.Domain,
 		Remark:    req.Remark,
+		Starred:   req.Starred,
 		ExpiresAt: req.ExpiresAt,
 	}
 

@@ -32,6 +32,7 @@ type UpdateIpWhiteListDto struct {
 	Ip        string     `json:"ip"`
 	Domain    string     `json:"domain"`
 	Remark    string     `json:"remark"`
+	Starred   *bool      `json:"starred"`
 	ExpiresAt *time.Time `json:"expires_at"`
 }
 
@@ -40,6 +41,7 @@ type IpWhiteListDto struct {
 	Ip        string     `json:"ip"`
 	Domain    string     `json:"domain"`
 	Remark    string     `json:"remark"`
+	Starred   bool       `json:"starred"`
 	ExpiresAt *time.Time `json:"expires_at,omitempty"`
 	CreatedAt time.Time  `json:"created_at"`
 }

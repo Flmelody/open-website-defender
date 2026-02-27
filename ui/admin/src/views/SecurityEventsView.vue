@@ -38,9 +38,11 @@
               <el-popover
                 trigger="hover"
                 :show-after="300"
-                placement="right"
-                :width="160"
-                popper-class="ip-action-popover"
+                :width="140"
+                :offset="2"
+                placement="right-start"
+                :popper-class="'ip-action-popover' + (isFading ? ' fading' : '')"
+                @before-enter="isFading = false"
               >
                 <template #reference>
                   <span class="ip-text">{{ scope.row.client_ip }}</span>
@@ -174,9 +176,11 @@
               <el-popover
                 trigger="hover"
                 :show-after="300"
-                placement="right"
-                :width="160"
-                popper-class="ip-action-popover"
+                :width="140"
+                :offset="2"
+                placement="right-start"
+                :popper-class="'ip-action-popover' + (isFading ? ' fading' : '')"
+                @before-enter="isFading = false"
               >
                 <template #reference>
                   <span class="ip-text">{{ scope.row.client_ip }}</span>
@@ -315,6 +319,8 @@ const eventTypeLabel = (type: string) => {
   }
 };
 
+const isFading = ref(false);
+
 const copyIp = async (ip: string) => {
   try {
     await navigator.clipboard.writeText(ip);
@@ -330,6 +336,7 @@ const copyIp = async (ip: string) => {
     document.body.removeChild(textarea);
     ElMessage.success(t("user.copied"));
   }
+  isFading.value = true;
 };
 
 const viewLogs = (ip: string) => {
@@ -462,37 +469,31 @@ onMounted(() => {
   color: #fff;
   font-weight: bold;
   cursor: pointer;
-  border-bottom: 1px dashed rgba(0, 255, 0, 0.3);
-  padding-bottom: 1px;
-  transition: border-color 0.2s;
-}
-.ip-text:hover {
-  border-bottom-color: #0f0;
 }
 .ip-actions {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 .ip-action-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   width: 100%;
-  padding: 6px 10px;
+  padding: 5px 8px;
   background: transparent;
-  border: 1px solid transparent;
+  border: none;
   border-radius: 3px;
-  color: #0f0;
+  color: #8a8;
   font-family: "Courier New", monospace;
   font-size: 12px;
   cursor: pointer;
   transition: all 0.15s;
-  text-align: left;
+  white-space: nowrap;
 }
 .ip-action-btn:hover {
   background: rgba(0, 255, 0, 0.1);
-  border-color: #005000;
+  color: #0f0;
 }
 .card-footer {
   padding: 12px 25px;
@@ -531,14 +532,42 @@ onMounted(() => {
 </style>
 
 <style>
-.ip-action-popover.el-popover.el-popper {
-  background: rgba(10, 30, 10, 0.95) !important;
-  border: 1px solid #005000 !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
-  padding: 6px !important;
+.ip-action-popover {
+  --el-popover-padding: 4px !important;
+  background: #0a1e0a !important;
+  border: 1px solid #004000 !important;
+  border-radius: 4px !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.8) !important;
+  min-width: auto !important;
+  transition: opacity 0.25s ease-out !important;
 }
-.ip-action-popover .el-popper__arrow::before {
-  background: rgba(10, 30, 10, 0.95) !important;
-  border-color: #005000 !important;
+
+.ip-action-popover.fading {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.ip-action-popover .el-popper__arrow {
+  display: none !important;
+}
+
+.ip-action-popover::before {
+  content: "" !important;
+  position: absolute !important;
+  top: 8px !important;
+  left: -6px !important;
+  border-top: 6px solid transparent !important;
+  border-bottom: 6px solid transparent !important;
+  border-right: 6px solid #004000 !important;
+}
+
+.ip-action-popover::after {
+  content: "" !important;
+  position: absolute !important;
+  top: 9px !important;
+  left: -4px !important;
+  border-top: 5px solid transparent !important;
+  border-bottom: 5px solid transparent !important;
+  border-right: 5px solid #0a1e0a !important;
 }
 </style>

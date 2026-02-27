@@ -82,6 +82,8 @@ export default {
     understood: "トークンをコピーしました",
     email: "メールアドレス",
     email_placeholder: "user{'@'}example.com",
+    remark: "備考",
+    remark_placeholder: "任意の備考",
     authorized_domains: "認可ドメイン",
     authorized_domains_placeholder: "例: app.example.com, *.internal.org",
     authorized_domains_hint:
@@ -154,6 +156,8 @@ export default {
     type_scan_detected: "スキャン検出",
     type_js_challenge_fail: "JSチャレンジ失敗",
     no_events: "セキュリティイベントはありません",
+    copy_ip: "IPをコピー",
+    view_logs: "ログを表示",
   },
   js_challenge: {
     title: "JSチャレンジ",
@@ -325,6 +329,8 @@ export default {
     new_license: "[ 新規ライセンス ]",
     name: "名前",
     name_placeholder: "例: CI/CDパイプライン",
+    remark: "備考",
+    remark_placeholder: "任意の備考",
     status: "ステータス",
     active: "有効",
     inactive: "無効",

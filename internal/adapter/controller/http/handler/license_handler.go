@@ -21,7 +21,8 @@ func CreateLicense(c *gin.Context) {
 	}
 
 	input := &license.CreateLicenseDTO{
-		Name: req.Name,
+		Name:   req.Name,
+		Remark: req.Remark,
 	}
 
 	dto, err := service.Create(input)

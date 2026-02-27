@@ -333,11 +333,13 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive } from "vue";
+import { useRoute } from "vue-router";
 import request from "@/utils/request";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
+const route = useRoute();
 const tableRef = ref();
 const tableData = ref<any[]>([]);
 const total = ref(0);
@@ -454,6 +456,9 @@ const handleCurrentChange = (val: number) => {
 };
 
 onMounted(() => {
+  if (route.query.client_ip) {
+    queryParams.client_ip = route.query.client_ip as string;
+  }
   fetchData();
 });
 </script>

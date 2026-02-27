@@ -35,7 +35,27 @@
             width="200"
           >
             <template #default="scope">
-              <span class="bright-text">{{ scope.row.client_ip }}</span>
+              <el-popover
+                trigger="hover"
+                :show-after="300"
+                placement="right"
+                :width="160"
+                popper-class="ip-action-popover"
+              >
+                <template #reference>
+                  <span class="ip-text">{{ scope.row.client_ip }}</span>
+                </template>
+                <div class="ip-actions">
+                  <button class="ip-action-btn" @click="copyIp(scope.row.client_ip)">
+                    <el-icon><CopyDocument /></el-icon>
+                    {{ t("security_events.copy_ip") }}
+                  </button>
+                  <button class="ip-action-btn" @click="viewLogs(scope.row.client_ip)">
+                    <el-icon><Connection /></el-icon>
+                    {{ t("security_events.view_logs") }}
+                  </button>
+                </div>
+              </el-popover>
             </template>
           </el-table-column>
           <el-table-column
@@ -148,10 +168,30 @@
           <el-table-column
             prop="client_ip"
             :label="t('security_events.client_ip')"
-            width="160"
+            width="200"
           >
             <template #default="scope">
-              <span class="bright-text">{{ scope.row.client_ip }}</span>
+              <el-popover
+                trigger="hover"
+                :show-after="300"
+                placement="right"
+                :width="160"
+                popper-class="ip-action-popover"
+              >
+                <template #reference>
+                  <span class="ip-text">{{ scope.row.client_ip }}</span>
+                </template>
+                <div class="ip-actions">
+                  <button class="ip-action-btn" @click="copyIp(scope.row.client_ip)">
+                    <el-icon><CopyDocument /></el-icon>
+                    {{ t("security_events.copy_ip") }}
+                  </button>
+                  <button class="ip-action-btn" @click="viewLogs(scope.row.client_ip)">
+                    <el-icon><Connection /></el-icon>
+                    {{ t("security_events.view_logs") }}
+                  </button>
+                </div>
+              </el-popover>
             </template>
           </el-table-column>
           <el-table-column prop="detail" :label="t('security_events.detail')">
@@ -194,7 +234,10 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
 import request from "@/utils/request";
+import { ElMessage } from "element-plus";
+import { CopyDocument, Connection } from "@element-plus/icons-vue";
 import { useI18n } from "vue-i18n";
 
 interface SecurityEvent {
@@ -213,6 +256,7 @@ interface Stats {
 }
 
 const { t } = useI18n();
+const router = useRouter();
 const tableData = ref<SecurityEvent[]>([]);
 const total = ref(0);
 const loading = ref(false);
@@ -269,6 +313,27 @@ const eventTypeLabel = (type: string) => {
     default:
       return type;
   }
+};
+
+const copyIp = async (ip: string) => {
+  try {
+    await navigator.clipboard.writeText(ip);
+    ElMessage.success(t("user.copied"));
+  } catch {
+    const textarea = document.createElement("textarea");
+    textarea.value = ip;
+    textarea.style.position = "fixed";
+    textarea.style.opacity = "0";
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand("copy");
+    document.body.removeChild(textarea);
+    ElMessage.success(t("user.copied"));
+  }
+};
+
+const viewLogs = (ip: string) => {
+  router.push({ name: "access-logs", query: { client_ip: ip } });
 };
 
 const fetchData = async () => {
@@ -393,6 +458,42 @@ onMounted(() => {
   color: #fff;
   font-weight: bold;
 }
+.ip-text {
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  border-bottom: 1px dashed rgba(0, 255, 0, 0.3);
+  padding-bottom: 1px;
+  transition: border-color 0.2s;
+}
+.ip-text:hover {
+  border-bottom-color: #0f0;
+}
+.ip-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ip-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  color: #0f0;
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+}
+.ip-action-btn:hover {
+  background: rgba(0, 255, 0, 0.1);
+  border-color: #005000;
+}
 .card-footer {
   padding: 12px 25px;
   border-top: 1px solid #005000;
@@ -426,5 +527,18 @@ onMounted(() => {
   font-size: 14px;
   font-weight: bold;
   min-width: 30px;
+}
+</style>
+
+<style>
+.ip-action-popover.el-popover.el-popper {
+  background: rgba(10, 30, 10, 0.95) !important;
+  border: 1px solid #005000 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6) !important;
+  padding: 6px !important;
+}
+.ip-action-popover .el-popper__arrow::before {
+  background: rgba(10, 30, 10, 0.95) !important;
+  border-color: #005000 !important;
 }
 </style>

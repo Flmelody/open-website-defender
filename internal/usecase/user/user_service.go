@@ -56,6 +56,7 @@ func (s *UserService) CreateUser(input *CreateUserDTO) (*UserDTO, error) {
 		Enabled:  input.Enabled,
 		Scopes:   input.Scopes,
 		Email:    input.Email,
+		Remark:   input.Remark,
 	}
 
 	if err := s.userRepo.Save(user); err != nil {
@@ -70,6 +71,7 @@ func (s *UserService) CreateUser(input *CreateUserDTO) (*UserDTO, error) {
 		Enabled:     user.Enabled,
 		Scopes:      user.Scopes,
 		Email:       user.Email,
+		Remark:      user.Remark,
 		TotpEnabled: user.TotpEnabled,
 	}, nil
 }
@@ -91,6 +93,7 @@ func (s *UserService) GetUser(id uint) (*UserDTO, error) {
 		Enabled:     user.Enabled,
 		Scopes:      user.Scopes,
 		Email:       user.Email,
+		Remark:      user.Remark,
 		TotpEnabled: user.TotpEnabled,
 	}, nil
 }
@@ -125,6 +128,9 @@ func (s *UserService) UpdateUser(id uint, input *UpdateUserDTO) (*UserDTO, error
 	if input.Email != nil {
 		user.Email = *input.Email
 	}
+	if input.Remark != nil {
+		user.Remark = *input.Remark
+	}
 
 	if err := s.userRepo.Update(user); err != nil {
 		return nil, fmt.Errorf("failed to update user: %w", err)
@@ -140,6 +146,7 @@ func (s *UserService) UpdateUser(id uint, input *UpdateUserDTO) (*UserDTO, error
 		Enabled:     user.Enabled,
 		Scopes:      user.Scopes,
 		Email:       user.Email,
+		Remark:      user.Remark,
 		TotpEnabled: user.TotpEnabled,
 	}, nil
 }
@@ -192,6 +199,7 @@ func (s *UserService) ListUsers(page, size int) ([]*UserDTO, int64, error) {
 			Enabled:     user.Enabled,
 			Scopes:      user.Scopes,
 			Email:       user.Email,
+			Remark:      user.Remark,
 			TotpEnabled: user.TotpEnabled,
 		})
 	}

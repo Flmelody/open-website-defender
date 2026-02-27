@@ -59,6 +59,7 @@ func CreateUser(c *gin.Context) {
 		Enabled:  enabled,
 		Scopes:   req.Scopes,
 		Email:    req.Email,
+		Remark:   req.Remark,
 	}
 
 	userDto, err := service.CreateUser(input)
@@ -106,6 +107,7 @@ func UpdateUser(c *gin.Context) {
 		Enabled:  req.Enabled,
 		Scopes:   req.Scopes,
 		Email:    req.Email,
+		Remark:   req.Remark,
 	}
 
 	userDto, err := service.UpdateUser(uint(id), input)

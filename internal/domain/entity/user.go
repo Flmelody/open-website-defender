@@ -9,7 +9,8 @@ type User struct {
 	GitToken string `gorm:"type:varchar(300);not null"`
 	IsAdmin  bool   `gorm:"type:boolean;default:false"`
 	Enabled  bool   `gorm:"type:boolean;default:true"`
-	Email    string `gorm:"type:varchar(255)"`
+	Email  string `gorm:"type:varchar(255)"`
+	Remark string `gorm:"type:varchar(500);default:''"`
 
 	Scopes      string    `gorm:"type:varchar(1000);default:''"`
 	TotpSecret  string    `gorm:"type:varchar(255);default:''"`

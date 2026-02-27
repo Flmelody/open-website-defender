@@ -82,6 +82,8 @@ export default {
     understood: "ICH HABE DAS TOKEN KOPIERT",
     email: "E-MAIL",
     email_placeholder: "user{'@'}example.com",
+    remark: "BEMERKUNG",
+    remark_placeholder: "Optionale Bemerkung",
     authorized_domains: "AUTORISIERTE_DOMÄNEN",
     authorized_domains_placeholder: "z.B. app.example.com, *.internal.org",
     authorized_domains_hint:
@@ -154,6 +156,8 @@ export default {
     type_scan_detected: "Scan erkannt",
     type_js_challenge_fail: "JS-Challenge fehlgeschlagen",
     no_events: "Keine Sicherheitsereignisse aufgezeichnet",
+    copy_ip: "IP kopieren",
+    view_logs: "Logs anzeigen",
   },
   js_challenge: {
     title: "JS_CHALLENGE",
@@ -327,6 +331,8 @@ export default {
     new_license: "[ NEUE_LIZENZ ]",
     name: "NAME",
     name_placeholder: "z.B. CI/CD Pipeline",
+    remark: "BEMERKUNG",
+    remark_placeholder: "Optionale Bemerkung",
     status: "STATUS",
     active: "AKTIV",
     inactive: "INAKTIV",

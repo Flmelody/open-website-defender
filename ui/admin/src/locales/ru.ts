@@ -82,6 +82,8 @@ export default {
     understood: "Я СКОПИРОВАЛ ТОКЕН",
     email: "ЭЛЕКТРОННАЯ_ПОЧТА",
     email_placeholder: "user{'@'}example.com",
+    remark: "ПРИМЕЧАНИЕ",
+    remark_placeholder: "Необязательное примечание",
     authorized_domains: "АВТОРИЗОВАННЫЕ_ДОМЕНЫ",
     authorized_domains_placeholder: "напр. app.example.com, *.internal.org",
     authorized_domains_hint:
@@ -155,6 +157,8 @@ export default {
     type_scan_detected: "Обнаружен скан",
     type_js_challenge_fail: "Ошибка JS Challenge",
     no_events: "Нет зарегистрированных событий безопасности",
+    copy_ip: "Копировать IP",
+    view_logs: "Просмотр логов",
   },
   js_challenge: {
     title: "JS_ПРОВЕРКА",
@@ -328,6 +332,8 @@ export default {
     new_license: "[ НОВАЯ_ЛИЦЕНЗИЯ ]",
     name: "НАЗВАНИЕ",
     name_placeholder: "напр. CI/CD конвейер",
+    remark: "ПРИМЕЧАНИЕ",
+    remark_placeholder: "Необязательное примечание",
     status: "СТАТУС",
     active: "АКТИВНА",
     inactive: "НЕАКТИВНА",

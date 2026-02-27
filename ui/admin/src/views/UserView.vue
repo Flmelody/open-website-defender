@@ -60,6 +60,18 @@
             </template>
           </el-table-column>
           <el-table-column
+            prop="remark"
+            :label="t('user.remark')"
+            show-overflow-tooltip
+          >
+            <template #default="scope">
+              <span v-if="scope.row.remark" class="dim-text">{{
+                scope.row.remark
+              }}</span>
+              <span v-else class="null-value">{{ t("user.undefined") }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
             prop="git_token"
             :label="t('user.git_token')"
             show-overflow-tooltip
@@ -223,6 +235,12 @@
           <el-input
             v-model="form.email"
             :placeholder="t('user.email_placeholder')"
+          />
+        </el-form-item>
+        <el-form-item :label="'> ' + t('user.remark')" prop="remark">
+          <el-input
+            v-model="form.remark"
+            :placeholder="t('user.remark_placeholder')"
           />
         </el-form-item>
         <el-form-item :label="'> ' + t('user.git_token')" prop="git_token">
@@ -442,6 +460,7 @@ interface User {
   id: number;
   username: string;
   email?: string;
+  remark?: string;
   git_token?: string;
   is_admin?: boolean;
   enabled?: boolean;
@@ -476,6 +495,7 @@ const form = reactive({
   username: "",
   password: "",
   email: "",
+  remark: "",
   git_token: "",
   is_admin: false,
   enabled: true,
@@ -555,6 +575,7 @@ const handleAdd = () => {
   form.username = "";
   form.password = "";
   form.email = "";
+  form.remark = "";
   form.git_token = "";
   form.is_admin = false;
   form.enabled = true;
@@ -571,6 +592,7 @@ const handleEdit = (row: User) => {
   form.username = row.username;
   form.password = "";
   form.email = row.email || "";
+  form.remark = row.remark || "";
   form.git_token = "";
   form.is_admin = row.is_admin || false;
   form.enabled = row.enabled !== false;

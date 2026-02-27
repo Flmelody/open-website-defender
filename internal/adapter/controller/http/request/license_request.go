@@ -1,7 +1,8 @@
 package request
 
 type CreateLicenseRequest struct {
-	Name string `json:"name" binding:"required"`
+	Name   string `json:"name" binding:"required"`
+	Remark string `json:"remark" binding:"omitempty,max=500"`
 }
 
 type ListLicenseRequest struct {

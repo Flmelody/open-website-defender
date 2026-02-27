@@ -40,6 +40,7 @@ func (s *LicenseService) Create(input *CreateLicenseDTO) (*LicenseCreatedDTO, er
 
 	lic := &entity.License{
 		Name:      input.Name,
+		Remark:    input.Remark,
 		TokenHash: tokenHash,
 		Active:    true,
 	}
@@ -52,6 +53,7 @@ func (s *LicenseService) Create(input *CreateLicenseDTO) (*LicenseCreatedDTO, er
 		LicenseDTO: LicenseDTO{
 			ID:        lic.ID,
 			Name:      lic.Name,
+			Remark:    lic.Remark,
 			Active:    lic.Active,
 			CreatedAt: lic.CreatedAt,
 		},
@@ -91,6 +93,7 @@ func (s *LicenseService) List(page, size int) ([]*LicenseDTO, int64, error) {
 		dtos[i] = &LicenseDTO{
 			ID:        lic.ID,
 			Name:      lic.Name,
+			Remark:    lic.Remark,
 			Active:    lic.Active,
 			CreatedAt: lic.CreatedAt,
 		}

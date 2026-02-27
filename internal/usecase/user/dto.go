@@ -13,6 +13,7 @@ type CreateUserDTO struct {
 	Enabled  bool
 	Scopes   string
 	Email    string
+	Remark   string
 }
 
 type UpdateUserDTO struct {
@@ -23,6 +24,7 @@ type UpdateUserDTO struct {
 	Enabled  *bool
 	Scopes   *string
 	Email    *string
+	Remark   *string
 }
 
 type UserDTO struct {
@@ -33,6 +35,7 @@ type UserDTO struct {
 	Enabled     bool   `json:"enabled"`
 	Scopes      string `json:"scopes"`
 	Email       string `json:"email"`
+	Remark      string `json:"remark"`
 	TotpEnabled bool   `json:"totp_enabled"`
 }
 

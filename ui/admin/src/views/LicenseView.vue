@@ -34,6 +34,18 @@
             </template>
           </el-table-column>
           <el-table-column
+            prop="remark"
+            :label="t('license.remark')"
+            show-overflow-tooltip
+          >
+            <template #default="scope">
+              <span v-if="scope.row.remark" class="dim-text">{{
+                scope.row.remark
+              }}</span>
+              <span v-else class="null-value">-</span>
+            </template>
+          </el-table-column>
+          <el-table-column
             prop="active"
             :label="t('license.status')"
             width="120"
@@ -120,6 +132,12 @@
             :placeholder="t('license.name_placeholder')"
           />
         </el-form-item>
+        <el-form-item :label="'> ' + t('license.remark')" prop="remark">
+          <el-input
+            v-model="form.remark"
+            :placeholder="t('license.remark_placeholder')"
+          />
+        </el-form-item>
       </el-form>
       <template #footer>
         <div class="dialog-footer">
@@ -186,6 +204,7 @@ import { useI18n } from "vue-i18n";
 interface LicenseItem {
   id: number;
   name: string;
+  remark?: string;
   active: boolean;
   created_at: string;
 }
@@ -199,7 +218,7 @@ const queryParams = reactive({ page: 1, size: 10 });
 const dialogVisible = ref(false);
 const formRef = ref();
 const formLoading = ref(false);
-const form = reactive({ name: "" });
+const form = reactive({ name: "", remark: "" });
 
 const tokenDialogVisible = ref(false);
 const generatedToken = ref("");
@@ -222,6 +241,7 @@ const fetchData = async () => {
 
 const handleAdd = () => {
   form.name = "";
+  form.remark = "";
   dialogVisible.value = true;
 };
 
@@ -356,6 +376,10 @@ onMounted(() => {
   color: #fff;
   font-weight: bold;
   font-size: 15px;
+}
+.null-value {
+  color: #006000;
+  font-style: italic;
 }
 .action-link {
   font-weight: bold;

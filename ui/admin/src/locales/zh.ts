@@ -81,6 +81,8 @@ export default {
     understood: "我已复制令牌",
     email: "邮箱",
     email_placeholder: "user{'@'}example.com",
+    remark: "备注",
+    remark_placeholder: "可选备注",
     authorized_domains: "授权域",
     authorized_domains_placeholder: "例如: app.example.com, *.internal.org",
     authorized_domains_hint:
@@ -149,6 +151,8 @@ export default {
     type_scan_detected: "扫描检测",
     type_js_challenge_fail: "JS验证失败",
     no_events: "暂无安全事件记录",
+    copy_ip: "复制IP",
+    view_logs: "查看日志",
   },
   js_challenge: {
     title: "JS验证",
@@ -319,6 +323,8 @@ export default {
     new_license: "[ 新增许可证 ]",
     name: "名称",
     name_placeholder: "例如：CI/CD 流水线",
+    remark: "备注",
+    remark_placeholder: "可选备注",
     status: "状态",
     active: "有效",
     inactive: "已停用",

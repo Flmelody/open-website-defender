@@ -82,6 +82,8 @@ export default {
     understood: "J'AI COPIÉ LE JETON",
     email: "E-MAIL",
     email_placeholder: "user{'@'}example.com",
+    remark: "REMARQUE",
+    remark_placeholder: "Remarque optionnelle",
     authorized_domains: "DOMAINES_AUTORISÉS",
     authorized_domains_placeholder: "ex. app.example.com, *.internal.org",
     authorized_domains_hint:
@@ -154,6 +156,8 @@ export default {
     type_scan_detected: "Scan détecté",
     type_js_challenge_fail: "Échec JS Challenge",
     no_events: "Aucun événement de sécurité enregistré",
+    copy_ip: "Copier l'IP",
+    view_logs: "Voir les logs",
   },
   js_challenge: {
     title: "DÉFI_JS",
@@ -327,6 +331,8 @@ export default {
     new_license: "[ NOUVELLE_LICENCE ]",
     name: "NOM",
     name_placeholder: "ex. Pipeline CI/CD",
+    remark: "REMARQUE",
+    remark_placeholder: "Remarque optionnelle",
     status: "STATUT",
     active: "ACTIF",
     inactive: "INACTIF",

@@ -7,7 +7,8 @@ type CreateUserRequest struct {
 	IsAdmin  bool   `json:"is_admin" binding:"omitempty"`
 	Enabled  *bool  `json:"enabled"`
 	Scopes   string `json:"scopes" binding:"omitempty,max=1000"`
-	Email    string `json:"email" binding:"omitempty,max=255"`
+	Email  string `json:"email" binding:"omitempty,max=255"`
+	Remark string `json:"remark" binding:"omitempty,max=500"`
 }
 
 type UpdateUserRequest struct {
@@ -17,7 +18,8 @@ type UpdateUserRequest struct {
 	IsAdmin  *bool   `json:"is_admin"`
 	Enabled  *bool   `json:"enabled"`
 	Scopes   *string `json:"scopes" binding:"omitempty,max=1000"`
-	Email    *string `json:"email" binding:"omitempty,max=255"`
+	Email  *string `json:"email" binding:"omitempty,max=255"`
+	Remark *string `json:"remark" binding:"omitempty,max=500"`
 }
 
 type ListUserRequest struct {

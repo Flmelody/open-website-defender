@@ -3,9 +3,11 @@ package handler
 import (
 	"errors"
 	"net"
+	"net/http"
 	"open-website-defender/internal/adapter/controller/http/request"
 	"open-website-defender/internal/adapter/controller/http/response"
 	domainError "open-website-defender/internal/domain/error"
+	"open-website-defender/internal/infrastructure/config"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
 	"open-website-defender/internal/usecase/iplist"
@@ -17,7 +19,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 )
 
 func isGitRequest(c *gin.Context) bool {
@@ -421,16 +422,14 @@ func Verify2FA(c *gin.Context) {
 
 	// Set trusted device cookie if token was generated
 	if output.TrustedDeviceToken != "" {
-		days := viper.GetInt("security.trusted-device-days")
-		if days == 0 && !viper.IsSet("security.trusted-device-days") {
-			days = 7
-		}
+		days := config.Get().Security.TrustedDeviceDays
 		maxAge := days * 86400
-		guardDomain := viper.GetString("wall.guard-domain")
-		if guardDomain == "" {
-			guardDomain = viper.GetString("GUARD_DOMAIN")
+		guardDomain := ""
+		if appCfg := config.GetAppConfig(); appCfg != nil {
+			guardDomain = appCfg.GuardDomain
 		}
-		c.SetCookie("flmelody.trusted_device", output.TrustedDeviceToken, maxAge, "/", guardDomain, false, true)
+		c.SetSameSite(http.SameSiteLaxMode)
+		c.SetCookie("flmelody.trusted_device", output.TrustedDeviceToken, maxAge, "/", guardDomain, config.Get().Security.SecureCookies, true)
 	}
 
 	loginResponse := LoginResponse{
@@ -451,7 +450,7 @@ func AdminRecover2FA(c *gin.Context) {
 	// Must satisfy both conditions to be considered a genuine local request:
 	//   1. TCP peer (RemoteAddr) is loopback
 	//   2. No forwarding headers present (rules out reverse-proxied external traffic)
-	if !viper.IsSet("security.admin-recovery-local-only") || viper.GetBool("security.admin-recovery-local-only") {
+	if config.Get().Security.AdminRecoveryLocalOnly {
 		host, _, _ := net.SplitHostPort(c.Request.RemoteAddr)
 		ip := net.ParseIP(host)
 		proxied := c.GetHeader("X-Forwarded-For") != "" || c.GetHeader("X-Real-IP") != ""

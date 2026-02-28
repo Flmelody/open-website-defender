@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"net/http"
 	"open-website-defender/internal/adapter/controller/http/response"
+	"open-website-defender/internal/infrastructure/config"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
+	"time"
 	"open-website-defender/internal/usecase/bot"
 	"open-website-defender/internal/usecase/system"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -94,15 +95,8 @@ func VerifyCaptcha(c *gin.Context) {
 	passSig := pkg.SignCookieData(passData)
 	passValue := passData + "~" + passSig
 
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     "owd_captcha_pass",
-		Value:    passValue,
-		Path:     "/",
-		MaxAge:   cookieTTL,
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		Expires:  time.Now().Add(time.Duration(cookieTTL) * time.Second),
-	})
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("owd_captcha_pass", passValue, cookieTTL, "/", "", config.Get().Security.SecureCookies, true)
 
 	// Redirect back to original URL or return success
 	redirectURL := c.Query("redirect")

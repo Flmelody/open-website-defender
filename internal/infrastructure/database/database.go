@@ -3,13 +3,13 @@ package database
 import (
 	"fmt"
 	"open-website-defender/internal/domain/entity"
+	"open-website-defender/internal/infrastructure/config"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
 	"os"
 	"path/filepath"
 	"time"
 
-	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"github.com/glebarez/sqlite"
@@ -23,31 +23,33 @@ func InitDB() error {
 	var dialector gorm.Dialector
 	var err error
 
-	dbDriver := viper.GetString("database.driver")
+	dbCfg := config.Get().Database
+
+	dbDriver := dbCfg.Driver
 	if len(dbDriver) == 0 {
 		dbDriver = "sqlite"
 	}
 
 	switch dbDriver {
 	case "postgres", "postgresql":
-		host := viper.GetString("database.host")
+		host := dbCfg.Host
 		if len(host) == 0 {
 			host = "localhost"
 		}
-		port := viper.GetInt("database.port")
+		port := dbCfg.Port
 		if port == 0 {
 			port = 5432
 		}
-		dbName := viper.GetString("database.name")
+		dbName := dbCfg.Name
 		if len(dbName) == 0 {
 			dbName = "open_website_defender"
 		}
-		user := viper.GetString("database.user")
+		user := dbCfg.User
 		if len(user) == 0 {
 			user = "postgres"
 		}
-		password := viper.GetString("database.password")
-		sslMode := viper.GetString("database.ssl-mode")
+		password := dbCfg.Password
+		sslMode := dbCfg.SSLMode
 		if len(sslMode) == 0 {
 			sslMode = "disable"
 		}
@@ -57,30 +59,30 @@ func InitDB() error {
 		dialector = postgres.Open(dsn)
 
 	case "mysql":
-		host := viper.GetString("database.host")
+		host := dbCfg.Host
 		if len(host) == 0 {
 			host = "localhost"
 		}
-		port := viper.GetInt("database.port")
+		port := dbCfg.Port
 		if port == 0 {
 			port = 3306
 		}
-		dbName := viper.GetString("database.name")
+		dbName := dbCfg.Name
 		if len(dbName) == 0 {
 			dbName = "open_website_defender"
 		}
-		user := viper.GetString("database.user")
+		user := dbCfg.User
 		if len(user) == 0 {
 			user = "root"
 		}
-		password := viper.GetString("database.password")
+		password := dbCfg.Password
 		dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
 			user, password, host, port, dbName)
 		logging.Sugar.Infof("Initializing MySQL database: %s:%d/%s", host, port, dbName)
 		dialector = mysql.Open(dsn)
 
 	case "sqlite":
-		dbPath := viper.GetString("database.file-path")
+		dbPath := dbCfg.FilePath
 		if len(dbPath) == 0 {
 			dbPath = "./data/app.db"
 		}
@@ -200,12 +202,12 @@ func initDefaultUser() error {
 		return nil
 	}
 
-	defaultUsername := viper.GetString("default-user.username")
+	defaultUsername := config.Get().DefaultUser.Username
 	if len(defaultUsername) == 0 {
 		defaultUsername = "defender"
 	}
 
-	defaultPassword := viper.GetString("default-user.password")
+	defaultPassword := config.Get().DefaultUser.Password
 	if len(defaultPassword) == 0 {
 		defaultPassword = "defender"
 	}

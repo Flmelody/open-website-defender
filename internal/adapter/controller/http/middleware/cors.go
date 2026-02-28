@@ -2,9 +2,9 @@ package middleware
 
 import (
 	"net/http"
+	"open-website-defender/internal/infrastructure/config"
 
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 )
 
 func CORS() gin.HandlerFunc {
@@ -15,19 +15,28 @@ func CORS() gin.HandlerFunc {
 			return
 		}
 
-		allowedOrigins := viper.GetStringSlice("security.cors.allowed-origins")
-		allowCredentials := viper.GetBool("security.cors.allow-credentials")
+		corsCfg := config.Get().Security.CORS
+		allowedOrigins := corsCfg.AllowedOrigins
+		allowCredentials := corsCfg.AllowCredentials
+
+		if len(allowedOrigins) == 0 {
+			// No origins configured: CORS is disabled for security.
+			// Configure security.cors.allowed-origins in production.
+			c.Next()
+			return
+		}
 
 		allowed := false
-		if len(allowedOrigins) == 0 {
-			// No origins configured: reflect the request origin (permissive, for dev)
-			allowed = true
-		} else {
-			for _, o := range allowedOrigins {
-				if o == "*" || o == origin {
-					allowed = true
-					break
-				}
+		wildcard := false
+		for _, o := range allowedOrigins {
+			if o == "*" {
+				allowed = true
+				wildcard = true
+				break
+			}
+			if o == origin {
+				allowed = true
+				break
 			}
 		}
 
@@ -36,12 +45,17 @@ func CORS() gin.HandlerFunc {
 			return
 		}
 
-		c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+		if wildcard {
+			// Wildcard: no credentials allowed per spec
+			c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		} else {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+			if allowCredentials {
+				c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+			}
+		}
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Defender-Authorization, X-Requested-With, Cookie")
-		if allowCredentials || len(allowedOrigins) == 0 {
-			c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		}
 		c.Writer.Header().Set("Access-Control-Max-Age", "86400")
 
 		if c.Request.Method == http.MethodOptions {

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"open-website-defender/internal/adapter/repository"
 	"open-website-defender/internal/domain/entity"
+	"open-website-defender/internal/infrastructure/config"
 	"open-website-defender/internal/infrastructure/database"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
@@ -15,8 +16,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-
-	"github.com/spf13/viper"
 )
 
 var (
@@ -227,7 +226,7 @@ func (s *OAuthService) Authorize(req *AuthorizeRequestDTO, userID uint) (string,
 		return "", ErrInvalidScope
 	}
 
-	codeLifetime := viper.GetInt("oauth.authorization-code-lifetime")
+	codeLifetime := config.Get().OAuth.AuthorizationCodeLifetime
 	if codeLifetime <= 0 {
 		codeLifetime = 300
 	}
@@ -312,7 +311,7 @@ func (s *OAuthService) ExchangeCode(req *TokenRequestDTO) (*TokenResponseDTO, er
 	}
 
 	// Generate tokens
-	accessTokenLifetime := viper.GetInt("oauth.access-token-lifetime")
+	accessTokenLifetime := config.Get().OAuth.AccessTokenLifetime
 	if accessTokenLifetime <= 0 {
 		accessTokenLifetime = 3600
 	}
@@ -324,7 +323,7 @@ func (s *OAuthService) ExchangeCode(req *TokenRequestDTO) (*TokenResponseDTO, er
 	}
 
 	// Generate refresh token
-	refreshTokenLifetime := viper.GetInt("oauth.refresh-token-lifetime")
+	refreshTokenLifetime := config.Get().OAuth.RefreshTokenLifetime
 	if refreshTokenLifetime <= 0 {
 		refreshTokenLifetime = 2592000
 	}
@@ -400,11 +399,11 @@ func (s *OAuthService) RefreshAccessToken(req *TokenRequestDTO) (*TokenResponseD
 	}
 
 	// Generate new tokens
-	accessTokenLifetime := viper.GetInt("oauth.access-token-lifetime")
+	accessTokenLifetime := config.Get().OAuth.AccessTokenLifetime
 	if accessTokenLifetime <= 0 {
 		accessTokenLifetime = 3600
 	}
-	refreshTokenLifetime := viper.GetInt("oauth.refresh-token-lifetime")
+	refreshTokenLifetime := config.Get().OAuth.RefreshTokenLifetime
 	if refreshTokenLifetime <= 0 {
 		refreshTokenLifetime = 2592000
 	}

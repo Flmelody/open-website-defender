@@ -4,11 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"open-website-defender/internal/infrastructure/config"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/usecase/system"
 	"time"
-
-	"github.com/spf13/viper"
 )
 
 type webhookPayload struct {
@@ -24,7 +23,7 @@ func getWebhookURL() string {
 	if err == nil && settings != nil && settings.WebhookURL != "" {
 		return settings.WebhookURL
 	}
-	return viper.GetString("webhook.url")
+	return config.Get().Webhook.URL
 }
 
 func sendWebhookNotification(eventType, clientIP, reason string, duration time.Duration) {
@@ -34,7 +33,7 @@ func sendWebhookNotification(eventType, clientIP, reason string, duration time.D
 	}
 
 	// Check if this event type is in the configured events list
-	configuredEvents := viper.GetStringSlice("webhook.events")
+	configuredEvents := config.Get().Webhook.Events
 	if len(configuredEvents) > 0 {
 		found := false
 		for _, e := range configuredEvents {
@@ -62,7 +61,7 @@ func sendWebhookNotification(eventType, clientIP, reason string, duration time.D
 		return
 	}
 
-	timeout := viper.GetInt("webhook.timeout")
+	timeout := config.Get().Webhook.Timeout
 	if timeout <= 0 {
 		timeout = 5
 	}

@@ -46,14 +46,17 @@ security:
   admin-recovery-local-only: true
   # Days to trust a device after successful 2FA (default: 7, set 0 to disable)
   trusted-device-days: 7
+  # Set to true if serving over HTTPS to add Secure flag on all cookies
+  secure-cookies: false
 
   # CORS configuration
   cors:
-    # Allowed origins. Empty list = reflect any origin (permissive, for dev only).
-    # In production, set explicit origins:
+    # Allowed origins. Empty list = CORS disabled (no cross-origin access).
+    # Set explicit origins to enable CORS:
     # allowed-origins:
     #   - "https://example.com"
     #   - "https://admin.example.com"
+    # Use ["*"] to allow all origins (credentials will be disabled per spec).
     allowed-origins: [ ]
     allow-credentials: true
 

@@ -4,12 +4,11 @@ import (
 	"encoding/binary"
 	"fmt"
 	"open-website-defender/internal/infrastructure/cache"
+	"open-website-defender/internal/infrastructure/config"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/usecase/iplist"
 	"sync"
 	"time"
-
-	"github.com/spf13/viper"
 )
 
 type ThreatDetector struct {
@@ -33,7 +32,8 @@ func GetThreatDetector() *ThreatDetector {
 // RecordRequest is called from access_log middleware after each request.
 // It tracks 4xx responses and rate limit hits per IP for anomaly detection.
 func (td *ThreatDetector) RecordRequest(ip string, statusCode int, wasRateLimited bool) {
-	if !viper.GetBool("threat-detection.enabled") {
+	tdCfg := config.Get().ThreatDetection
+	if !tdCfg.Enabled {
 		return
 	}
 
@@ -47,11 +47,11 @@ func (td *ThreatDetector) RecordRequest(ip string, statusCode int, wasRateLimite
 
 	// Track 4xx responses
 	if statusCode >= 400 && statusCode < 500 {
-		threshold := viper.GetInt("threat-detection.status-code-threshold")
+		threshold := tdCfg.StatusCodeThreshold
 		if threshold <= 0 {
 			threshold = 20
 		}
-		window := viper.GetInt("threat-detection.status-code-window")
+		window := tdCfg.StatusCodeWindow
 		if window <= 0 {
 			window = 60
 		}
@@ -60,7 +60,7 @@ func (td *ThreatDetector) RecordRequest(ip string, statusCode int, wasRateLimite
 		count := td.incrementCounter(store, key, window)
 
 		if count >= int64(threshold) {
-			banDuration := viper.GetInt("threat-detection.auto-ban-duration")
+			banDuration := tdCfg.AutoBanDuration
 			if banDuration <= 0 {
 				banDuration = 3600
 			}
@@ -72,11 +72,11 @@ func (td *ThreatDetector) RecordRequest(ip string, statusCode int, wasRateLimite
 
 	// Track 404s for scan detection (Batch 2)
 	if statusCode == 404 {
-		threshold := viper.GetInt("threat-detection.scan-threshold")
+		threshold := tdCfg.ScanThreshold
 		if threshold <= 0 {
 			threshold = 10
 		}
-		window := viper.GetInt("threat-detection.scan-window")
+		window := tdCfg.ScanWindow
 		if window <= 0 {
 			window = 300
 		}
@@ -85,7 +85,7 @@ func (td *ThreatDetector) RecordRequest(ip string, statusCode int, wasRateLimite
 		count := td.incrementCounter(store, key, window)
 
 		if count >= int64(threshold) {
-			banDuration := viper.GetInt("threat-detection.scan-ban-duration")
+			banDuration := tdCfg.ScanBanDuration
 			if banDuration <= 0 {
 				banDuration = 14400
 			}
@@ -96,11 +96,11 @@ func (td *ThreatDetector) RecordRequest(ip string, statusCode int, wasRateLimite
 
 	// Track rate limit abuse
 	if wasRateLimited {
-		threshold := viper.GetInt("threat-detection.rate-limit-abuse-threshold")
+		threshold := tdCfg.RateLimitAbuseThreshold
 		if threshold <= 0 {
 			threshold = 5
 		}
-		window := viper.GetInt("threat-detection.rate-limit-abuse-window")
+		window := tdCfg.RateLimitAbuseWindow
 		if window <= 0 {
 			window = 300
 		}
@@ -109,7 +109,7 @@ func (td *ThreatDetector) RecordRequest(ip string, statusCode int, wasRateLimite
 		count := td.incrementCounter(store, key, window)
 
 		if count >= int64(threshold) {
-			banDuration := viper.GetInt("threat-detection.auto-ban-duration")
+			banDuration := tdCfg.AutoBanDuration
 			if banDuration <= 0 {
 				banDuration = 3600
 			}
@@ -121,16 +121,17 @@ func (td *ThreatDetector) RecordRequest(ip string, statusCode int, wasRateLimite
 
 // RecordFailedLogin tracks failed login attempts per IP for brute force detection.
 func (td *ThreatDetector) RecordFailedLogin(ip string) {
-	if !viper.GetBool("threat-detection.enabled") {
+	tdCfg := config.Get().ThreatDetection
+	if !tdCfg.Enabled {
 		return
 	}
 
 	store := cache.Store()
-	threshold := viper.GetInt("threat-detection.brute-force-threshold")
+	threshold := tdCfg.BruteForceThreshold
 	if threshold <= 0 {
 		threshold = 10
 	}
-	window := viper.GetInt("threat-detection.brute-force-window")
+	window := tdCfg.BruteForceWindow
 	if window <= 0 {
 		window = 600
 	}
@@ -139,7 +140,7 @@ func (td *ThreatDetector) RecordFailedLogin(ip string) {
 	count := td.incrementCounter(store, key, window)
 
 	if count >= int64(threshold) {
-		banDuration := viper.GetInt("threat-detection.brute-force-ban-duration")
+		banDuration := tdCfg.BruteForceBanDuration
 		if banDuration <= 0 {
 			banDuration = 3600
 		}

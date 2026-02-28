@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"open-website-defender/internal/adapter/controller/http/response"
+	"open-website-defender/internal/infrastructure/config"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
 	"open-website-defender/internal/usecase/bot"
@@ -17,20 +18,17 @@ import (
 	"text/template"
 
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 )
 
 // RenderCaptchaPage renders the CAPTCHA challenge HTML page using the embedded template.
 // Exported so that handler or test routes can reuse the same template.
 func RenderCaptchaPage(c *gin.Context, provider, siteKey, redirectURL string, statusCode int) {
-	rootPath := viper.GetString("ROOT_PATH")
-	if rootPath == "" {
-		rootPath = "/wall"
-	}
-
-	adminPath := viper.GetString("ADMIN_PATH")
-	if adminPath == "" {
-		adminPath = "/admin"
+	appCfg := config.GetAppConfig()
+	rootPath := "/wall"
+	adminPath := "/admin"
+	if appCfg != nil {
+		rootPath = appCfg.RootPath
+		adminPath = appCfg.AdminPath
 	}
 
 	verifyAction := fmt.Sprintf("%s/captcha/verify?redirect=%s", rootPath, url.QueryEscape(redirectURL))

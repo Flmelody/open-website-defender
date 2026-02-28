@@ -6,7 +6,6 @@ import (
 	"open-website-defender/internal/infrastructure/config"
 
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 )
 
 func Setup(router *gin.Engine, appConfig *config.AppConfig) {
@@ -18,12 +17,13 @@ func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 
 		// Login with optional rate limiting
 		var loginHandlers []gin.HandlerFunc
-		if viper.GetBool("rate-limit.enabled") {
-			loginRPM := viper.GetInt("rate-limit.login.requests-per-minute")
+		rlCfg := config.Get().RateLimit
+		if rlCfg.Enabled {
+			loginRPM := rlCfg.Login.RequestsPerMinute
 			if loginRPM <= 0 {
 				loginRPM = 5
 			}
-			lockoutDuration := viper.GetInt("rate-limit.login.lockout-duration")
+			lockoutDuration := rlCfg.Login.LockoutDuration
 			loginHandlers = append(loginHandlers, middleware.LoginRateLimiter(loginRPM, lockoutDuration))
 		}
 		loginHandlers = append(loginHandlers, handler.Login)
@@ -58,7 +58,7 @@ func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 		api.GET("/.well-known/jwks.json", handler.JWKS)
 
 		// OAuth2/OIDC endpoints (authenticated via OWD session cookie, not admin middleware)
-		if viper.GetBool("oauth.enabled") {
+		if config.Get().OAuth.Enabled {
 			api.GET("/oauth/authorize", handler.OAuthAuthorize)
 			api.POST("/oauth/consent", handler.OAuthConsent)
 			api.POST("/oauth/token", handler.OAuthToken)

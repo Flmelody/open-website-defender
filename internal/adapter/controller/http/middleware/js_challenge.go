@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
+	"open-website-defender/internal/infrastructure/config"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
 	"open-website-defender/internal/usecase/iplist"
@@ -18,7 +19,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 )
 
 //go:embed templates/js_challenge.html
@@ -53,7 +53,8 @@ func getJSChallengeSettings() (enabled bool, mode string, difficulty int) {
 		return settings.JSChallengeEnabled, settings.JSChallengeMode, settings.JSChallengeDifficulty
 	}
 	// Fallback to config file
-	return viper.GetBool("js-challenge.enabled"), viper.GetString("js-challenge.mode"), viper.GetInt("js-challenge.difficulty")
+	jsCfg := config.Get().JSChallenge
+	return jsCfg.Enabled, jsCfg.Mode, jsCfg.Difficulty
 }
 
 func JSChallenge() gin.HandlerFunc {
@@ -164,7 +165,7 @@ func JSChallenge() gin.HandlerFunc {
 
 					if strings.HasPrefix(hashHex, prefix) {
 						logging.Sugar.Infof("JS Challenge: PoW verified for %s, setting pass cookie", c.ClientIP())
-						cookieTTL := viper.GetInt("js-challenge.cookie-ttl")
+						cookieTTL := config.Get().JSChallenge.CookieTTL
 						if cookieTTL <= 0 {
 							cookieTTL = 86400
 						}
@@ -173,9 +174,10 @@ func JSChallenge() gin.HandlerFunc {
 						passSig := signChallenge(passData)
 						passValue := passData + "~" + passSig
 
-						c.SetCookie("_defender_pow", passValue, cookieTTL, "/", "", false, true)
+						c.SetSameSite(http.SameSiteLaxMode)
+						c.SetCookie("_defender_pow", passValue, cookieTTL, "/", "", config.Get().Security.SecureCookies, true)
 						// Clear challenge cookie
-						c.SetCookie("_defender_challenge", "", -1, "/", "", false, false)
+						c.SetCookie("_defender_challenge", "", -1, "/", "", config.Get().Security.SecureCookies, false)
 
 						// Redirect to same URL to proceed normally
 						c.Redirect(http.StatusFound, c.Request.URL.String())
@@ -210,13 +212,12 @@ func generateNonce() string {
 }
 
 func challengeHTML(nonce, signature string, difficulty int) string {
-	rootPath := viper.GetString("ROOT_PATH")
-	if rootPath == "" {
-		rootPath = "/wall"
-	}
-	adminPath := viper.GetString("ADMIN_PATH")
-	if adminPath == "" {
-		adminPath = "/admin"
+	appCfg := config.GetAppConfig()
+	rootPath := "/wall"
+	adminPath := "/admin"
+	if appCfg != nil {
+		rootPath = appCfg.RootPath
+		adminPath = appCfg.AdminPath
 	}
 
 	prefix := strings.Repeat("0", difficulty)

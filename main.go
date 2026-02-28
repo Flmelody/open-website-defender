@@ -126,19 +126,23 @@ func main() {
 		return
 	}
 
+	// Unmarshal viper config into the global Config struct
+	config.Init()
+	cfg := config.Get()
+
 	// Initialize JWT secret from configuration
 	pkg.InitJWTSecret(
-		viper.GetString("security.jwt-secret"),
-		viper.GetInt("security.token-expiration-hours"),
+		cfg.Security.JWTSecret,
+		cfg.Security.TokenExpirationHrs,
 	)
 
 	// Initialize RSA key for OIDC token signing
-	if viper.GetBool("oauth.enabled") {
-		pkg.InitRSAKey(viper.GetString("oauth.rsa-private-key-path"))
+	if cfg.OAuth.Enabled {
+		pkg.InitRSAKey(cfg.OAuth.RSAPrivateKeyPath)
 	}
 
 	// Initialize cache (must be before DB and services)
-	cache.InitStore(viper.GetInt("cache.size-mb"))
+	cache.InitStore(cfg.Cache.SizeMB)
 
 	err = database.InitDB()
 	if err != nil {
@@ -150,14 +154,14 @@ func main() {
 	cache.Init()
 
 	// Start cross-instance cache sync (polls DB for version changes)
-	viper.SetDefault("cache.sync-interval", 0)
-	cache.InitSync(database.DB, viper.GetInt("cache.sync-interval"))
+	cache.InitSync(database.DB, cfg.Cache.SyncInterval)
 
 	appConfig := getAppConfig()
+	config.SetAppConfig(appConfig)
 
 	r := gin.Default()
 	r.RedirectTrailingSlash = true
-	trustedProxies := viper.GetStringSlice("trustedProxies")
+	trustedProxies := cfg.TrustedProxies
 	err = r.SetTrustedProxies(trustedProxies)
 	logging.Sugar.Info("TrustedProxies:", trustedProxies)
 	if err != nil {
@@ -233,7 +237,7 @@ func main() {
 	r.Use(middleware.CORS())
 
 	// Request body size limit
-	maxBodySizeMB := viper.GetInt64("server.max-body-size-mb")
+	maxBodySizeMB := cfg.Server.MaxBodySizeMB
 	if maxBodySizeMB <= 0 {
 		maxBodySizeMB = 10 // default 10MB
 	}
@@ -243,8 +247,8 @@ func main() {
 	r.Use(middleware.AccessLog())
 
 	// Geo-IP blocking
-	geoDBPath := viper.GetString("geo-blocking.database-path")
-	if viper.GetBool("geo-blocking.enabled") && geoDBPath != "" {
+	geoDBPath := cfg.GeoBlocking.DatabasePath
+	if cfg.GeoBlocking.Enabled && geoDBPath != "" {
 		if err := pkg.InitGeoIP(geoDBPath); err == nil {
 			r.Use(middleware.GeoBlock())
 			logging.Sugar.Info("Geo-IP blocking enabled")
@@ -252,7 +256,7 @@ func main() {
 	}
 
 	// Request filtering (SQLi, XSS, Path Traversal detection — enhanced rule engine)
-	if viper.GetBool("request-filtering.enabled") {
+	if cfg.RequestFiltering.Enabled {
 		r.Use(middleware.WAF())
 		logging.Sugar.Info("Request filtering enabled")
 	}
@@ -267,8 +271,8 @@ func main() {
 	r.Use(middleware.Logger())
 
 	// Global rate limiter
-	if viper.GetBool("rate-limit.enabled") {
-		globalRPM := viper.GetInt("rate-limit.requests-per-minute")
+	if cfg.RateLimit.Enabled {
+		globalRPM := cfg.RateLimit.RequestsPerMinute
 		if globalRPM <= 0 {
 			globalRPM = 100
 		}
@@ -293,7 +297,7 @@ func main() {
 	// Priority: OS env (Docker) → config.yaml → default
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = viper.GetString("server.port")
+		port = cfg.Server.Port
 	}
 	if port == "" {
 		port = "9999"

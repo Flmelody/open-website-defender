@@ -13,11 +13,11 @@ import (
 	"time"
 
 	"github.com/pquerna/otp/totp"
-	"github.com/spf13/viper"
 	"open-website-defender/internal/adapter/repository"
 	"open-website-defender/internal/domain/entity"
 	domainError "open-website-defender/internal/domain/error"
 	"open-website-defender/internal/infrastructure/cache"
+	"open-website-defender/internal/infrastructure/config"
 	"open-website-defender/internal/infrastructure/database"
 	"open-website-defender/internal/pkg"
 	_interface "open-website-defender/internal/usecase/interface"
@@ -266,10 +266,7 @@ func (s *AuthService) Verify2FALogin(input *TwoFALoginInputDTO) (*LoginOutputDTO
 
 	// Generate trusted device token if requested
 	if input.TrustDevice {
-		days := viper.GetInt("security.trusted-device-days")
-		if days == 0 && !viper.IsSet("security.trusted-device-days") {
-			days = 7
-		}
+		days := config.Get().Security.TrustedDeviceDays
 		if days > 0 {
 			deviceToken, err := s.createTrustedDevice(user.ID, days)
 			if err == nil {
@@ -448,7 +445,7 @@ func (s *AuthService) ValidateToken(tokenString string) (*UserInfoDTO, error) {
 }
 
 func (s *AuthService) RecoverAdmin2FA(username, password, recoveryKey string) error {
-	configuredKey := viper.GetString("security.admin-recovery-key")
+	configuredKey := config.Get().Security.AdminRecoveryKey
 	if configuredKey == "" {
 		return domainError.ErrRecoveryDisabled
 	}

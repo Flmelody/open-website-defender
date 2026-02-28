@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"math/big"
 	"open-website-defender/internal/domain/entity"
+	"open-website-defender/internal/infrastructure/config"
 	"open-website-defender/internal/pkg"
 	"sync"
 	"time"
@@ -67,7 +68,7 @@ func (s *OIDCService) GenerateIDToken(user *entity.User, clientID string, nonce 
 	}
 
 	issuer := getIssuer()
-	idTokenLifetime := viper.GetInt("oauth.id-token-lifetime")
+	idTokenLifetime := config.Get().OAuth.IDTokenLifetime
 	if idTokenLifetime <= 0 {
 		idTokenLifetime = 3600
 	}

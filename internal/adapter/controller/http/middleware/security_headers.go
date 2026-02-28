@@ -1,8 +1,9 @@
 package middleware
 
 import (
+	"open-website-defender/internal/infrastructure/config"
+
 	"github.com/gin-gonic/gin"
-	"github.com/spf13/viper"
 )
 
 func SecurityHeaders() gin.HandlerFunc {
@@ -12,13 +13,14 @@ func SecurityHeaders() gin.HandlerFunc {
 		c.Header("Referrer-Policy", "strict-origin-when-cross-origin")
 		c.Header("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
 
-		frameOptions := viper.GetString("security.headers.frame-options")
+		headersCfg := config.Get().Security.Headers
+		frameOptions := headersCfg.FrameOptions
 		if frameOptions == "" {
 			frameOptions = "DENY"
 		}
 		c.Header("X-Frame-Options", frameOptions)
 
-		if viper.GetBool("security.headers.hsts-enabled") {
+		if headersCfg.HSTSEnabled {
 			c.Header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
 		}
 

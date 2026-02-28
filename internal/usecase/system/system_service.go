@@ -5,12 +5,11 @@ import (
 	"open-website-defender/internal/adapter/repository"
 	"open-website-defender/internal/domain/entity"
 	"open-website-defender/internal/infrastructure/cache"
+	"open-website-defender/internal/infrastructure/config"
 	"open-website-defender/internal/infrastructure/database"
 	"open-website-defender/internal/infrastructure/event"
 	_interface "open-website-defender/internal/usecase/interface"
 	"sync"
-
-	"github.com/spf13/viper"
 )
 
 const (
@@ -56,7 +55,9 @@ func (s *SystemService) GetSettings() (*SystemSettingsDTO, error) {
 		return nil, err
 	}
 
-	mode := viper.GetString("mode")
+	cfg := config.Get()
+
+	mode := cfg.Mode
 	if mode == "" {
 		mode = "auth_request"
 	}
@@ -65,24 +66,24 @@ func (s *SystemService) GetSettings() (*SystemSettingsDTO, error) {
 		Mode:                  mode,
 		GitTokenHeader:        defaultGitTokenHeader,
 		LicenseHeader:         defaultLicenseHeader,
-		JSChallengeEnabled:    viper.GetBool("js-challenge.enabled"),
-		JSChallengeMode:       viper.GetString("js-challenge.mode"),
-		JSChallengeDifficulty: viper.GetInt("js-challenge.difficulty"),
-		WebhookURL:            viper.GetString("webhook.url"),
+		JSChallengeEnabled:    cfg.JSChallenge.Enabled,
+		JSChallengeMode:       cfg.JSChallenge.Mode,
+		JSChallengeDifficulty: cfg.JSChallenge.Difficulty,
+		WebhookURL:            cfg.Webhook.URL,
 
 		// Bot Management defaults from config
-		BotManagementEnabled: viper.GetBool("bot-management.enabled"),
-		ChallengeEscalation:  viper.GetBool("bot-management.challenge-escalation"),
-		CaptchaProvider:      viper.GetString("bot-management.captcha.provider"),
-		CaptchaSiteKey:       viper.GetString("bot-management.captcha.site-key"),
-		CaptchaSecretKey:     viper.GetString("bot-management.captcha.secret-key"),
-		CaptchaCookieTTL:     viper.GetInt("bot-management.captcha.cookie-ttl"),
+		BotManagementEnabled: cfg.BotManagement.Enabled,
+		ChallengeEscalation:  cfg.BotManagement.ChallengeEscalation,
+		CaptchaProvider:      cfg.BotManagement.Captcha.Provider,
+		CaptchaSiteKey:       cfg.BotManagement.Captcha.SiteKey,
+		CaptchaSecretKey:     cfg.BotManagement.Captcha.SecretKey,
+		CaptchaCookieTTL:     cfg.BotManagement.Captcha.CookieTTL,
 
 		// Cache defaults from config
-		CacheSyncInterval: viper.GetInt("cache.sync-interval"),
+		CacheSyncInterval: cfg.Cache.SyncInterval,
 
 		// Semantic Analysis defaults from config
-		SemanticAnalysisEnabled: viper.GetBool("request-filtering.semantic-analysis.enabled"),
+		SemanticAnalysisEnabled: cfg.RequestFiltering.SemanticAnalysis.Enabled,
 	}
 
 	// Apply sensible defaults for zero values

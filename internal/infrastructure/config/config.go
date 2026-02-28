@@ -1,5 +1,44 @@
 package config
 
+import (
+	"sync"
+
+	"github.com/spf13/viper"
+)
+
+var (
+	cfg     *Config
+	cfgOnce sync.Once
+
+	appCfg *AppConfig
+)
+
+// Init unmarshals the viper config into the Config struct.
+// Must be called after viper has loaded all configuration sources.
+func Init() {
+	cfgOnce.Do(func() {
+		cfg = &Config{}
+		if err := viper.Unmarshal(cfg); err != nil {
+			panic("failed to unmarshal config: " + err.Error())
+		}
+	})
+}
+
+// Get returns the global Config struct.
+func Get() *Config {
+	return cfg
+}
+
+// SetAppConfig stores the resolved AppConfig (with env→yaml fallbacks applied).
+func SetAppConfig(ac *AppConfig) {
+	appCfg = ac
+}
+
+// GetAppConfig returns the resolved AppConfig.
+func GetAppConfig() *AppConfig {
+	return appCfg
+}
+
 type Config struct {
 	Mode             string                 `mapstructure:"mode"` // "auth_request" (default) | "reverse_proxy"
 	Database         DatabaseConfig         `mapstructure:"database"`
@@ -16,6 +55,9 @@ type Config struct {
 	JSChallenge      JSChallengeConfig      `mapstructure:"js-challenge"`
 	Webhook          WebhookConfig          `mapstructure:"webhook"`
 	BotManagement    BotManagementConfig    `mapstructure:"bot-management"`
+	DefaultUser      DefaultUserConfig      `mapstructure:"default-user"`
+	GeoBlocking      GeoBlockingConfig      `mapstructure:"geo-blocking"`
+	TrustedProxies   []string               `mapstructure:"trustedProxies"`
 }
 
 type CacheConfig struct {
@@ -43,7 +85,8 @@ type SemanticAnalysisConfig struct {
 }
 
 type ServerConfig struct {
-	MaxBodySizeMB int64 `mapstructure:"max-body-size-mb"`
+	Port          string `mapstructure:"port"`
+	MaxBodySizeMB int64  `mapstructure:"max-body-size-mb"`
 }
 
 type DatabaseConfig struct {
@@ -63,6 +106,7 @@ type SecurityConfig struct {
 	AdminRecoveryKey       string       `mapstructure:"admin-recovery-key"`
 	AdminRecoveryLocalOnly bool         `mapstructure:"admin-recovery-local-only"`
 	TrustedDeviceDays      int          `mapstructure:"trusted-device-days"`
+	SecureCookies          bool         `mapstructure:"secure-cookies"`
 	CORS                   CORSConfig   `mapstructure:"cors"`
 	Headers                HeaderConfig `mapstructure:"headers"`
 }
@@ -144,4 +188,14 @@ type CaptchaConfig struct {
 	SiteKey   string `mapstructure:"site-key"`
 	SecretKey string `mapstructure:"secret-key"`
 	CookieTTL int    `mapstructure:"cookie-ttl"` // seconds, default 86400
+}
+
+type DefaultUserConfig struct {
+	Username string `mapstructure:"username"`
+	Password string `mapstructure:"password"`
+}
+
+type GeoBlockingConfig struct {
+	Enabled      bool   `mapstructure:"enabled"`
+	DatabasePath string `mapstructure:"database-path"`
 }

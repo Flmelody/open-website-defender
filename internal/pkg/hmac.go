@@ -5,9 +5,8 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"open-website-defender/internal/infrastructure/config"
 	"sync"
-
-	"github.com/spf13/viper"
 )
 
 var (
@@ -19,7 +18,7 @@ var (
 // It reads from config "js-challenge.cookie-secret" or generates a random 32-byte key.
 func GetCookieSecret() []byte {
 	cookieSecretOnce.Do(func() {
-		secret := viper.GetString("js-challenge.cookie-secret")
+		secret := config.Get().JSChallenge.CookieSecret
 		if secret != "" {
 			cookieSecret = []byte(secret)
 			return

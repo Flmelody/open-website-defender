@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { getAppConfig } from "@/utils/config";
+import { isTokenExpired } from "@/utils/request";
 import Layout from "@/views/Layout.vue";
 import LoginView from "@/views/LoginView.vue";
 import DashboardView from "@/views/DashboardView.vue";
@@ -110,9 +111,13 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem("token");
-  if (to.meta.requiresAuth && !token) {
+  if (to.meta.requiresAuth && (!token || isTokenExpired(token))) {
+    if (token) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+    }
     next({ name: "login" });
-  } else if (to.meta.guest && token) {
+  } else if (to.meta.guest && token && !isTokenExpired(token)) {
     next({ name: "dashboard" });
   } else {
     next();

@@ -421,5 +421,8 @@ export default {
     cache_sync_interval: "CACHE_SYNC_INTERVAL (seconds)",
     cache_sync_desc:
       "Polling interval for multi-instance cache sync. Set to 0 to disable. Recommended: 5 for multi-instance deployments.",
+    access_log_retention_days: "ACCESS_LOG_RETENTION_DAYS",
+    access_log_retention_desc:
+      "Automatic cleanup window for access logs. Expired logs are deleted by the background retention task.",
   },
 };

@@ -7,6 +7,7 @@ type System struct {
 	Security         Security                 `json:"security" gorm:"serializer:json;column:security"`
 	BotManagement    BotManagementSettings    `json:"bot_management" gorm:"serializer:json;column:bot_management"`
 	CacheSettings    CacheSettings            `json:"cache_settings" gorm:"serializer:json;column:cache_settings"`
+	AccessLog        AccessLogSettings        `json:"access_log" gorm:"serializer:json;column:access_log"`
 	SemanticAnalysis SemanticAnalysisSettings `json:"semantic_analysis" gorm:"serializer:json;column:semantic_analysis"`
 }
 
@@ -34,6 +35,10 @@ type BotManagementSettings struct {
 
 type CacheSettings struct {
 	SyncInterval *int `json:"sync_interval"` // nil = use config, seconds
+}
+
+type AccessLogSettings struct {
+	RetentionDays *int `json:"retention_days"` // nil = use default
 }
 
 type GeoBlockRule struct {

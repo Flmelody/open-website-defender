@@ -19,6 +19,9 @@ type UpdateSystemSettingsRequest struct {
 	// Cache
 	CacheSyncInterval int `json:"cache_sync_interval"`
 
+	// Access Log
+	AccessLogRetentionDays int `json:"access_log_retention_days"`
+
 	// Semantic Analysis
 	SemanticAnalysisEnabled bool `json:"semantic_analysis_enabled"`
 }

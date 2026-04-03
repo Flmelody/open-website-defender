@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"open-website-defender/internal/domain/entity"
 	"time"
 
@@ -19,11 +20,22 @@ func (r *AccessLogRepository) Create(log *entity.AccessLog) error {
 	return r.db.Create(log).Error
 }
 
+func (r *AccessLogRepository) CreateWithContext(ctx context.Context, log *entity.AccessLog) error {
+	return r.db.WithContext(ctx).Create(log).Error
+}
+
 func (r *AccessLogRepository) BatchCreate(logs []*entity.AccessLog) error {
 	if len(logs) == 0 {
 		return nil
 	}
 	return r.db.CreateInBatches(logs, 100).Error
+}
+
+func (r *AccessLogRepository) BatchCreateWithContext(ctx context.Context, logs []*entity.AccessLog) error {
+	if len(logs) == 0 {
+		return nil
+	}
+	return r.db.WithContext(ctx).CreateInBatches(logs, 100).Error
 }
 
 func (r *AccessLogRepository) List(limit, offset int, filters map[string]interface{}) ([]*entity.AccessLog, int64, error) {

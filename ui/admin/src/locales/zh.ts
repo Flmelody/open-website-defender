@@ -411,5 +411,8 @@ export default {
     cache_sync_interval: "缓存同步间隔（秒）",
     cache_sync_desc:
       "多实例缓存同步轮询间隔。设置为 0 禁用。多实例部署建议设为 5。",
+    access_log_retention_days: "访问日志保留天数",
+    access_log_retention_desc:
+      "访问日志自动清理策略。到期日志会在后台清理任务中删除，建议按磁盘容量与审计需求设置。",
   },
 };

@@ -422,5 +422,8 @@ export default {
     cache_sync_interval: "キャッシュ同期間隔（秒）",
     cache_sync_desc:
       "マルチインスタンスキャッシュ同期のポーリング間隔。0で無効。マルチインスタンス展開には5を推奨。",
+    access_log_retention_days: "アクセスログ保持日数",
+    access_log_retention_desc:
+      "アクセスログの自動削除期間です。期限切れのログはバックグラウンドの保持タスクで削除されます。",
   },
 };

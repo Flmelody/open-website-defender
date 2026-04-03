@@ -13,8 +13,11 @@ import (
 )
 
 const (
-	defaultGitTokenHeader = "Defender-Git-Token"
-	defaultLicenseHeader  = "Defender-License"
+	defaultGitTokenHeader         = "Defender-Git-Token"
+	defaultLicenseHeader          = "Defender-License"
+	defaultAccessLogRetentionDays = 30
+	minAccessLogRetentionDays     = 1
+	maxAccessLogRetentionDays     = 3650
 )
 
 var (
@@ -82,6 +85,9 @@ func (s *SystemService) GetSettings() (*SystemSettingsDTO, error) {
 		// Cache defaults from config
 		CacheSyncInterval: cfg.Cache.SyncInterval,
 
+		// Access log defaults
+		AccessLogRetentionDays: defaultAccessLogRetentionDays,
+
 		// Semantic Analysis defaults from config
 		SemanticAnalysisEnabled: cfg.RequestFiltering.SemanticAnalysis.Enabled,
 	}
@@ -146,6 +152,11 @@ func (s *SystemService) GetSettings() (*SystemSettingsDTO, error) {
 			dto.CacheSyncInterval = *sys.CacheSettings.SyncInterval
 		}
 
+		// Access log overrides
+		if sys.AccessLog.RetentionDays != nil {
+			dto.AccessLogRetentionDays = normalizeAccessLogRetentionDays(*sys.AccessLog.RetentionDays)
+		}
+
 		// Semantic Analysis overrides
 		if sys.SemanticAnalysis.Enabled != nil {
 			dto.SemanticAnalysisEnabled = *sys.SemanticAnalysis.Enabled
@@ -191,6 +202,11 @@ func (s *SystemService) UpdateSettings(input *UpdateSystemSettingsDTO) error {
 		SyncInterval: &input.CacheSyncInterval,
 	}
 
+	normalizedRetentionDays := normalizeAccessLogRetentionDays(input.AccessLogRetentionDays)
+	sys.AccessLog = entity.AccessLogSettings{
+		RetentionDays: &normalizedRetentionDays,
+	}
+
 	// Semantic Analysis
 	sys.SemanticAnalysis = entity.SemanticAnalysisSettings{
 		Enabled: &input.SemanticAnalysisEnabled,
@@ -221,4 +237,15 @@ func (s *SystemService) GetHeaderNames() (gitTokenHeader, licenseHeader string) 
 		return defaultGitTokenHeader, defaultLicenseHeader
 	}
 	return settings.GitTokenHeader, settings.LicenseHeader
+}
+
+func normalizeAccessLogRetentionDays(days int) int {
+	switch {
+	case days < minAccessLogRetentionDays:
+		return defaultAccessLogRetentionDays
+	case days > maxAccessLogRetentionDays:
+		return maxAccessLogRetentionDays
+	default:
+		return days
+	}
 }

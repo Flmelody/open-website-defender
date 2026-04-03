@@ -315,6 +315,26 @@
                 :max="300"
               />
             </el-form-item>
+
+            <el-form-item>
+              <template #label>
+                <span class="label-with-tip"
+                  >> {{ t("system.access_log_retention_days") }}
+                  <el-tooltip
+                    :content="t('system.access_log_retention_desc')"
+                    placement="right"
+                    effect="dark"
+                  >
+                    <el-icon class="info-icon"><InfoFilled /></el-icon>
+                  </el-tooltip>
+                </span>
+              </template>
+              <el-input-number
+                v-model="form.access_log_retention_days"
+                :min="1"
+                :max="3650"
+              />
+            </el-form-item>
           </el-form>
 
           <el-button
@@ -356,6 +376,7 @@ const form = reactive({
   captcha_secret_key: "",
   captcha_cookie_ttl: 86400,
   cache_sync_interval: 0,
+  access_log_retention_days: 30,
   semantic_analysis_enabled: false,
 });
 
@@ -373,6 +394,7 @@ const originalValues = reactive({
   captcha_secret_key: "",
   captcha_cookie_ttl: 86400,
   cache_sync_interval: 0,
+  access_log_retention_days: 30,
   semantic_analysis_enabled: false,
 });
 
@@ -402,6 +424,7 @@ const fetchData = async () => {
     form.captcha_secret_key = res.captcha_secret_key || "";
     form.captcha_cookie_ttl = res.captcha_cookie_ttl || 86400;
     form.cache_sync_interval = res.cache_sync_interval || 0;
+    form.access_log_retention_days = res.access_log_retention_days || 30;
     form.semantic_analysis_enabled = res.semantic_analysis_enabled || false;
     Object.assign(originalValues, { ...form });
   } finally {

@@ -48,7 +48,8 @@ func UpdateSystemSettings(c *gin.Context) {
 		CaptchaSecretKey:     req.CaptchaSecretKey,
 		CaptchaCookieTTL:     req.CaptchaCookieTTL,
 
-		CacheSyncInterval: req.CacheSyncInterval,
+		CacheSyncInterval:      req.CacheSyncInterval,
+		AccessLogRetentionDays: req.AccessLogRetentionDays,
 
 		SemanticAnalysisEnabled: req.SemanticAnalysisEnabled,
 	}

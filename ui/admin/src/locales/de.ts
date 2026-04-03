@@ -426,5 +426,8 @@ export default {
     cache_sync_interval: "CACHE_SYNC_INTERVALL (Sekunden)",
     cache_sync_desc:
       "Abfrageintervall für Multi-Instanz-Cache-Synchronisierung. 0 = deaktiviert. Empfohlen: 5 für Multi-Instanz-Bereitstellungen.",
+    access_log_retention_days: "AUFBEWAHRUNG_VON_ZUGRIFFSPROTOKOLLEN (Tage)",
+    access_log_retention_desc:
+      "Automatisches Bereinigungsfenster für Zugriffsprotokolle. Abgelaufene Einträge werden durch den Hintergrundprozess gelöscht.",
   },
 };

@@ -425,5 +425,8 @@ export default {
     cache_sync_interval: "INTERVALLE_SYNC_CACHE (secondes)",
     cache_sync_desc:
       "Intervalle de synchronisation du cache multi-instances. 0 = désactivé. Recommandé : 5 pour les déploiements multi-instances.",
+    access_log_retention_days: "RÉTENTION_DES_JOURNAUX_D_ACCÈS (jours)",
+    access_log_retention_desc:
+      "Fenêtre de nettoyage automatique des journaux d'accès. Les entrées expirées sont supprimées par la tâche d'arrière-plan.",
   },
 };

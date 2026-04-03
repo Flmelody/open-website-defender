@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"open-website-defender/internal/adapter/controller/http/request"
 	"open-website-defender/internal/adapter/controller/http/response"
+	"open-website-defender/internal/infrastructure/config"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
 	"open-website-defender/internal/usecase/oauth"
@@ -335,23 +336,29 @@ func authenticateOWDUser(c *gin.Context) *user.UserInfoDTO {
 }
 
 func buildGuardLoginURL(c *gin.Context) string {
-	// Build the full current URL as the redirect target
-	scheme := "https"
-	if c.GetHeader("X-Forwarded-Proto") != "" {
-		scheme = c.GetHeader("X-Forwarded-Proto")
-	} else if c.Request.TLS == nil {
-		scheme = "http"
-	}
-	currentURL := fmt.Sprintf("%s://%s%s?%s", scheme, c.Request.Host, c.Request.URL.Path, c.Request.URL.RawQuery)
-
-	// Get guard path from config
-	guardPath := "/wall/guard"
+	currentURL := c.Request.URL.RequestURI()
+	guardPath := getGuardBasePath()
 	return fmt.Sprintf("%s/login?redirect=%s", guardPath, url.QueryEscape(currentURL))
 }
 
 func buildGuardConsentURL(c *gin.Context, params url.Values) string {
-	guardPath := "/wall/guard"
+	guardPath := getGuardBasePath()
 	return fmt.Sprintf("%s/consent?%s", guardPath, params.Encode())
+}
+
+func getGuardBasePath() string {
+	appCfg := config.GetAppConfig()
+	rootPath := "/wall"
+	guardPath := "/guard"
+	if appCfg != nil {
+		if appCfg.RootPath != "" {
+			rootPath = appCfg.RootPath
+		}
+		if appCfg.GuardPath != "" {
+			guardPath = appCfg.GuardPath
+		}
+	}
+	return strings.TrimRight(rootPath+guardPath, "/")
 }
 
 func redirectWithCode(c *gin.Context, redirectURI string, code string, state string) {

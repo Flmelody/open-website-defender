@@ -101,10 +101,11 @@ server:
   # Maximum request body size in MB (default: 10)
   max-body-size-mb: 10
 
-# Default user credentials (created on first startup)
+# Bootstrap admin user (created only on first startup)
 default-user:
   username: defender
-  password: defender
+  # Leave empty to auto-generate a strong password and print it once in the startup log.
+  password: ""
 
 # OAuth2/OIDC Provider configuration
 oauth:

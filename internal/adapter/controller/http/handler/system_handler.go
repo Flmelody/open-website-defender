@@ -62,9 +62,10 @@ func UpdateSystemSettings(c *gin.Context) {
 	response.SuccessWithMessage(c, "System settings updated", nil)
 }
 
-// ReloadConfig flushes all caches, forcing services to reload from database.
+// ReloadConfig flushes in-memory caches so database-backed settings reload on the next request.
+// File-based configuration still requires a process restart.
 func ReloadConfig(c *gin.Context) {
 	cache.Store().Clear()
 	logging.Sugar.Info("Cache cleared via admin reload endpoint")
-	response.SuccessWithMessage(c, "Configuration reloaded, caches cleared", nil)
+	response.SuccessWithMessage(c, "Caches cleared; database-backed settings will reload on next request", nil)
 }

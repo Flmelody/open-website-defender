@@ -8,7 +8,8 @@ type Handler func(Event, any)
 
 type bus struct {
 	mu       sync.RWMutex
-	handlers map[Event][]Handler
+	nextID   uint64
+	handlers map[Event]map[uint64]Handler
 }
 
 var (
@@ -19,25 +20,48 @@ var (
 func Bus() *bus {
 	once.Do(func() {
 		instance = &bus{
-			handlers: make(map[Event][]Handler),
+			handlers: make(map[Event]map[uint64]Handler),
 		}
 	})
 	return instance
 }
 
 // Subscribe registers a handler for the given event.
-func (b *bus) Subscribe(event Event, handler Handler) {
+func (b *bus) Subscribe(event Event, handler Handler) func() {
 	b.mu.Lock()
 	defer b.mu.Unlock()
-	b.handlers[event] = append(b.handlers[event], handler)
+
+	b.nextID++
+	id := b.nextID
+	if b.handlers[event] == nil {
+		b.handlers[event] = make(map[uint64]Handler)
+	}
+	b.handlers[event][id] = handler
+
+	return func() {
+		b.mu.Lock()
+		defer b.mu.Unlock()
+
+		handlers := b.handlers[event]
+		if handlers == nil {
+			return
+		}
+		delete(handlers, id)
+		if len(handlers) == 0 {
+			delete(b.handlers, event)
+		}
+	}
 }
 
 // Publish fires the event, calling all registered handlers synchronously.
 // Optional data payload is passed to handlers.
 func (b *bus) Publish(event Event, data ...any) {
 	b.mu.RLock()
-	handlers := make([]Handler, len(b.handlers[event]))
-	copy(handlers, b.handlers[event])
+	registered := b.handlers[event]
+	handlers := make([]Handler, 0, len(registered))
+	for _, handler := range registered {
+		handlers = append(handlers, handler)
+	}
 	b.mu.RUnlock()
 
 	var payload any

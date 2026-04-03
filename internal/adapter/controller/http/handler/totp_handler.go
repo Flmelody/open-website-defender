@@ -11,15 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func canManageTotp(c *gin.Context, targetID uint) bool {
-	currentUser, exists := c.Get("user")
-	if !exists {
-		return false
-	}
-	userInfo := currentUser.(*user.UserInfoDTO)
-	return userInfo.IsAdmin || userInfo.ID == targetID
-}
-
 func SetupTotp(c *gin.Context) {
 	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
 	if err != nil {
@@ -27,7 +18,7 @@ func SetupTotp(c *gin.Context) {
 		return
 	}
 
-	if !canManageTotp(c, uint(id)) {
+	if !canAccessUserResource(c, uint(id)) {
 		response.Forbidden(c, "Not allowed to manage 2FA for this user")
 		return
 	}
@@ -60,7 +51,7 @@ func ConfirmTotp(c *gin.Context) {
 		return
 	}
 
-	if !canManageTotp(c, uint(id)) {
+	if !canAccessUserResource(c, uint(id)) {
 		response.Forbidden(c, "Not allowed to manage 2FA for this user")
 		return
 	}
@@ -101,7 +92,7 @@ func DisableTotp(c *gin.Context) {
 		return
 	}
 
-	if !canManageTotp(c, uint(id)) {
+	if !canAccessUserResource(c, uint(id)) {
 		response.Forbidden(c, "Not allowed to manage 2FA for this user")
 		return
 	}

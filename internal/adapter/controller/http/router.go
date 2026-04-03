@@ -72,94 +72,94 @@ func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 		api.GET("/captcha/generate", handler.GenerateCaptcha)
 		api.POST("/captcha/verify", handler.VerifyCaptcha)
 
-		authorized := api.Group("")
-		// Middleware for route protection
-		authorized.Use(handler.AuthMiddleware)
+		authenticated := api.Group("")
+		authenticated.Use(handler.AuthMiddleware)
 		{
-			authorized.POST("/users", handler.CreateUser)
-			authorized.GET("/users", handler.ListUser)
-			authorized.GET("/users/:id", handler.GetUser)
-			authorized.PUT("/users/:id", handler.UpdateUser)
-			authorized.DELETE("/users/:id", handler.DeleteUser)
+			// Self-service routes: user can only access their own resources; admins can manage all.
+			authenticated.GET("/users/:id/oauth-authorizations", handler.ListUserOAuthAuthorizations)
+			authenticated.DELETE("/users/:id/oauth-authorizations/:clientId", handler.RevokeUserOAuthAuthorization)
+			authenticated.POST("/users/:id/totp/setup", handler.SetupTotp)
+			authenticated.POST("/users/:id/totp/confirm", handler.ConfirmTotp)
+			authenticated.DELETE("/users/:id/totp", handler.DisableTotp)
 
-			// User OAuth Authorizations
-			authorized.GET("/users/:id/oauth-authorizations", handler.ListUserOAuthAuthorizations)
-			authorized.DELETE("/users/:id/oauth-authorizations/:clientId", handler.RevokeUserOAuthAuthorization)
+			admin := authenticated.Group("")
+			admin.Use(handler.AdminMiddleware)
+			{
+				admin.POST("/users", handler.CreateUser)
+				admin.GET("/users", handler.ListUser)
+				admin.GET("/users/:id", handler.GetUser)
+				admin.PUT("/users/:id", handler.UpdateUser)
+				admin.DELETE("/users/:id", handler.DeleteUser)
 
-			// TOTP 2FA management
-			authorized.POST("/users/:id/totp/setup", handler.SetupTotp)
-			authorized.POST("/users/:id/totp/confirm", handler.ConfirmTotp)
-			authorized.DELETE("/users/:id/totp", handler.DisableTotp)
+				// IP Blacklist
+				admin.POST("/ip-black-list", handler.CreateIpBlackList)
+				admin.GET("/ip-black-list", handler.ListIpBlackList)
+				admin.PUT("/ip-black-list/:id", handler.UpdateIpBlackList)
+				admin.DELETE("/ip-black-list/:id", handler.DeleteIpBlackList)
 
-			// IP Blacklist
-			authorized.POST("/ip-black-list", handler.CreateIpBlackList)
-			authorized.GET("/ip-black-list", handler.ListIpBlackList)
-			authorized.PUT("/ip-black-list/:id", handler.UpdateIpBlackList)
-			authorized.DELETE("/ip-black-list/:id", handler.DeleteIpBlackList)
+				// IP Whitelist
+				admin.POST("/ip-white-list", handler.CreateIpWhiteList)
+				admin.GET("/ip-white-list", handler.ListIpWhiteList)
+				admin.PUT("/ip-white-list/:id", handler.UpdateIpWhiteList)
+				admin.DELETE("/ip-white-list/:id", handler.DeleteIpWhiteList)
 
-			// IP Whitelist
-			authorized.POST("/ip-white-list", handler.CreateIpWhiteList)
-			authorized.GET("/ip-white-list", handler.ListIpWhiteList)
-			authorized.PUT("/ip-white-list/:id", handler.UpdateIpWhiteList)
-			authorized.DELETE("/ip-white-list/:id", handler.DeleteIpWhiteList)
+				// WAF Rules
+				admin.POST("/waf-rules", handler.CreateWafRule)
+				admin.GET("/waf-rules", handler.ListWafRules)
+				admin.PUT("/waf-rules/:id", handler.UpdateWafRule)
+				admin.DELETE("/waf-rules/:id", handler.DeleteWafRule)
+				admin.PUT("/waf-rules/group/:name/enable", handler.BatchEnableWafGroup)
+				admin.PUT("/waf-rules/group/:name/disable", handler.BatchDisableWafGroup)
 
-			// WAF Rules
-			authorized.POST("/waf-rules", handler.CreateWafRule)
-			authorized.GET("/waf-rules", handler.ListWafRules)
-			authorized.PUT("/waf-rules/:id", handler.UpdateWafRule)
-			authorized.DELETE("/waf-rules/:id", handler.DeleteWafRule)
-			authorized.PUT("/waf-rules/group/:name/enable", handler.BatchEnableWafGroup)
-			authorized.PUT("/waf-rules/group/:name/disable", handler.BatchDisableWafGroup)
+				// WAF Exclusions
+				admin.POST("/waf-exclusions", handler.CreateWafExclusion)
+				admin.GET("/waf-exclusions", handler.ListWafExclusions)
+				admin.DELETE("/waf-exclusions/:id", handler.DeleteWafExclusion)
 
-			// WAF Exclusions
-			authorized.POST("/waf-exclusions", handler.CreateWafExclusion)
-			authorized.GET("/waf-exclusions", handler.ListWafExclusions)
-			authorized.DELETE("/waf-exclusions/:id", handler.DeleteWafExclusion)
+				// Bot Signatures
+				admin.POST("/bot-signatures", handler.CreateBotSignature)
+				admin.GET("/bot-signatures", handler.ListBotSignatures)
+				admin.PUT("/bot-signatures/:id", handler.UpdateBotSignature)
+				admin.DELETE("/bot-signatures/:id", handler.DeleteBotSignature)
 
-			// Bot Signatures
-			authorized.POST("/bot-signatures", handler.CreateBotSignature)
-			authorized.GET("/bot-signatures", handler.ListBotSignatures)
-			authorized.PUT("/bot-signatures/:id", handler.UpdateBotSignature)
-			authorized.DELETE("/bot-signatures/:id", handler.DeleteBotSignature)
+				// Access Logs
+				admin.GET("/access-logs", handler.ListAccessLogs)
+				admin.GET("/access-logs/stats", handler.GetAccessLogStats)
+				admin.DELETE("/access-logs", handler.ClearAccessLogs)
 
-			// Access Logs
-			authorized.GET("/access-logs", handler.ListAccessLogs)
-			authorized.GET("/access-logs/stats", handler.GetAccessLogStats)
-			authorized.DELETE("/access-logs", handler.ClearAccessLogs)
+				// Geo-blocking
+				admin.POST("/geo-block-rules", handler.CreateGeoBlockRule)
+				admin.GET("/geo-block-rules", handler.ListGeoBlockRules)
+				admin.DELETE("/geo-block-rules/:id", handler.DeleteGeoBlockRule)
 
-			// Geo-blocking
-			authorized.POST("/geo-block-rules", handler.CreateGeoBlockRule)
-			authorized.GET("/geo-block-rules", handler.ListGeoBlockRules)
-			authorized.DELETE("/geo-block-rules/:id", handler.DeleteGeoBlockRule)
+				// Licenses
+				admin.POST("/licenses", handler.CreateLicense)
+				admin.GET("/licenses", handler.ListLicenses)
+				admin.DELETE("/licenses/:id", handler.DeleteLicense)
 
-			// Licenses
-			authorized.POST("/licenses", handler.CreateLicense)
-			authorized.GET("/licenses", handler.ListLicenses)
-			authorized.DELETE("/licenses/:id", handler.DeleteLicense)
+				// Authorized Domains
+				admin.POST("/authorized-domains", handler.CreateAuthorizedDomain)
+				admin.GET("/authorized-domains", handler.ListAuthorizedDomains)
+				admin.DELETE("/authorized-domains/:id", handler.DeleteAuthorizedDomain)
 
-			// Authorized Domains
-			authorized.POST("/authorized-domains", handler.CreateAuthorizedDomain)
-			authorized.GET("/authorized-domains", handler.ListAuthorizedDomains)
-			authorized.DELETE("/authorized-domains/:id", handler.DeleteAuthorizedDomain)
+				// OAuth Clients
+				admin.POST("/oauth-clients", handler.CreateOAuthClient)
+				admin.GET("/oauth-clients", handler.ListOAuthClients)
+				admin.GET("/oauth-clients/:id", handler.GetOAuthClient)
+				admin.PUT("/oauth-clients/:id", handler.UpdateOAuthClient)
+				admin.DELETE("/oauth-clients/:id", handler.DeleteOAuthClient)
 
-			// OAuth Clients (admin management)
-			authorized.POST("/oauth-clients", handler.CreateOAuthClient)
-			authorized.GET("/oauth-clients", handler.ListOAuthClients)
-			authorized.GET("/oauth-clients/:id", handler.GetOAuthClient)
-			authorized.PUT("/oauth-clients/:id", handler.UpdateOAuthClient)
-			authorized.DELETE("/oauth-clients/:id", handler.DeleteOAuthClient)
+				// Security Events
+				admin.GET("/security-events", handler.ListSecurityEvents)
+				admin.GET("/security-events/stats", handler.GetSecurityEventStats)
+				admin.GET("/security-events/threat-score", handler.GetThreatScore)
 
-			// Security Events
-			authorized.GET("/security-events", handler.ListSecurityEvents)
-			authorized.GET("/security-events/stats", handler.GetSecurityEventStats)
-			authorized.GET("/security-events/threat-score", handler.GetThreatScore)
-
-			// Dashboard & System
-			authorized.GET("/dashboard/stats", handler.GetDashboardStats)
-			authorized.GET("/system/settings", handler.GetSystemSettings)
-			authorized.PUT("/system/settings", handler.UpdateSystemSettings)
-			authorized.POST("/system/reload", handler.ReloadConfig)
-
+				// Dashboard & System
+				admin.GET("/dashboard/stats", handler.GetDashboardStats)
+				admin.GET("/system/settings", handler.GetSystemSettings)
+				admin.PUT("/system/settings", handler.UpdateSystemSettings)
+				admin.POST("/system/reload", handler.ReloadConfig)
+			}
 		}
 	}
 

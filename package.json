@@ -1,0 +1,14 @@
+{
+  "name": "open-website-defender-workspace",
+  "private": true,
+  "workspaces": [
+    "ui/admin",
+    "ui/guard"
+  ],
+  "scripts": {
+    "type-check": "npm run type-check --workspace=ui/admin && npm run type-check --workspace=ui/guard",
+    "build": "npm run build --workspace=ui/guard && npm run build --workspace=ui/admin",
+    "lint": "npm run lint --workspace=ui/admin && npm run lint --workspace=ui/guard",
+    "format": "npm run format --workspace=ui/admin && npm run format --workspace=ui/guard"
+  }
+}

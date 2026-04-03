@@ -33,12 +33,13 @@ var eventToVersionKey = map[event.Event]string{
 // CacheSyncService polls the database for version changes and publishes
 // events to invalidate local caches across multiple instances.
 type CacheSyncService struct {
-	db       *gorm.DB
-	versions map[string]int64
-	mu       sync.Mutex
-	stopCh   chan struct{}
-	interval time.Duration
-	polling  atomic.Bool // true while poll() is publishing events, prevents re-entrant BumpVersion
+	db            *gorm.DB
+	versions      map[string]int64
+	mu            sync.Mutex
+	stopCh        chan struct{}
+	interval      time.Duration
+	polling       atomic.Bool // true while poll() is publishing events, prevents re-entrant BumpVersion
+	unsubscribers []func()
 }
 
 var (
@@ -71,18 +72,7 @@ func InitSync(db *gorm.DB, intervalSeconds int) {
 	svc.loadVersions()
 
 	// Subscribe to local events so writes on this instance bump the DB version.
-	b := event.Bus()
-	for evt, key := range eventToVersionKey {
-		evt, key := evt, key // capture
-		b.Subscribe(evt, func(_ event.Event, _ any) {
-			// Skip if this event was fired by the poller (remote change detection).
-			// Only local service writes should bump the DB version.
-			if svc.polling.Load() {
-				return
-			}
-			svc.BumpVersion(key)
-		})
-	}
+	svc.subscribeToLocalEvents()
 
 	svc.start()
 	syncService = svc
@@ -130,16 +120,7 @@ func RestartSync(intervalSeconds int) {
 
 	svc.loadVersions()
 
-	b := event.Bus()
-	for evt, key := range eventToVersionKey {
-		evt, key := evt, key
-		b.Subscribe(evt, func(_ event.Event, _ any) {
-			if svc.polling.Load() {
-				return
-			}
-			svc.BumpVersion(key)
-		})
-	}
+	svc.subscribeToLocalEvents()
 
 	svc.start()
 	syncService = svc
@@ -163,7 +144,25 @@ func (s *CacheSyncService) start() {
 }
 
 func (s *CacheSyncService) stop() {
+	for _, unsubscribe := range s.unsubscribers {
+		unsubscribe()
+	}
+	s.unsubscribers = nil
 	close(s.stopCh)
+}
+
+func (s *CacheSyncService) subscribeToLocalEvents() {
+	b := event.Bus()
+	for evt, key := range eventToVersionKey {
+		evt, key := evt, key
+		unsubscribe := b.Subscribe(evt, func(_ event.Event, _ any) {
+			if s.polling.Load() {
+				return
+			}
+			s.BumpVersion(key)
+		})
+		s.unsubscribers = append(s.unsubscribers, unsubscribe)
+	}
 }
 
 // BumpVersion increments the version for the given key in the database

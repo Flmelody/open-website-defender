@@ -81,7 +81,7 @@ const handleConsent = async (action) => {
 
   try {
     const config = getAppConfig()
-    const baseURL = config.baseURL || 'http://localhost:9999/wall'
+    const baseURL = config.baseURL || config.rootPath || '/wall'
 
     // Submit consent form to OWD backend
     const formData = new URLSearchParams()

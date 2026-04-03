@@ -104,6 +104,12 @@ onMounted(async () => {
 })
 
 const getFullRedirectUrl = () => {
+  const queryRedirect = typeof route.query.redirect === 'string' ? route.query.redirect : ''
+  if (queryRedirect) {
+    if (!queryRedirect.startsWith('/') || queryRedirect.startsWith('//')) return ''
+    return queryRedirect
+  }
+
   const fullUrl = window.location.href
   const marker = 'redirect='
   const idx = fullUrl.indexOf(marker)

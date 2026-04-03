@@ -14,6 +14,9 @@ import (
 	"open-website-defender/internal/infrastructure/database"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
+	"open-website-defender/internal/usecase/accesslog"
+	oauthusecase "open-website-defender/internal/usecase/oauth"
+	"open-website-defender/internal/usecase/threat"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -31,6 +34,16 @@ var (
 	AdminPath = "/admin"
 	GuardPath = "/guard"
 )
+
+func resolveRuntimeEnv() string {
+	appEnv := strings.ToLower(strings.TrimSpace(os.Getenv("APP_ENV")))
+	switch appEnv {
+	case "dev", "development", "debug", "local":
+		return "dev"
+	default:
+		return "production"
+	}
+}
 
 func loadConfig() error {
 	viper.SetConfigFile(".env")
@@ -115,20 +128,19 @@ var server embed.FS
 func main() {
 	var err error
 
-	err = logging.InitLoggerWithEnv("dev")
+	err = loadConfig()
+	if err != nil {
+		panic("Failed to load config: " + err.Error())
+	}
+
+	config.Init()
+	cfg := config.Get()
+
+	err = logging.InitLoggerWithEnv(resolveRuntimeEnv())
 	if err != nil {
 		panic("Failed to initialize logger: " + err.Error())
 	}
-
-	err = loadConfig()
-	if err != nil {
-		logging.Sugar.Fatalf("Error reading config file: %s", err)
-		return
-	}
-
-	// Unmarshal viper config into the global Config struct
-	config.Init()
-	cfg := config.Get()
+	defer logging.Sync()
 
 	// Initialize JWT secret from configuration
 	pkg.InitJWTSecret(
@@ -159,7 +171,12 @@ func main() {
 	appConfig := getAppConfig()
 	config.SetAppConfig(appConfig)
 
-	r := gin.Default()
+	if os.Getenv("GIN_MODE") == "" && resolveRuntimeEnv() == "production" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
+	r := gin.New()
+	r.Use(middleware.Recovery())
 	r.RedirectTrailingSlash = true
 	trustedProxies := cfg.TrustedProxies
 	err = r.SetTrustedProxies(trustedProxies)
@@ -332,6 +349,9 @@ func main() {
 		logging.Sugar.Fatalf("Server forced to shutdown: %s", err)
 	}
 
+	accesslog.StopAccessLogService()
+	threat.StopSecurityEventService()
+	oauthusecase.StopOAuthService()
 	cache.StopSync()
 	pkg.CloseGeoIP()
 	logging.Sugar.Info("Server exited gracefully")

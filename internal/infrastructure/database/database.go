@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/glebarez/sqlite"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
-	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -98,7 +98,7 @@ func InitDB() error {
 	}
 
 	DB, err = gorm.Open(dialector, &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger: logger.Default.LogMode(databaseLogLevel()),
 		NowFunc: func() time.Time {
 			return time.Now().UTC()
 		},
@@ -165,6 +165,13 @@ func InitDB() error {
 	return nil
 }
 
+func databaseLogLevel() logger.LogLevel {
+	if os.Getenv("APP_ENV") == "dev" || os.Getenv("APP_ENV") == "development" || os.Getenv("APP_ENV") == "debug" || os.Getenv("APP_ENV") == "local" {
+		return logger.Info
+	}
+	return logger.Warn
+}
+
 func initDefaultSystem() error {
 	var count int64
 	if err := DB.Model(&entity.System{}).Count(&count).Error; err != nil {
@@ -208,8 +215,10 @@ func initDefaultUser() error {
 	}
 
 	defaultPassword := config.Get().DefaultUser.Password
+	generatedPassword := false
 	if len(defaultPassword) == 0 {
-		defaultPassword = "defender"
+		defaultPassword = pkg.GenerateRandomToken(16)
+		generatedPassword = true
 	}
 
 	hashedPassword, err := pkg.HashPassword(defaultPassword)
@@ -228,7 +237,11 @@ func initDefaultUser() error {
 		return err
 	}
 
-	logging.Sugar.Infof("Default user created successfully: username=%s (password hashed with bcrypt)", defaultUsername)
+	if generatedPassword {
+		logging.Sugar.Warnf("Bootstrap admin user created: username=%s password=%s", defaultUsername, defaultPassword)
+	} else {
+		logging.Sugar.Infof("Bootstrap admin user created: username=%s", defaultUsername)
+	}
 	return nil
 }
 

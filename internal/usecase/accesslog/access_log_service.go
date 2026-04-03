@@ -10,9 +10,10 @@ import (
 )
 
 type AccessLogService struct {
-	repo   *repository.AccessLogRepository
-	buffer chan *entity.AccessLog
-	done   chan struct{}
+	repo     *repository.AccessLogRepository
+	buffer   chan *entity.AccessLog
+	done     chan struct{}
+	stopOnce sync.Once
 }
 
 var (
@@ -209,5 +210,13 @@ func (s *AccessLogService) ClearAll() (int64, error) {
 
 // Stop gracefully stops the service by flushing remaining logs.
 func (s *AccessLogService) Stop() {
-	close(s.done)
+	s.stopOnce.Do(func() {
+		close(s.done)
+	})
+}
+
+func StopAccessLogService() {
+	if accessLogService != nil {
+		accessLogService.Stop()
+	}
 }

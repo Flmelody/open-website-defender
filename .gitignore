@@ -19,3 +19,8 @@ logs/
 # MkDocs build output
 site/
 /dist/
+
+# Build artifacts
+/app
+/open-website-defender-*
+/release/

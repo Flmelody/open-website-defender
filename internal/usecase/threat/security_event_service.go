@@ -10,9 +10,10 @@ import (
 )
 
 type SecurityEventService struct {
-	repo   *repository.SecurityEventRepository
-	buffer chan *entity.SecurityEvent
-	done   chan struct{}
+	repo     *repository.SecurityEventRepository
+	buffer   chan *entity.SecurityEvent
+	done     chan struct{}
+	stopOnce sync.Once
 }
 
 var (
@@ -159,4 +160,16 @@ func (s *SecurityEventService) List(page, size int, filters map[string]interface
 
 func (s *SecurityEventService) GetStats() (*repository.SecurityEventStats, error) {
 	return s.repo.GetStats()
+}
+
+func (s *SecurityEventService) Stop() {
+	s.stopOnce.Do(func() {
+		close(s.done)
+	})
+}
+
+func StopSecurityEventService() {
+	if securityEventService != nil {
+		securityEventService.Stop()
+	}
 }

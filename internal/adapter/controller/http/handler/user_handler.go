@@ -186,6 +186,10 @@ func ListUserOAuthAuthorizations(c *gin.Context) {
 		response.BadRequest(c, "Invalid user ID")
 		return
 	}
+	if !canAccessUserResource(c, uint(id)) {
+		response.Forbidden(c, "Not allowed to access this user's authorizations")
+		return
+	}
 
 	list, err := service.ListUserAuthorizations(uint(id))
 	if err != nil {
@@ -204,6 +208,10 @@ func RevokeUserOAuthAuthorization(c *gin.Context) {
 	id, err := strconv.ParseUint(idParam, 10, 32)
 	if err != nil {
 		response.BadRequest(c, "Invalid user ID")
+		return
+	}
+	if !canAccessUserResource(c, uint(id)) {
+		response.Forbidden(c, "Not allowed to revoke this user's authorizations")
 		return
 	}
 

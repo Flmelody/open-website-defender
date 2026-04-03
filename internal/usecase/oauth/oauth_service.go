@@ -37,6 +37,8 @@ type OAuthService struct {
 	codeRepo    _interface.OAuthAuthorizationCodeRepository
 	refreshRepo _interface.OAuthRefreshTokenRepository
 	userRepo    _interface.UserRepository
+	stopCh      chan struct{}
+	stopOnce    sync.Once
 }
 
 var (
@@ -51,6 +53,7 @@ func GetOAuthService() *OAuthService {
 			codeRepo:    repository.NewOAuthAuthorizationCodeRepository(database.DB),
 			refreshRepo: repository.NewOAuthRefreshTokenRepository(database.DB),
 			userRepo:    repository.NewUserRepository(database.DB),
+			stopCh:      make(chan struct{}),
 		}
 		// Start periodic cleanup
 		go oauthService.periodicCleanup()
@@ -61,13 +64,30 @@ func GetOAuthService() *OAuthService {
 func (s *OAuthService) periodicCleanup() {
 	ticker := time.NewTicker(30 * time.Minute)
 	defer ticker.Stop()
-	for range ticker.C {
-		if err := s.codeRepo.DeleteExpired(); err != nil {
-			logging.Sugar.Warnf("Failed to cleanup expired auth codes: %v", err)
+	for {
+		select {
+		case <-ticker.C:
+			if err := s.codeRepo.DeleteExpired(); err != nil {
+				logging.Sugar.Warnf("Failed to cleanup expired auth codes: %v", err)
+			}
+			if err := s.refreshRepo.DeleteExpired(); err != nil {
+				logging.Sugar.Warnf("Failed to cleanup expired refresh tokens: %v", err)
+			}
+		case <-s.stopCh:
+			return
 		}
-		if err := s.refreshRepo.DeleteExpired(); err != nil {
-			logging.Sugar.Warnf("Failed to cleanup expired refresh tokens: %v", err)
-		}
+	}
+}
+
+func (s *OAuthService) Stop() {
+	s.stopOnce.Do(func() {
+		close(s.stopCh)
+	})
+}
+
+func StopOAuthService() {
+	if oauthService != nil {
+		oauthService.Stop()
 	}
 }
 

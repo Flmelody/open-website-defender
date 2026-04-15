@@ -39,13 +39,18 @@ func (r *IpWhiteListRepository) Delete(id uint) error {
 	return r.db.Delete(&entity.IpWhiteList{}, id).Error
 }
 
-func (r *IpWhiteListRepository) List(limit, offset int) ([]*entity.IpWhiteList, int64, error) {
+func (r *IpWhiteListRepository) List(limit, offset int, keyword string) ([]*entity.IpWhiteList, int64, error) {
 	var list []*entity.IpWhiteList
 	var total int64
-	if err := r.db.Model(&entity.IpWhiteList{}).Count(&total).Error; err != nil {
+	query := r.db.Model(&entity.IpWhiteList{})
+	if keyword != "" {
+		like := "%" + escapeLikeKeyword(keyword) + "%"
+		query = query.Where(`LOWER(ip) LIKE LOWER(?) ESCAPE '\' OR LOWER(domain) LIKE LOWER(?) ESCAPE '\' OR LOWER(remark) LIKE LOWER(?) ESCAPE '\'`, like, like, like)
+	}
+	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	err := r.db.Limit(limit).Offset(offset).Find(&list).Error
+	err := query.Limit(limit).Offset(offset).Find(&list).Error
 	return list, total, err
 }
 

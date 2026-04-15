@@ -137,6 +137,9 @@ export default {
     duration_30d: "30日間",
     remark_placeholder: "任意の備考（例：自動ブロック、不審な活動）",
     auto_banned: "自動ブロック",
+    search_placeholder: "IPまたは備考を検索",
+    search_placeholder_white: "IP、ドメインまたは備考を検索",
+    search: "[ 検索 ]",
   },
   security_events: {
     title: "セキュリティイベント",

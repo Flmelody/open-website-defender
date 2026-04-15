@@ -20,7 +20,7 @@ type IpWhiteListRepository interface {
 	Delete(id uint) error
 	DeleteByDomain(domain string) error
 	FindByID(id uint) (*entity.IpWhiteList, error)
-	List(limit, offset int) ([]*entity.IpWhiteList, int64, error)
+	List(limit, offset int, keyword string) ([]*entity.IpWhiteList, int64, error)
 	FindByIP(ip string) (*entity.IpWhiteList, error)
 	DeleteExpired() (int64, error)
 }
@@ -30,7 +30,7 @@ type IpBlackListRepository interface {
 	Update(ip *entity.IpBlackList) error
 	Delete(id uint) error
 	FindByID(id uint) (*entity.IpBlackList, error)
-	List(limit, offset int) ([]*entity.IpBlackList, int64, error)
+	List(limit, offset int, keyword string) ([]*entity.IpBlackList, int64, error)
 	FindByIP(ip string) (*entity.IpBlackList, error)
 	DeleteExpired() (int64, error)
 }

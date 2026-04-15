@@ -138,6 +138,9 @@ export default {
     remark_placeholder:
       "Необязательная заметка (напр. автобан, подозрительная активность)",
     auto_banned: "АВТОБАН",
+    search_placeholder: "Поиск по IP или заметке",
+    search_placeholder_white: "Поиск по IP, домену или заметке",
+    search: "[ ПОИСК ]",
   },
   security_events: {
     title: "СОБЫТИЯ_БЕЗОПАСНОСТИ",

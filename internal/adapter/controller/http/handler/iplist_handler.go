@@ -116,7 +116,7 @@ func ListIpBlackList(c *gin.Context) {
 		req.Size = 10
 	}
 
-	list, total, err := service.List(req.Page, req.Size)
+	list, total, err := service.List(req.Page, req.Size, req.Keyword)
 	if err != nil {
 		logging.Sugar.Errorf("Failed to list blacklist items: %v", err)
 		response.InternalServerError(c, "Failed to list blacklist items")
@@ -248,7 +248,7 @@ func ListIpWhiteList(c *gin.Context) {
 		req.Size = 10
 	}
 
-	list, total, err := service.List(req.Page, req.Size)
+	list, total, err := service.List(req.Page, req.Size, req.Keyword)
 	if err != nil {
 		logging.Sugar.Errorf("Failed to list whitelist items: %v", err)
 		response.InternalServerError(c, "Failed to list whitelist items")

@@ -14,8 +14,9 @@ type UpdateIpBlackListRequest struct {
 }
 
 type ListIpBlackListRequest struct {
-	Page int `form:"page"`
-	Size int `form:"size"`
+	Page    int    `form:"page"`
+	Size    int    `form:"size"`
+	Keyword string `form:"keyword"`
 }
 
 type CreateIpWhiteListRequest struct {
@@ -34,6 +35,7 @@ type UpdateIpWhiteListRequest struct {
 }
 
 type ListIpWhiteListRequest struct {
-	Page int `form:"page"`
-	Size int `form:"size"`
+	Page    int    `form:"page"`
+	Size    int    `form:"size"`
+	Keyword string `form:"keyword"`
 }

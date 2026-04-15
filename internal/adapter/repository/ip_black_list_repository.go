@@ -3,10 +3,18 @@ package repository
 import (
 	"open-website-defender/internal/domain/entity"
 	_interface "open-website-defender/internal/usecase/interface"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
 )
+
+// escapeLikeKeyword escapes LIKE wildcards so user-supplied search terms are
+// matched literally. Pair with `ESCAPE '\'` in the SQL clause.
+func escapeLikeKeyword(s string) string {
+	r := strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
+	return r.Replace(s)
+}
 
 type IpBlackListRepository struct {
 	db *gorm.DB
@@ -39,13 +47,18 @@ func (r *IpBlackListRepository) Delete(id uint) error {
 	return r.db.Delete(&entity.IpBlackList{}, id).Error
 }
 
-func (r *IpBlackListRepository) List(limit, offset int) ([]*entity.IpBlackList, int64, error) {
+func (r *IpBlackListRepository) List(limit, offset int, keyword string) ([]*entity.IpBlackList, int64, error) {
 	var list []*entity.IpBlackList
 	var total int64
-	if err := r.db.Model(&entity.IpBlackList{}).Count(&total).Error; err != nil {
+	query := r.db.Model(&entity.IpBlackList{})
+	if keyword != "" {
+		like := "%" + escapeLikeKeyword(keyword) + "%"
+		query = query.Where(`LOWER(ip) LIKE LOWER(?) ESCAPE '\' OR LOWER(remark) LIKE LOWER(?) ESCAPE '\'`, like, like)
+	}
+	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
-	err := r.db.Order("id DESC").Limit(limit).Offset(offset).Find(&list).Error
+	err := query.Order("id DESC").Limit(limit).Offset(offset).Find(&list).Error
 	return list, total, err
 }
 

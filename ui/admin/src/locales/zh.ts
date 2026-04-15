@@ -132,6 +132,9 @@ export default {
     duration_30d: "30天",
     remark_placeholder: "可选备注（例如：自动封禁、可疑活动）",
     auto_banned: "自动封禁",
+    search_placeholder: "搜索 IP 或备注",
+    search_placeholder_white: "搜索 IP、域名或备注",
+    search: "[ 搜索 ]",
   },
   security_events: {
     title: "安全事件",

@@ -70,7 +70,7 @@ func (s *IpBlackListService) getRules() ([]blacklistRule, error) {
 		}
 	}
 
-	list, _, err := s.repo.List(10000, 0)
+	list, _, err := s.repo.List(10000, 0, "")
 	if err != nil {
 		return nil, err
 	}
@@ -219,7 +219,7 @@ func (s *IpBlackListService) Delete(id uint) error {
 	return nil
 }
 
-func (s *IpBlackListService) List(page, size int) ([]*IpBlackListDto, int64, error) {
+func (s *IpBlackListService) List(page, size int, keyword string) ([]*IpBlackListDto, int64, error) {
 	if page < 1 {
 		page = 1
 	}
@@ -228,7 +228,7 @@ func (s *IpBlackListService) List(page, size int) ([]*IpBlackListDto, int64, err
 	}
 
 	offset := (page - 1) * size
-	list, total, err := s.repo.List(size, offset)
+	list, total, err := s.repo.List(size, offset, keyword)
 	if err != nil {
 		return nil, 0, err
 	}

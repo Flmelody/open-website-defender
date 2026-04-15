@@ -136,6 +136,9 @@ export default {
     duration_30d: "30 Days",
     remark_placeholder: "Optional note (e.g. auto-banned, suspicious activity)",
     auto_banned: "AUTO_BANNED",
+    search_placeholder: "Search IP or remark",
+    search_placeholder_white: "Search IP, domain or remark",
+    search: "[ SEARCH ]",
   },
   security_events: {
     title: "SECURITY_EVENTS",

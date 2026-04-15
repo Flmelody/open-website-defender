@@ -137,6 +137,9 @@ export default {
     duration_30d: "30 Tage",
     remark_placeholder: "Optionaler Hinweis (z.B. automatisch gesperrt)",
     auto_banned: "AUTOMATISCH_GESPERRT",
+    search_placeholder: "IP oder Bemerkung suchen",
+    search_placeholder_white: "IP, Domain oder Bemerkung suchen",
+    search: "[ SUCHEN ]",
   },
   security_events: {
     title: "SICHERHEITSEREIGNISSE",

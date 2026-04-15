@@ -16,6 +16,21 @@
         </div>
       </div>
 
+      <div class="filter-bar">
+        <el-input
+          v-model="queryParams.keyword"
+          :placeholder="t('ip_list.search_placeholder')"
+          size="small"
+          clearable
+          style="width: 240px"
+          @clear="handleSearch"
+          @keyup.enter="handleSearch"
+        />
+        <el-button type="primary" size="small" @click="handleSearch">{{
+          t("ip_list.search")
+        }}</el-button>
+      </div>
+
       <div class="data-grid">
         <el-table
           :data="tableData"
@@ -201,7 +216,13 @@ const loading = ref(false);
 const queryParams = reactive({
   page: 1,
   size: 10,
+  keyword: "",
 });
+
+const handleSearch = () => {
+  queryParams.page = 1;
+  fetchData();
+};
 
 const dialogVisible = ref(false);
 const dialogTitle = ref("");
@@ -444,6 +465,16 @@ onMounted(() => {
 .action-link {
   font-weight: bold;
   text-decoration: underline;
+}
+
+.filter-bar {
+  padding: 12px 25px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  border-bottom: 1px solid #003000;
+  background: rgba(0, 40, 0, 0.2);
+  flex-wrap: wrap;
 }
 
 .card-footer {

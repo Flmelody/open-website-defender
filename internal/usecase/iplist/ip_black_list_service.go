@@ -101,7 +101,24 @@ func (s *IpBlackListService) Create(input *CreateIpBlackListDto) (*IpBlackListDt
 		return nil, err
 	}
 	if existing != nil {
-		return nil, errors.New("ip already exists in blacklist")
+		if existing.ExpiresAt == nil || !existing.ExpiresAt.Before(time.Now().UTC()) {
+			return nil, errors.New("ip already exists in blacklist")
+		}
+
+		existing.Remark = input.Remark
+		existing.ExpiresAt = input.ExpiresAt
+		if err := s.repo.Update(existing); err != nil {
+			return nil, fmt.Errorf("failed to update expired blacklist entry: %w", err)
+		}
+		logging.Sugar.Infof("Blacklisted IP %s (overwriting expired entry): %s", existing.Ip, input.Remark)
+		event.Bus().Publish(event.BlackListChanged)
+		return &IpBlackListDto{
+			ID:        existing.ID,
+			Ip:        existing.Ip,
+			Remark:    existing.Remark,
+			ExpiresAt: existing.ExpiresAt,
+			CreatedAt: existing.CreatedAt,
+		}, nil
 	}
 
 	item := &entity.IpBlackList{

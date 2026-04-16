@@ -33,13 +33,17 @@
         @tab-change="handleTabChange"
       >
         <el-tab-pane :label="t('waf.rules_tab')" name="rules">
-          <div class="data-grid">
-            <el-table
-              :data="tableData"
-              v-loading="loading"
-              style="width: 100%"
-              class="hacker-table"
-            >
+          <div
+            class="table-stage"
+            :class="{ 'is-initial-loading': rulesInitialLoading }"
+          >
+            <div class="data-grid">
+              <el-table
+                :data="tableData"
+                v-loading="loading && !rulesInitialLoading"
+                style="width: 100%"
+                class="hacker-table"
+              >
               <el-table-column prop="id" label="ID" width="60">
                 <template #default="scope">
                   <span class="dim-text">#{{ scope.row.id }}</span>
@@ -179,18 +183,24 @@
                   </div>
                 </template>
               </el-table-column>
-            </el-table>
+              </el-table>
+              <InitialTableLoader v-if="rulesInitialLoading" />
+            </div>
           </div>
         </el-tab-pane>
 
         <el-tab-pane :label="t('waf.exclusions_tab')" name="exclusions">
-          <div class="data-grid">
-            <el-table
-              :data="exclusionData"
-              v-loading="exLoading"
-              style="width: 100%"
-              class="hacker-table"
-            >
+          <div
+            class="table-stage"
+            :class="{ 'is-initial-loading': exclusionsInitialLoading }"
+          >
+            <div class="data-grid">
+              <el-table
+                :data="exclusionData"
+                v-loading="exLoading && !exclusionsInitialLoading"
+                style="width: 100%"
+                class="hacker-table"
+              >
               <el-table-column prop="id" label="ID" width="60">
                 <template #default="scope">
                   <span class="dim-text">#{{ scope.row.id }}</span>
@@ -259,12 +269,14 @@
                   </el-button>
                 </template>
               </el-table-column>
-            </el-table>
+              </el-table>
+              <InitialTableLoader v-if="exclusionsInitialLoading" />
+            </div>
           </div>
         </el-tab-pane>
       </el-tabs>
 
-      <div class="card-footer no-select">
+      <div v-if="!activeInitialLoading" class="card-footer no-select">
         <span class="status-text">{{
           t("common.total_records", {
             total: activeTab === "rules" ? total : exTotal,
@@ -513,6 +525,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed } from "vue";
+import InitialTableLoader from "@/components/InitialTableLoader.vue";
+import { useInitialTableLoading } from "@/composables/useInitialTableLoading";
 import request from "@/utils/request";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { InfoFilled } from "@element-plus/icons-vue";
@@ -549,6 +563,7 @@ const activeTab = ref("rules");
 const tableData = ref<WafRule[]>([]);
 const total = ref(0);
 const loading = ref(false);
+const { initialLoading: rulesInitialLoading } = useInitialTableLoading(loading);
 const groups = ref<string[]>([]);
 const filterGroup = ref("");
 const queryParams = reactive({ page: 1, size: 10 });
@@ -557,6 +572,13 @@ const queryParams = reactive({ page: 1, size: 10 });
 const exclusionData = ref<WafExclusion[]>([]);
 const exTotal = ref(0);
 const exLoading = ref(false);
+const { initialLoading: exclusionsInitialLoading } =
+  useInitialTableLoading(exLoading);
+const activeInitialLoading = computed(() =>
+  activeTab.value === "rules"
+    ? rulesInitialLoading.value
+    : exclusionsInitialLoading.value,
+);
 
 const dialogVisible = ref(false);
 const dialogTitle = ref("");

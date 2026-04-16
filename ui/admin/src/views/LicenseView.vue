@@ -16,13 +16,14 @@
         </div>
       </div>
 
-      <div class="data-grid">
-        <el-table
-          :data="tableData"
-          v-loading="loading"
-          style="width: 100%"
-          class="hacker-table"
-        >
+      <div class="table-stage" :class="{ 'is-initial-loading': initialLoading }">
+        <div class="data-grid">
+          <el-table
+            :data="tableData"
+            v-loading="loading && !initialLoading"
+            style="width: 100%"
+            class="hacker-table"
+          >
           <el-table-column prop="id" label="ID" width="80">
             <template #default="scope">
               <span class="dim-text">#{{ scope.row.id }}</span>
@@ -92,23 +93,25 @@
               </div>
             </template>
           </el-table-column>
-        </el-table>
-      </div>
+          </el-table>
+          <InitialTableLoader v-if="initialLoading" />
+        </div>
 
-      <div class="card-footer no-select">
-        <span class="status-text">{{
-          t("common.total_records", { total })
-        }}</span>
-        <el-pagination
-          v-model:current-page="queryParams.page"
-          v-model:page-size="queryParams.size"
-          :page-sizes="[10, 20, 50]"
-          layout="sizes, prev, pager, next"
-          :total="total"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          small
-        />
+        <div v-if="!initialLoading" class="card-footer no-select">
+          <span class="status-text">{{
+            t("common.total_records", { total })
+          }}</span>
+          <el-pagination
+            v-model:current-page="queryParams.page"
+            v-model:page-size="queryParams.size"
+            :page-sizes="[10, 20, 50]"
+            layout="sizes, prev, pager, next"
+            :total="total"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            small
+          />
+        </div>
       </div>
     </div>
 
@@ -196,6 +199,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, reactive, computed } from "vue";
+import InitialTableLoader from "@/components/InitialTableLoader.vue";
+import { useInitialTableLoading } from "@/composables/useInitialTableLoading";
 import request from "@/utils/request";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { CopyDocument, WarningFilled } from "@element-plus/icons-vue";
@@ -213,6 +218,7 @@ const { t } = useI18n();
 const tableData = ref<LicenseItem[]>([]);
 const total = ref(0);
 const loading = ref(false);
+const { initialLoading } = useInitialTableLoading(loading);
 const queryParams = reactive({ page: 1, size: 10 });
 
 const dialogVisible = ref(false);

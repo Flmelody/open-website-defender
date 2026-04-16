@@ -418,6 +418,13 @@ body {
   color: #8a8 !important;
 }
 
+.table-stage.is-initial-loading .el-table__body-wrapper,
+.table-stage.is-initial-loading .el-table__fixed-body-wrapper,
+.table-stage.is-initial-loading .el-table__empty-block,
+.table-stage.is-initial-loading .el-scrollbar__bar {
+  display: none !important;
+}
+
 /* Form */
 .el-form-item__label {
   color: #0f0 !important;

@@ -54,16 +54,17 @@
         }}</el-button>
       </div>
 
-      <div class="data-grid">
-        <el-table
-          ref="tableRef"
-          :data="tableData"
-          v-loading="loading"
-          style="width: 100%"
-          class="hacker-table"
-          row-key="id"
-          @row-click="handleRowClick"
-        >
+      <div class="table-stage" :class="{ 'is-initial-loading': initialLoading }">
+        <div class="data-grid">
+          <el-table
+            ref="tableRef"
+            :data="tableData"
+            v-loading="loading && !initialLoading"
+            style="width: 100%"
+            class="hacker-table"
+            row-key="id"
+            @row-click="handleRowClick"
+          >
           <el-table-column type="expand">
             <template #default="{ row }">
               <div class="expand-detail">
@@ -309,23 +310,25 @@
               </el-button>
             </template>
           </el-table-column>
-        </el-table>
-      </div>
+          </el-table>
+          <InitialTableLoader v-if="initialLoading" />
+        </div>
 
-      <div class="card-footer no-select">
-        <span class="status-text">{{
-          t("common.total_records", { total })
-        }}</span>
-        <el-pagination
-          v-model:current-page="queryParams.page"
-          v-model:page-size="queryParams.size"
-          :page-sizes="[20, 50, 100]"
-          layout="sizes, prev, pager, next"
-          :total="total"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          small
-        />
+        <div v-if="!initialLoading" class="card-footer no-select">
+          <span class="status-text">{{
+            t("common.total_records", { total })
+          }}</span>
+          <el-pagination
+            v-model:current-page="queryParams.page"
+            v-model:page-size="queryParams.size"
+            :page-sizes="[20, 50, 100]"
+            layout="sizes, prev, pager, next"
+            :total="total"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            small
+          />
+        </div>
       </div>
     </div>
   </div>
@@ -334,6 +337,8 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive } from "vue";
 import { useRoute } from "vue-router";
+import InitialTableLoader from "@/components/InitialTableLoader.vue";
+import { useInitialTableLoading } from "@/composables/useInitialTableLoading";
 import request from "@/utils/request";
 import { ElMessage, ElMessageBox } from "element-plus";
 import { useI18n } from "vue-i18n";
@@ -344,6 +349,7 @@ const tableRef = ref();
 const tableData = ref<any[]>([]);
 const total = ref(0);
 const loading = ref(false);
+const { initialLoading } = useInitialTableLoading(loading);
 const queryParams = reactive({
   page: 1,
   size: 20,

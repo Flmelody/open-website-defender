@@ -238,11 +238,37 @@ func initDefaultUser() error {
 	}
 
 	if generatedPassword {
-		logging.Sugar.Warnf("Bootstrap admin user created: username=%s password=%s", defaultUsername, defaultPassword)
+		credentialsPath, writeErr := writeBootstrapCredentials(defaultUsername, defaultPassword)
+		if writeErr != nil {
+			logging.Sugar.Warnf("Bootstrap admin user created: username=%s; failed to write password file: %v", defaultUsername, writeErr)
+		} else {
+			logging.Sugar.Warnf("Bootstrap admin user created: username=%s; password written to %s", defaultUsername, credentialsPath)
+		}
 	} else {
 		logging.Sugar.Infof("Bootstrap admin user created: username=%s", defaultUsername)
 	}
 	return nil
+}
+
+func writeBootstrapCredentials(username, password string) (string, error) {
+	path := filepath.Clean("./data/bootstrap-admin-credentials")
+	if err := os.MkdirAll(filepath.Dir(path), 0700); err != nil {
+		return "", err
+	}
+
+	contents := fmt.Sprintf(
+		"username=%s\npassword=%s\ncreated_at=%s\n",
+		username,
+		password,
+		time.Now().UTC().Format(time.RFC3339),
+	)
+	if err := os.WriteFile(path, []byte(contents), 0600); err != nil {
+		return "", err
+	}
+	if err := os.Chmod(path, 0600); err != nil {
+		return "", err
+	}
+	return path, nil
 }
 
 func boolPtr(b bool) *bool {

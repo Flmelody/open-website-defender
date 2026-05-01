@@ -287,9 +287,14 @@ func (s *OAuthService) ExchangeCode(req *TokenRequestDTO) (*TokenResponseDTO, er
 		return nil, ErrCodeExpired
 	}
 
-	// Mark code as used immediately
-	if err := s.codeRepo.MarkUsed(authCode.ID); err != nil {
+	// Atomically mark code as used immediately. A concurrent exchange may have
+	// consumed it after the read above.
+	claimed, err := s.codeRepo.MarkUsed(authCode.ID)
+	if err != nil {
 		return nil, fmt.Errorf("failed to mark code as used: %w", err)
+	}
+	if !claimed {
+		return nil, ErrCodeUsed
 	}
 
 	// Validate client

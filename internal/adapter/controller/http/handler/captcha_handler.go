@@ -3,11 +3,13 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"strings"
+	"time"
+
 	"open-website-defender/internal/adapter/controller/http/response"
 	"open-website-defender/internal/infrastructure/config"
 	"open-website-defender/internal/infrastructure/logging"
 	"open-website-defender/internal/pkg"
-	"time"
 	"open-website-defender/internal/usecase/bot"
 	"open-website-defender/internal/usecase/system"
 
@@ -23,6 +25,16 @@ func GenerateCaptcha(c *gin.Context) {
 		return
 	}
 	response.Success(c, gin.H{"id": id, "image": image})
+}
+
+func safeCaptchaRedirectURL(raw string) string {
+	if raw == "" {
+		return ""
+	}
+	if !strings.HasPrefix(raw, "/") || strings.HasPrefix(raw, "//") || strings.Contains(raw, "\\") {
+		return ""
+	}
+	return raw
 }
 
 // VerifyCaptcha handles CAPTCHA verification and sets a signed pass cookie.
@@ -99,7 +111,7 @@ func VerifyCaptcha(c *gin.Context) {
 	c.SetCookie("owd_captcha_pass", passValue, cookieTTL, "/", "", config.Get().Security.SecureCookies, true)
 
 	// Redirect back to original URL or return success
-	redirectURL := c.Query("redirect")
+	redirectURL := safeCaptchaRedirectURL(c.Query("redirect"))
 	if redirectURL != "" {
 		c.Redirect(http.StatusFound, redirectURL)
 		return

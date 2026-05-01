@@ -69,7 +69,7 @@ type OAuthClientRepository interface {
 type OAuthAuthorizationCodeRepository interface {
 	Create(code *entity.OAuthAuthorizationCode) error
 	FindByCode(code string) (*entity.OAuthAuthorizationCode, error)
-	MarkUsed(id uint) error
+	MarkUsed(id uint) (bool, error)
 	DeleteExpired() error
 }
 

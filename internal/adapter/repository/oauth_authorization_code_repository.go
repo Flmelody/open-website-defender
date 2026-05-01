@@ -31,8 +31,14 @@ func (r *OAuthAuthorizationCodeRepository) FindByCode(code string) (*entity.OAut
 	return &item, err
 }
 
-func (r *OAuthAuthorizationCodeRepository) MarkUsed(id uint) error {
-	return r.db.Model(&entity.OAuthAuthorizationCode{}).Where("id = ?", id).Update("used", true).Error
+func (r *OAuthAuthorizationCodeRepository) MarkUsed(id uint) (bool, error) {
+	res := r.db.Model(&entity.OAuthAuthorizationCode{}).
+		Where("id = ? AND used = ?", id, false).
+		Update("used", true)
+	if res.Error != nil {
+		return false, res.Error
+	}
+	return res.RowsAffected == 1, nil
 }
 
 func (r *OAuthAuthorizationCodeRepository) DeleteExpired() error {

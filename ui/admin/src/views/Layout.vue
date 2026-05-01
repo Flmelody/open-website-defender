@@ -202,8 +202,8 @@ const currentThemeOption = computed(
     themeOptions[0],
 );
 
-const handleLogout = () => {
-  authStore.logout();
+const handleLogout = async () => {
+  await authStore.logout();
   router.push("/login");
 };
 

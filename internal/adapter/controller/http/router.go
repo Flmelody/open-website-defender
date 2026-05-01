@@ -52,6 +52,7 @@ func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 		copy(recoverHandlers, loginHandlers[:len(loginHandlers)-1])
 		recoverHandlers = append(recoverHandlers, handler.AdminRecover2FA)
 		api.POST("/admin-recover-2fa", recoverHandlers...)
+		api.POST("/logout", handler.Logout)
 
 		// OIDC Discovery (public, no auth)
 		api.GET("/.well-known/openid-configuration", handler.OIDCDiscovery)
@@ -85,6 +86,8 @@ func Setup(router *gin.Engine, appConfig *config.AppConfig) {
 			admin := authenticated.Group("")
 			admin.Use(handler.AdminMiddleware)
 			{
+				admin.GET("/admin-session", handler.AdminSession)
+
 				admin.POST("/users", handler.CreateUser)
 				admin.GET("/users", handler.ListUser)
 				admin.GET("/users/:id", handler.GetUser)

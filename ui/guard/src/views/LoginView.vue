@@ -2,7 +2,6 @@
 import {nextTick, onMounted, reactive, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import request from '@/utils/request'
-import {getAppConfig} from "../utils/config.js";
 import {getThemeColor} from '@/utils/theme'
 
 const router = useRouter()
@@ -123,19 +122,10 @@ const getFullRedirectUrl = () => {
   return url
 }
 
-const completeLogin = (token) => {
-  localStorage.setItem('flmelody.token', token)
-
-  const expires = new Date(Date.now() + 24 * 60 * 60 * 1000)
-  const guardDomain = getAppConfig().guardDomain
-  const domainPart = guardDomain && guardDomain.includes('.') ? `;domain=${guardDomain}` : ''
-  document.cookie = `flmelody.token=${token}; expires=${expires.toUTCString()}; path=/${domainPart}`
-
+const completeLogin = () => {
   if (formData.rememberMe) {
     localStorage.setItem('rememberMe', 'true')
   }
-
-  request.defaults.headers.common['Defender-Authorization'] = `Bearer ${token}`
 
   const redirectUrl = getFullRedirectUrl()
   if (!redirectUrl) {
@@ -163,8 +153,8 @@ const handleLogin = async () => {
       nextTick(() => {
         totpInputRef.value?.focus()
       })
-    } else if (data.token) {
-      completeLogin(data.token)
+    } else if (data.user) {
+      completeLogin()
     }
   } catch (error) {
     errors.general = error.message || '登录失败，请重试'
@@ -186,8 +176,8 @@ const handleVerify2FA = async () => {
       trust_device: trustDevice.value
     })
 
-    if (data.token) {
-      completeLogin(data.token)
+    if (data.user) {
+      completeLogin()
     }
   } catch (error) {
     errors.general = error.message || 'Verification failed'

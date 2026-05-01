@@ -4,6 +4,9 @@ import (
 	"errors"
 	"net"
 	"net/http"
+	"strings"
+	"time"
+
 	"open-website-defender/internal/adapter/controller/http/request"
 	"open-website-defender/internal/adapter/controller/http/response"
 	domainError "open-website-defender/internal/domain/error"
@@ -15,11 +18,11 @@ import (
 	"open-website-defender/internal/usecase/system"
 	"open-website-defender/internal/usecase/threat"
 	"open-website-defender/internal/usecase/user"
-	"strings"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
+
+const authCookieName = "flmelody.token"
 
 func isGitRequest(c *gin.Context) bool {
 	if !strings.HasPrefix(c.GetHeader("User-Agent"), "git/") {
@@ -55,8 +58,54 @@ func checkUserScope(userInfo *user.UserInfoDTO, domain string) bool {
 	return pkg.CheckDomainScope(userInfo.Scopes, domain)
 }
 
+func getAuthCookieDomain() string {
+	if appCfg := config.GetAppConfig(); appCfg != nil {
+		return appCfg.GuardDomain
+	}
+	return ""
+}
+
+func getAuthCookieMaxAge() int {
+	expirationHrs := config.Get().Security.TokenExpirationHrs
+	if expirationHrs <= 0 {
+		expirationHrs = 24
+	}
+	return expirationHrs * 3600
+}
+
+func setAuthCookie(c *gin.Context, token string) {
+	if token == "" {
+		return
+	}
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie(authCookieName, token, getAuthCookieMaxAge(), "/", getAuthCookieDomain(), config.Get().Security.SecureCookies, true)
+}
+
+func clearAuthCookie(c *gin.Context) {
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie(authCookieName, "", -1, "/", getAuthCookieDomain(), config.Get().Security.SecureCookies, true)
+}
+
+func authTokenFromRequest(c *gin.Context) string {
+	authHeader := c.GetHeader("Defender-Authorization")
+	if authHeader != "" {
+		return strings.TrimPrefix(authHeader, "Bearer ")
+	}
+	if cookieToken, err := c.Cookie(authCookieName); err == nil {
+		return cookieToken
+	}
+	return ""
+}
+
+func userInfoResponse(userInfo *user.UserInfoDTO) *UserInfoResponse {
+	return &UserInfoResponse{
+		ID:       userInfo.ID,
+		Username: userInfo.Username,
+	}
+}
+
 type LoginResponse struct {
-	Token string            `json:"token"`
+	Token string            `json:"token,omitempty"`
 	User  *UserInfoResponse `json:"user"`
 }
 
@@ -83,14 +132,13 @@ type UserInfoResponse struct {
 func AuthMiddleware(c *gin.Context) {
 	// Check Token
 	service := user.GetAuthService()
-	authHeader := c.GetHeader("Defender-Authorization")
-	if len(authHeader) == 0 {
+	tokenString := authTokenFromRequest(c)
+	if tokenString == "" {
 		response.Unauthorized(c, "No authentication token provided")
 		c.Abort()
 		return
 	}
 
-	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 	userInfo, err := service.ValidateToken(tokenString)
 	if err != nil {
 		logging.Sugar.Warnf("Token validation failed: %v", err)
@@ -226,18 +274,15 @@ func Login(c *gin.Context) {
 	}()
 
 	// 检查是否已经登录
-	authHeader := c.GetHeader("Defender-Authorization")
-	if authHeader != "" {
-		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	tokenString := authTokenFromRequest(c)
+	if tokenString != "" {
 		userInfo, err := service.ValidateToken(tokenString)
 		if err == nil && userInfo != nil {
 			logging.Sugar.Infof("User '%s' already logged in", userInfo.Username)
+			setAuthCookie(c, tokenString)
 			response.SuccessWithMessage(c, "Already logged in", GuardLoginResponse{
 				Token: tokenString,
-				User: &UserInfoResponse{
-					ID:       userInfo.ID,
-					Username: userInfo.Username,
-				},
+				User: userInfoResponse(userInfo),
 			})
 			return
 		}
@@ -293,6 +338,7 @@ func Login(c *gin.Context) {
 		logging.Sugar.Infof("User '%s' requires 2FA verification", req.Username)
 		response.SuccessWithMessage(c, "2FA verification required", guardResponse)
 	} else {
+		setAuthCookie(c, output.Token)
 		logging.Sugar.Infof("User '%s' logged in successfully", req.Username)
 		response.SuccessWithMessage(c, "Login successful", guardResponse)
 	}
@@ -308,9 +354,8 @@ func AdminLogin(c *gin.Context) {
 	}()
 
 	// Check if already logged in
-	authHeader := c.GetHeader("Defender-Authorization")
-	if authHeader != "" {
-		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	tokenString := authTokenFromRequest(c)
+	if tokenString != "" {
 		userInfo, err := service.ValidateToken(tokenString)
 		if err == nil && userInfo != nil {
 			if !userInfo.IsAdmin {
@@ -319,12 +364,10 @@ func AdminLogin(c *gin.Context) {
 				return
 			}
 			logging.Sugar.Infof("Admin user '%s' already logged in", userInfo.Username)
+			setAuthCookie(c, tokenString)
 			response.SuccessWithMessage(c, "Already logged in", AdminLoginResponse{
 				Token: tokenString,
-				User: &UserInfoResponse{
-					ID:       userInfo.ID,
-					Username: userInfo.Username,
-				},
+				User: userInfoResponse(userInfo),
 			})
 			return
 		}
@@ -382,6 +425,7 @@ func AdminLogin(c *gin.Context) {
 		logging.Sugar.Infof("Admin user '%s' requires 2FA verification", req.Username)
 		response.SuccessWithMessage(c, "2FA verification required", adminLoginResponse)
 	} else {
+		setAuthCookie(c, output.Token)
 		logging.Sugar.Infof("Admin user '%s' logged in successfully", req.Username)
 		response.SuccessWithMessage(c, "Login successful", adminLoginResponse)
 	}
@@ -424,12 +468,8 @@ func Verify2FA(c *gin.Context) {
 	if output.TrustedDeviceToken != "" {
 		days := config.Get().Security.TrustedDeviceDays
 		maxAge := days * 86400
-		guardDomain := ""
-		if appCfg := config.GetAppConfig(); appCfg != nil {
-			guardDomain = appCfg.GuardDomain
-		}
 		c.SetSameSite(http.SameSiteLaxMode)
-		c.SetCookie("flmelody.trusted_device", output.TrustedDeviceToken, maxAge, "/", guardDomain, config.Get().Security.SecureCookies, true)
+		c.SetCookie("flmelody.trusted_device", output.TrustedDeviceToken, maxAge, "/", getAuthCookieDomain(), config.Get().Security.SecureCookies, true)
 	}
 
 	loginResponse := LoginResponse{
@@ -441,7 +481,24 @@ func Verify2FA(c *gin.Context) {
 	}
 
 	logging.Sugar.Infof("User '%s' completed 2FA verification", output.User.Username)
+	setAuthCookie(c, output.Token)
 	response.SuccessWithMessage(c, "Login successful", loginResponse)
+}
+
+func AdminSession(c *gin.Context) {
+	userInfo, ok := currentUserInfo(c)
+	if !ok {
+		response.Unauthorized(c, "Authentication required")
+		return
+	}
+	response.Success(c, gin.H{
+		"user": userInfoResponse(userInfo),
+	})
+}
+
+func Logout(c *gin.Context) {
+	clearAuthCookie(c)
+	response.SuccessWithMessage(c, "Logged out", nil)
 }
 
 // AdminRecover2FA resets 2FA for an admin user using a config-based recovery key.

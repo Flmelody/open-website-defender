@@ -3,36 +3,20 @@ import type { InternalAxiosRequestConfig, AxiosResponse } from "axios";
 import { getAppConfig, getPagePath } from "./config";
 import { ElMessage } from "element-plus";
 
-export function isTokenExpired(token: string): boolean {
-  try {
-    const payload = JSON.parse(atob(token.split(".")[1]));
-    if (!payload.exp) return false;
-    // Consider expired 5 seconds early to avoid edge cases
-    return Date.now() >= (payload.exp - 5) * 1000;
-  } catch {
-    return true;
+declare module "axios" {
+  export interface AxiosRequestConfig {
+    skipAuthRedirect?: boolean;
+    skipErrorMessage?: boolean;
   }
-}
-
-function handleExpiredToken() {
-  localStorage.removeItem("token");
-  window.location.href = `${getPagePath("admin")}/login`;
 }
 
 const request = axios.create({
   baseURL: getAppConfig().baseURL,
   timeout: 5000,
+  withCredentials: true,
 });
 
 request.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    if (isTokenExpired(token) && !config.url?.includes("/login")) {
-      handleExpiredToken();
-      return Promise.reject(new axios.Cancel("Token expired"));
-    }
-    config.headers["Defender-Authorization"] = `Bearer ${token}`;
-  }
   return config;
 });
 
@@ -51,11 +35,12 @@ request.interceptors.response.use(
     return data;
   },
   (error) => {
+    const requestConfig = error.config || {};
     if (
       error.response?.status === 401 &&
-      !error.config?.url?.includes("/login")
+      !requestConfig.skipAuthRedirect &&
+      !requestConfig.url?.includes("/login")
     ) {
-      localStorage.removeItem("token");
       window.location.href = `${getPagePath("admin")}/login`;
     }
 
@@ -65,7 +50,9 @@ request.interceptors.response.use(
       error.message ||
       "Network error";
 
-    ElMessage.error(errorMessage);
+    if (!requestConfig.skipErrorMessage) {
+      ElMessage.error(errorMessage);
+    }
     return Promise.reject(new Error(errorMessage));
   },
 );

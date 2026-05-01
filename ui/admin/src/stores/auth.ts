@@ -10,33 +10,23 @@ interface UserInfo {
 interface AdminLoginResponse {
   requires_two_factor: boolean;
   challenge_token?: string;
-  token?: string;
   user: UserInfo;
 }
 
 interface LoginResponse {
-  token: string;
   user: UserInfo;
 }
 
 export const useAuthStore = defineStore("auth", () => {
-  const token = ref(localStorage.getItem("token") || "");
   const user = ref<UserInfo | null>(null);
   const pendingChallengeToken = ref("");
   const requires2FA = ref(false);
+  const sessionChecked = ref(false);
 
-  // Initialize user from localStorage if available
-  const storedUser = localStorage.getItem("user");
-  if (storedUser) {
-    try {
-      user.value = JSON.parse(storedUser);
-    } catch (e) {
-      console.error("Failed to parse stored user data", e);
-      localStorage.removeItem("user");
-    }
-  }
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
 
-  const isLoggedIn = computed(() => !!token.value);
+  const isLoggedIn = computed(() => !!user.value);
 
   async function login(
     username: string,
@@ -54,11 +44,9 @@ export const useAuthStore = defineStore("auth", () => {
         return { requires2FA: true };
       }
 
-      if (res.token) {
-        token.value = res.token;
+      if (res.user) {
         user.value = res.user;
-        localStorage.setItem("token", res.token);
-        localStorage.setItem("user", JSON.stringify(res.user));
+        sessionChecked.value = true;
       }
       return { requires2FA: false };
     } catch (error) {
@@ -74,11 +62,9 @@ export const useAuthStore = defineStore("auth", () => {
         trust_device: trustDevice,
       });
 
-      if (res.token) {
-        token.value = res.token;
+      if (res.user) {
         user.value = res.user;
-        localStorage.setItem("token", res.token);
-        localStorage.setItem("user", JSON.stringify(res.user));
+        sessionChecked.value = true;
       }
       pendingChallengeToken.value = "";
       requires2FA.value = false;
@@ -87,26 +73,51 @@ export const useAuthStore = defineStore("auth", () => {
     }
   }
 
+  async function restoreSession(force = false): Promise<boolean> {
+    if (user.value) return true;
+    if (sessionChecked.value && !force) return false;
+
+    try {
+      const res = await request.get<any, { user: UserInfo }>("/admin-session", {
+        skipAuthRedirect: true,
+        skipErrorMessage: true,
+      });
+      user.value = res.user;
+      return true;
+    } catch {
+      user.value = null;
+      return false;
+    } finally {
+      sessionChecked.value = true;
+    }
+  }
+
   function cancelChallenge() {
     pendingChallengeToken.value = "";
     requires2FA.value = false;
   }
 
-  function logout() {
-    token.value = "";
+  async function logout() {
+    try {
+      await request.post("/logout", null, {
+        skipAuthRedirect: true,
+        skipErrorMessage: true,
+      });
+    } catch {
+      // Local logout still proceeds if the backend call fails.
+    }
     user.value = null;
     pendingChallengeToken.value = "";
     requires2FA.value = false;
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    sessionChecked.value = true;
   }
 
   return {
-    token,
     user,
     isLoggedIn,
     pendingChallengeToken,
     requires2FA,
+    restoreSession,
     login,
     verify2FA,
     cancelChallenge,

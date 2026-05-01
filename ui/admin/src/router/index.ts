@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { getAppConfig } from "@/utils/config";
-import { isTokenExpired } from "@/utils/request";
+import { useAuthStore } from "@/stores/auth";
 import Layout from "@/views/Layout.vue";
 import LoginView from "@/views/LoginView.vue";
 import DashboardView from "@/views/DashboardView.vue";
@@ -109,19 +109,27 @@ const router = createRouter({
   ],
 });
 
-router.beforeEach((to, from, next) => {
-  const token = localStorage.getItem("token");
-  if (to.meta.requiresAuth && (!token || isTokenExpired(token))) {
-    if (token) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
+router.beforeEach(async (to) => {
+  const authStore = useAuthStore();
+
+  if (to.meta.requiresAuth) {
+    const authenticated =
+      authStore.isLoggedIn || (await authStore.restoreSession());
+    if (!authenticated) {
+      return { name: "login" };
     }
-    next({ name: "login" });
-  } else if (to.meta.guest && token && !isTokenExpired(token)) {
-    next({ name: "dashboard" });
-  } else {
-    next();
+    return true;
   }
+
+  if (to.meta.guest) {
+    const authenticated =
+      authStore.isLoggedIn || (await authStore.restoreSession());
+    if (authenticated) {
+      return { name: "dashboard" };
+    }
+  }
+
+  return true;
 });
 
 export default router;

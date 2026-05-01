@@ -17,6 +17,7 @@ const params = reactive({
   nonce: '',
   code_challenge: '',
   code_challenge_method: '',
+  consent_token: '',
   client_name: ''
 })
 
@@ -30,6 +31,7 @@ onMounted(() => {
   params.nonce = route.query.nonce || ''
   params.code_challenge = route.query.code_challenge || ''
   params.code_challenge_method = route.query.code_challenge_method || ''
+  params.consent_token = route.query.consent_token || ''
   params.client_name = route.query.client_name || params.client_id
 
   // Init Matrix background
@@ -89,14 +91,7 @@ const handleConsent = async (action) => {
     // Submit consent form to OWD backend
     const formData = new URLSearchParams()
     formData.append('action', action)
-    formData.append('response_type', params.response_type)
-    formData.append('client_id', params.client_id)
-    formData.append('redirect_uri', params.redirect_uri)
-    formData.append('scope', params.scope)
-    formData.append('state', params.state)
-    formData.append('nonce', params.nonce)
-    formData.append('code_challenge', params.code_challenge)
-    formData.append('code_challenge_method', params.code_challenge_method)
+    formData.append('consent_token', params.consent_token)
 
     // POST to consent endpoint - follow redirects
     const response = await fetch(`${baseURL}/oauth/consent`, {

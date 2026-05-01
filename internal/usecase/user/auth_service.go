@@ -3,16 +3,17 @@ package user
 import (
 	"bytes"
 	"crypto/rand"
+	"crypto/subtle"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"image/png"
 	"strconv"
 	"sync"
 	"time"
 
-	"github.com/pquerna/otp/totp"
 	"open-website-defender/internal/adapter/repository"
 	"open-website-defender/internal/domain/entity"
 	domainError "open-website-defender/internal/domain/error"
@@ -21,16 +22,26 @@ import (
 	"open-website-defender/internal/infrastructure/database"
 	"open-website-defender/internal/pkg"
 	_interface "open-website-defender/internal/usecase/interface"
+
+	"github.com/pquerna/otp"
+	"github.com/pquerna/otp/totp"
 )
 
 type AuthService struct {
-	userRepo           _interface.UserRepository
-	trustedDeviceRepo  _interface.TrustedDeviceRepository
+	userRepo          _interface.UserRepository
+	trustedDeviceRepo _interface.TrustedDeviceRepository
 }
 
 var (
-	authService *AuthService
-	authOnce    sync.Once
+	authService  *AuthService
+	authOnce     sync.Once
+	totpReplayMu sync.Mutex
+)
+
+const (
+	totpPeriodSeconds  = 30
+	totpAllowedSkew    = 1
+	totpReplayTTLSlack = 5
 )
 
 func GetAuthService() *AuthService {
@@ -243,8 +254,11 @@ func (s *AuthService) Verify2FALogin(input *TwoFALoginInputDTO) (*LoginOutputDTO
 		return nil, domainError.ErrTotpNotEnabled
 	}
 
-	if !totp.Validate(input.Code, user.TotpSecret) {
-		return nil, domainError.ErrTotpInvalidCode
+	if err := validateTotpCodeOnce(user.ID, input.Code, user.TotpSecret, time.Now().UTC()); err != nil {
+		if errors.Is(err, domainError.ErrTotpInvalidCode) {
+			return nil, domainError.ErrTotpInvalidCode
+		}
+		return nil, err
 	}
 
 	token, err := pkg.GenerateToken(user.Username, user.ID)
@@ -276,6 +290,75 @@ func (s *AuthService) Verify2FALogin(input *TwoFALoginInputDTO) (*LoginOutputDTO
 	}
 
 	return output, nil
+}
+
+func validateTotpCodeOnce(userID uint, code, secret string, now time.Time) error {
+	matchedCounter, valid, err := matchTotpCounter(code, secret, now)
+	if err != nil {
+		return err
+	}
+	if !valid {
+		return domainError.ErrTotpInvalidCode
+	}
+
+	replayKey := fmt.Sprintf("%s%d:%d:%s", cache.KeyTotpReplay, userID, matchedCounter, code)
+	ttl := totpReplayTTL(matchedCounter, now)
+	store := cache.Store()
+
+	totpReplayMu.Lock()
+	defer totpReplayMu.Unlock()
+
+	if _, err := store.Get(replayKey); err == nil {
+		return domainError.ErrTotpInvalidCode
+	} else if !errors.Is(err, cache.ErrNotFound) {
+		return err
+	}
+
+	if err := store.Set(replayKey, []byte{1}, ttl); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func matchTotpCounter(code, secret string, now time.Time) (int64, bool, error) {
+	opts := totp.ValidateOpts{
+		Period:    totpPeriodSeconds,
+		Skew:      totpAllowedSkew,
+		Digits:    otp.DigitsSix,
+		Algorithm: otp.AlgorithmSHA1,
+	}
+	period := int64(opts.Period)
+	currentCounter := now.UTC().Unix() / period
+
+	counters := []int64{currentCounter}
+	for offset := int64(1); offset <= int64(opts.Skew); offset++ {
+		counters = append(counters, currentCounter+offset)
+		if currentCounter >= offset {
+			counters = append(counters, currentCounter-offset)
+		}
+	}
+
+	for _, counter := range counters {
+		expected, err := totp.GenerateCodeCustom(secret, time.Unix(counter*period, 0).UTC(), opts)
+		if err != nil {
+			return 0, false, err
+		}
+		if subtle.ConstantTimeCompare([]byte(expected), []byte(code)) == 1 {
+			return counter, true, nil
+		}
+	}
+
+	return 0, false, nil
+}
+
+func totpReplayTTL(counter int64, now time.Time) int {
+	validUntil := (counter + totpAllowedSkew + 1) * totpPeriodSeconds
+	ttl := int(validUntil-now.UTC().Unix()) + totpReplayTTLSlack
+	if ttl < totpPeriodSeconds {
+		return totpPeriodSeconds
+	}
+	return ttl
 }
 
 func (s *AuthService) CheckTrustedDevice(userID uint, token string) bool {

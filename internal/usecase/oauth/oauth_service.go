@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"open-website-defender/internal/adapter/repository"
 	"open-website-defender/internal/domain/entity"
+	"open-website-defender/internal/infrastructure/cache"
 	"open-website-defender/internal/infrastructure/config"
 	"open-website-defender/internal/infrastructure/database"
 	"open-website-defender/internal/infrastructure/logging"
@@ -30,6 +31,7 @@ var (
 	ErrInvalidCodeVerifier = errors.New("invalid code verifier")
 	ErrTokenRevoked        = errors.New("token has been revoked")
 	ErrTokenExpired        = errors.New("token has expired")
+	ErrInvalidConsentToken = errors.New("invalid consent token")
 )
 
 type OAuthService struct {
@@ -42,9 +44,16 @@ type OAuthService struct {
 }
 
 var (
-	oauthService *OAuthService
-	oauthOnce    sync.Once
+	oauthService   *OAuthService
+	oauthOnce      sync.Once
+	oauthConsentMu sync.Mutex
 )
+
+type pendingConsentRequest struct {
+	UserID    uint                `json:"user_id"`
+	Request   AuthorizeRequestDTO `json:"request"`
+	CreatedAt time.Time           `json:"created_at"`
+}
 
 func GetOAuthService() *OAuthService {
 	oauthOnce.Do(func() {
@@ -225,25 +234,8 @@ func (s *OAuthService) ListClients(page, size int) ([]*OAuthClientDTO, int64, er
 // --- Authorization Code Flow ---
 
 func (s *OAuthService) Authorize(req *AuthorizeRequestDTO, userID uint) (string, error) {
-	client, err := s.clientRepo.FindByClientID(req.ClientID)
-	if err != nil {
+	if _, err := s.validateAuthorizeRequest(req); err != nil {
 		return "", err
-	}
-	if client == nil {
-		return "", ErrClientNotFound
-	}
-	if !client.Active {
-		return "", ErrClientInactive
-	}
-
-	// Validate redirect URI
-	if !s.isValidRedirectURI(client, req.RedirectURI) {
-		return "", ErrInvalidRedirectURI
-	}
-
-	// Validate scope
-	if !s.isValidScope(client, req.Scope) {
-		return "", ErrInvalidScope
 	}
 
 	codeLifetime := config.Get().OAuth.AuthorizationCodeLifetime
@@ -269,6 +261,60 @@ func (s *OAuthService) Authorize(req *AuthorizeRequestDTO, userID uint) (string,
 	}
 
 	return code, nil
+}
+
+func (s *OAuthService) CreateConsentToken(req *AuthorizeRequestDTO, userID uint) (string, error) {
+	if _, err := s.validateAuthorizeRequest(req); err != nil {
+		return "", err
+	}
+
+	token := pkg.GenerateRandomToken(32)
+	payload := pendingConsentRequest{
+		UserID:    userID,
+		Request:   *req,
+		CreatedAt: time.Now().UTC(),
+	}
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return "", err
+	}
+
+	if err := cache.Store().Set(cache.KeyOAuthConsent+token, data, consentTokenTTLSeconds()); err != nil {
+		return "", err
+	}
+
+	return token, nil
+}
+
+func (s *OAuthService) ConsumeConsentToken(token string, userID uint) (*AuthorizeRequestDTO, error) {
+	if token == "" {
+		return nil, ErrInvalidConsentToken
+	}
+
+	key := cache.KeyOAuthConsent + token
+	store := cache.Store()
+
+	oauthConsentMu.Lock()
+	defer oauthConsentMu.Unlock()
+
+	data, err := store.Get(key)
+	if err != nil {
+		if errors.Is(err, cache.ErrNotFound) {
+			return nil, ErrInvalidConsentToken
+		}
+		return nil, err
+	}
+	_ = store.Del(key)
+
+	var payload pendingConsentRequest
+	if err := json.Unmarshal(data, &payload); err != nil {
+		return nil, ErrInvalidConsentToken
+	}
+	if payload.UserID != userID {
+		return nil, ErrInvalidConsentToken
+	}
+
+	return &payload.Request, nil
 }
 
 func (s *OAuthService) ExchangeCode(req *TokenRequestDTO) (*TokenResponseDTO, error) {
@@ -558,6 +604,45 @@ func (s *OAuthService) IsTrustedClient(clientID string) bool {
 }
 
 // --- Helpers ---
+
+func (s *OAuthService) validateAuthorizeRequest(req *AuthorizeRequestDTO) (*entity.OAuthClient, error) {
+	if req == nil {
+		return nil, ErrInvalidGrant
+	}
+
+	client, err := s.clientRepo.FindByClientID(req.ClientID)
+	if err != nil {
+		return nil, err
+	}
+	if client == nil {
+		return nil, ErrClientNotFound
+	}
+	if !client.Active {
+		return nil, ErrClientInactive
+	}
+
+	if !s.isValidRedirectURI(client, req.RedirectURI) {
+		return nil, ErrInvalidRedirectURI
+	}
+
+	if !s.isValidScope(client, req.Scope) {
+		return nil, ErrInvalidScope
+	}
+
+	return client, nil
+}
+
+func consentTokenTTLSeconds() int {
+	cfg := config.Get()
+	if cfg == nil {
+		return 300
+	}
+	codeLifetime := cfg.OAuth.AuthorizationCodeLifetime
+	if codeLifetime <= 0 {
+		return 300
+	}
+	return codeLifetime
+}
 
 func (s *OAuthService) isValidRedirectURI(client *entity.OAuthClient, uri string) bool {
 	var uris []string

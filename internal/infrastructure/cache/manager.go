@@ -14,6 +14,8 @@ const (
 	KeySystemSettings = "system:settings"
 	KeyLicenseToken   = "license:token:"
 	KeyUserInfo       = "user:info:"
+	KeyTotpReplay     = "totp:replay:"
+	KeyOAuthConsent   = "oauth:consent:"
 )
 
 func clearWhiteList(e event.Event, data any) {

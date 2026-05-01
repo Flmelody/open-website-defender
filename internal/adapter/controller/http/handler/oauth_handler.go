@@ -63,19 +63,21 @@ func OAuthAuthorize(c *gin.Context) {
 
 	oauthService := oauth.GetOAuthService()
 
+	authReq := &oauth.AuthorizeRequestDTO{
+		ResponseType:        responseType,
+		ClientID:            clientID,
+		RedirectURI:         redirectURI,
+		Scope:               scope,
+		State:               state,
+		Nonce:               nonce,
+		CodeChallenge:       codeChallenge,
+		CodeChallengeMethod: codeChallengeMethod,
+	}
+
 	// Check if client is trusted (skip consent)
 	if oauthService.IsTrustedClient(clientID) {
 		// Auto-approve for trusted clients
-		code, err := oauthService.Authorize(&oauth.AuthorizeRequestDTO{
-			ResponseType:        responseType,
-			ClientID:            clientID,
-			RedirectURI:         redirectURI,
-			Scope:               scope,
-			State:               state,
-			Nonce:               nonce,
-			CodeChallenge:       codeChallenge,
-			CodeChallengeMethod: codeChallengeMethod,
-		}, userInfo.ID)
+		code, err := oauthService.Authorize(authReq, userInfo.ID)
 		if err != nil {
 			handleAuthorizeError(c, redirectURI, err, state)
 			return
@@ -85,17 +87,18 @@ func OAuthAuthorize(c *gin.Context) {
 		return
 	}
 
+	consentToken, err := oauthService.CreateConsentToken(authReq, userInfo.ID)
+	if err != nil {
+		handleAuthorizeError(c, redirectURI, err, state)
+		return
+	}
+
 	// Non-trusted client: show consent page
 	// Build consent URL with all params forwarded
 	consentParams := url.Values{
-		"response_type":         {responseType},
-		"client_id":             {clientID},
-		"redirect_uri":          {redirectURI},
-		"scope":                 {scope},
-		"state":                 {state},
-		"nonce":                 {nonce},
-		"code_challenge":        {codeChallenge},
-		"code_challenge_method": {codeChallengeMethod},
+		"consent_token": {consentToken},
+		"client_id":     {clientID},
+		"scope":         {scope},
 	}
 
 	// Get client name for display
@@ -114,12 +117,6 @@ func OAuthAuthorize(c *gin.Context) {
 // OAuthConsent handles POST /oauth/consent (user approves/denies)
 func OAuthConsent(c *gin.Context) {
 	action := c.PostForm("action")
-	if action != "approve" {
-		redirectURI := c.PostForm("redirect_uri")
-		state := c.PostForm("state")
-		redirectWithError(c, redirectURI, "access_denied", "User denied the authorization request", state)
-		return
-	}
 
 	// Authenticate user
 	userInfo := authenticateOWDUser(c)
@@ -129,24 +126,29 @@ func OAuthConsent(c *gin.Context) {
 	}
 
 	oauthService := oauth.GetOAuthService()
-
-	code, err := oauthService.Authorize(&oauth.AuthorizeRequestDTO{
-		ResponseType:        c.PostForm("response_type"),
-		ClientID:            c.PostForm("client_id"),
-		RedirectURI:         c.PostForm("redirect_uri"),
-		Scope:               c.PostForm("scope"),
-		State:               c.PostForm("state"),
-		Nonce:               c.PostForm("nonce"),
-		CodeChallenge:       c.PostForm("code_challenge"),
-		CodeChallengeMethod: c.PostForm("code_challenge_method"),
-	}, userInfo.ID)
-
+	authReq, err := oauthService.ConsumeConsentToken(c.PostForm("consent_token"), userInfo.ID)
 	if err != nil {
-		handleAuthorizeError(c, c.PostForm("redirect_uri"), err, c.PostForm("state"))
+		if err == oauth.ErrInvalidConsentToken {
+			response.BadRequest(c, "Invalid or expired consent token")
+			return
+		}
+		response.InternalServerError(c, "Failed to validate consent token")
 		return
 	}
 
-	redirectWithCode(c, c.PostForm("redirect_uri"), code, c.PostForm("state"))
+	if action != "approve" {
+		redirectWithError(c, authReq.RedirectURI, "access_denied", "User denied the authorization request", authReq.State)
+		return
+	}
+
+	code, err := oauthService.Authorize(authReq, userInfo.ID)
+
+	if err != nil {
+		handleAuthorizeError(c, authReq.RedirectURI, err, authReq.State)
+		return
+	}
+
+	redirectWithCode(c, authReq.RedirectURI, code, authReq.State)
 }
 
 // OAuthToken handles POST /oauth/token

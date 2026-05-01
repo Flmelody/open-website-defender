@@ -478,19 +478,19 @@ onMounted(() => {
   width: 100%;
 }
 .glass-panel {
-  background: rgba(10, 30, 10, 0.75);
+  background: rgba(var(--theme-panel-rgb), 0.75);
   backdrop-filter: blur(10px);
-  border: 1px solid #005000;
+  border: 1px solid var(--theme-accent-border);
   box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
   border-radius: 4px;
 }
 .card-header {
   padding: 18px 25px;
-  border-bottom: 1px solid #005000;
+  border-bottom: 1px solid var(--theme-accent-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(0, 60, 0, 0.25);
+  background: rgba(var(--theme-panel-rgb), 0.25);
   border-radius: 4px 4px 0 0;
   flex-wrap: wrap;
   gap: 10px;
@@ -507,9 +507,9 @@ onMounted(() => {
   gap: 8px;
 }
 .prefix {
-  color: #0f0;
+  color: var(--theme-accent);
   font-weight: bold;
-  text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+  text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.3);
 }
 .command {
   color: #fff;
@@ -524,7 +524,7 @@ onMounted(() => {
   }
 }
 .hacker-form :deep(.el-form-item__label) {
-  color: #0f0 !important;
+  color: var(--theme-accent) !important;
   font-weight: bold;
   font-size: 14px;
 }
@@ -540,16 +540,16 @@ onMounted(() => {
 .settings-section.separator {
   margin-top: 25px;
   padding-top: 20px;
-  border-top: 1px solid #005000;
+  border-top: 1px solid var(--theme-accent-border);
 }
 
 .section-title {
   font-family: "Courier New", monospace;
   font-size: 16px;
-  color: #0f0;
+  color: var(--theme-accent);
   font-weight: bold;
   margin-bottom: 16px;
-  text-shadow: 0 0 5px rgba(0, 255, 0, 0.2);
+  text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.2);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -558,7 +558,7 @@ onMounted(() => {
 .sub-section-title {
   font-family: "Courier New", monospace;
   font-size: 14px;
-  color: #8d8;
+  color: var(--theme-text);
   font-weight: bold;
   margin-bottom: 12px;
   display: flex;
@@ -567,7 +567,7 @@ onMounted(() => {
 }
 
 .dim-text {
-  color: #8a8;
+  color: var(--theme-text-dim);
 }
 
 .inline-field {

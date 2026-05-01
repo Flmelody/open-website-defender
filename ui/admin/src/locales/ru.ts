@@ -41,6 +41,7 @@ export default {
   layout: {
     net_status: "СТАТУС СЕТИ: БЕЗОПАСНО",
     operator: "ОПЕРАТОР:",
+    theme: "ТЕМА",
     terminate_session: "[ ЗАВЕРШИТЬ СЕАНС ]",
     logout: "ВЫЙТИ",
   },

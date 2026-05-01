@@ -10,17 +10,17 @@
   align-items: center;
   justify-content: center;
   padding: 64px 16px 72px;
-  border-top: 1px solid #003000;
+  border-top: 1px solid var(--theme-border-faint);
   background:
-    linear-gradient(180deg, rgba(0, 40, 0, 0.18), rgba(0, 20, 0, 0.08)),
+    linear-gradient(180deg, rgba(var(--theme-panel-rgb), 0.18), rgba(var(--theme-panel-rgb), 0.08)),
     repeating-linear-gradient(
       0deg,
-      rgba(0, 255, 0, 0.03),
-      rgba(0, 255, 0, 0.03) 1px,
+      rgba(var(--theme-accent-rgb), 0.03),
+      rgba(var(--theme-accent-rgb), 0.03) 1px,
       transparent 1px,
       transparent 24px
     );
-  color: #0f0;
+  color: var(--theme-accent);
   font-family: "Courier New", monospace;
   letter-spacing: 0.04em;
 }
@@ -28,8 +28,8 @@
 .loader-spinner {
   width: 18px;
   height: 18px;
-  border: 2px solid rgba(0, 255, 0, 0.2);
-  border-top-color: #0f0;
+  border: 2px solid rgba(var(--theme-accent-rgb), 0.2);
+  border-top-color: var(--theme-accent);
   border-radius: 50%;
   animation: spin 0.9s linear infinite;
 }

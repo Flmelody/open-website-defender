@@ -11,8 +11,8 @@
         :default-active="route.path"
         class="sidebar-menu no-select"
         router
-        text-color="#8a8"
-        active-text-color="#0F0"
+        text-color="var(--theme-text-dim)"
+        active-text-color="var(--theme-accent)"
         background-color="transparent"
       >
         <div class="menu-label">{{ t("menu.system_modules") }}</div>
@@ -98,6 +98,40 @@
               </template>
             </el-dropdown>
           </div>
+          <div class="theme-line">
+            <span class="theme-label">{{ t("layout.theme") }}:</span>
+            <el-dropdown
+              trigger="click"
+              @command="handleThemeCommand"
+              class="theme-dropdown"
+              popper-class="terminal-popper"
+            >
+              <span class="theme-switch">
+                <span
+                  class="theme-swatch"
+                  :style="{ backgroundColor: currentThemeOption.accent }"
+                ></span>
+                {{ currentThemeOption.label }}
+                <el-icon class="el-icon--right"><arrow-down /></el-icon>
+              </span>
+              <template #dropdown>
+                <el-dropdown-menu class="terminal-dropdown">
+                  <el-dropdown-item
+                    v-for="theme in themeOptions"
+                    :key="theme.id"
+                    :command="theme.id"
+                    :class="{ active: currentTheme === theme.id }"
+                  >
+                    <span
+                      class="theme-swatch menu-swatch"
+                      :style="{ backgroundColor: theme.accent }"
+                    ></span>
+                    {{ theme.label }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
+            </el-dropdown>
+          </div>
           <el-button link class="logout-btn" @click="handleLogout">
             {{ t("layout.terminate_session") }}
           </el-button>
@@ -122,12 +156,14 @@ import type { MenuItem } from "@/config/menu";
 import { useI18n } from "vue-i18n";
 import { ArrowDown } from "@element-plus/icons-vue";
 import { computed, onMounted } from "vue";
+import { useTheme } from "@/composables/useTheme";
 
 const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const systemStore = useSystemStore();
 const { t, locale } = useI18n();
+const { themeOptions, currentTheme, setTheme } = useTheme();
 
 onMounted(() => {
   systemStore.fetchSettings();
@@ -160,6 +196,11 @@ const langMap: Record<string, string> = {
 };
 
 const currentLangLabel = computed(() => langMap[locale.value] || "EN");
+const currentThemeOption = computed(
+  () =>
+    themeOptions.find((theme) => theme.id === currentTheme.value) ||
+    themeOptions[0],
+);
 
 const handleLogout = () => {
   authStore.logout();
@@ -170,19 +211,23 @@ const handleLangCommand = (command: string) => {
   locale.value = command;
   localStorage.setItem("locale", command);
 };
+
+const handleThemeCommand = (command: string | number | object) => {
+  setTheme(String(command));
+};
 </script>
 
 <style scoped>
 .layout-container {
   height: 100vh;
-  background-color: #051005;
+  background-color: var(--theme-bg);
 }
 
 .aside {
-  background-color: rgba(10, 25, 10, 0.95);
+  background-color: rgba(var(--theme-panel-rgb), 0.95);
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #004000;
+  border-right: 1px solid var(--theme-border-soft);
   position: relative;
   z-index: 100;
   box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
@@ -193,14 +238,14 @@ const handleLangCommand = (command: string) => {
   display: flex;
   align-items: center;
   padding: 0 24px;
-  color: #0f0;
+  color: var(--theme-accent);
   font-family: "Courier New", monospace;
   font-weight: 900;
   font-size: 18px;
-  border-bottom: 1px solid #004000;
+  border-bottom: 1px solid var(--theme-border-soft);
   letter-spacing: 1px;
-  text-shadow: 0 0 10px rgba(0, 255, 0, 0.4);
-  background: rgba(0, 50, 0, 0.1);
+  text-shadow: 0 0 10px rgba(var(--theme-accent-rgb), 0.4);
+  background: rgba(var(--theme-panel-rgb), 0.1);
 }
 
 .terminal-prompt {
@@ -211,7 +256,7 @@ const handleLangCommand = (command: string) => {
 .cursor-blink {
   animation: blink 1s step-end infinite;
   margin-left: 5px;
-  color: #0f0;
+  color: var(--theme-accent);
 }
 
 @keyframes blink {
@@ -228,7 +273,7 @@ const handleLangCommand = (command: string) => {
 
 .menu-label {
   padding: 0 24px 10px;
-  color: #006000;
+  color: var(--theme-accent-muted);
   font-size: 12px;
   font-weight: bold;
   letter-spacing: 1px;
@@ -245,15 +290,15 @@ const handleLangCommand = (command: string) => {
 }
 
 :deep(.el-menu-item:hover) {
-  background-color: rgba(0, 255, 0, 0.1) !important;
+  background-color: rgba(var(--theme-accent-rgb), 0.1) !important;
   color: #fff !important;
 }
 
 :deep(.el-menu-item.is-active) {
-  background-color: rgba(0, 255, 0, 0.15) !important;
-  border-left: 3px solid #0f0;
-  color: #0f0 !important;
-  text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+  background-color: rgba(var(--theme-accent-rgb), 0.15) !important;
+  border-left: 3px solid var(--theme-accent);
+  color: var(--theme-accent) !important;
+  text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.3);
 }
 
 :deep(.el-sub-menu__title) {
@@ -263,16 +308,16 @@ const handleLangCommand = (command: string) => {
   border-left: 3px solid transparent;
   font-weight: bold;
   font-size: 14px;
-  color: #8a8 !important;
+  color: var(--theme-text-dim) !important;
 }
 
 :deep(.el-sub-menu__title:hover) {
-  background-color: rgba(0, 255, 0, 0.1) !important;
+  background-color: rgba(var(--theme-accent-rgb), 0.1) !important;
   color: #fff !important;
 }
 
 :deep(.el-sub-menu.is-active > .el-sub-menu__title) {
-  color: #0f0 !important;
+  color: var(--theme-accent) !important;
 }
 
 :deep(.el-sub-menu .el-menu-item) {
@@ -283,36 +328,36 @@ const handleLangCommand = (command: string) => {
 }
 
 :deep(.el-sub-menu__title .el-sub-menu__icon-arrow) {
-  color: #8a8;
+  color: var(--theme-text-dim);
 }
 
 .sidebar-footer {
   padding: 24px;
-  border-top: 1px solid #004000;
+  border-top: 1px solid var(--theme-border-soft);
   font-family: "Courier New", monospace;
   font-size: 12px;
-  background: rgba(0, 30, 0, 0.3);
+  background: rgba(var(--theme-panel-rgb), 0.3);
 }
 
 .sys-status {
-  color: #8a8;
+  color: var(--theme-text-dim);
 }
 
 .status-line {
   display: flex;
   align-items: center;
   margin-bottom: 12px;
-  color: #0f0;
+  color: var(--theme-accent);
   font-weight: bold;
 }
 
 .status-dot {
   width: 8px;
   height: 8px;
-  background-color: #0f0;
+  background-color: var(--theme-accent);
   border-radius: 50%;
   margin-right: 10px;
-  box-shadow: 0 0 8px #0f0;
+  box-shadow: 0 0 8px var(--theme-accent);
 }
 
 .user-line {
@@ -323,7 +368,7 @@ const handleLangCommand = (command: string) => {
 }
 
 .user-label {
-  color: #006000;
+  color: var(--theme-accent-muted);
   font-size: 10px;
 }
 
@@ -333,21 +378,28 @@ const handleLangCommand = (command: string) => {
   font-size: 14px;
 }
 
-.lang-line {
-  margin-bottom: 20px;
+.lang-line,
+.theme-line {
+  margin-bottom: 12px;
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #006000;
+  color: var(--theme-accent-muted);
   font-size: 10px;
 }
 
-.lang-label {
-  color: #006000;
+.theme-line {
+  margin-bottom: 20px;
 }
 
-.lang-switch {
-  color: #8a8;
+.lang-label,
+.theme-label {
+  color: var(--theme-accent-muted);
+}
+
+.lang-switch,
+.theme-switch {
+  color: var(--theme-text-dim);
   cursor: pointer;
   font-weight: bold;
   font-size: 12px;
@@ -356,9 +408,23 @@ const handleLangCommand = (command: string) => {
   gap: 4px;
 }
 
-.lang-switch:hover {
-  color: #0f0;
-  text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+.lang-switch:hover,
+.theme-switch:hover {
+  color: var(--theme-accent);
+  text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.5);
+}
+
+.theme-swatch {
+  width: 10px;
+  height: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 8px currentColor;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.menu-swatch {
+  margin-right: 6px;
 }
 
 .logout-btn {
@@ -378,7 +444,7 @@ const handleLangCommand = (command: string) => {
 }
 
 .main-container {
-  background-color: #051005;
+  background-color: var(--theme-bg);
   /* Grid pattern defined in body also applies here visually */
 }
 
@@ -390,8 +456,8 @@ const handleLangCommand = (command: string) => {
 
 <style>
 .terminal-popper.el-popper {
-  background: rgba(10, 25, 10, 0.95) !important;
-  border: 1px solid #004000 !important;
+  background: rgba(var(--theme-panel-rgb), 0.95) !important;
+  border: 1px solid var(--theme-border-soft) !important;
 }
 
 .terminal-popper .el-dropdown-menu {
@@ -401,24 +467,24 @@ const handleLangCommand = (command: string) => {
 }
 
 .terminal-popper .el-dropdown-menu__item {
-  color: #8a8 !important;
+  color: var(--theme-text-dim) !important;
   font-family: "Courier New", monospace !important;
   font-size: 12px !important;
 }
 
 .terminal-popper .el-dropdown-menu__item:hover,
 .terminal-popper .el-dropdown-menu__item:focus {
-  background-color: rgba(0, 255, 0, 0.1) !important;
+  background-color: rgba(var(--theme-accent-rgb), 0.1) !important;
   color: #fff !important;
 }
 
 .terminal-popper .el-dropdown-menu__item.active {
-  color: #0f0 !important;
+  color: var(--theme-accent) !important;
   font-weight: bold !important;
 }
 
 .terminal-popper .el-popper__arrow::before {
-  background: rgba(10, 25, 10, 0.95) !important;
-  border: 1px solid #004000 !important;
+  background: rgba(var(--theme-panel-rgb), 0.95) !important;
+  border: 1px solid var(--theme-border-soft) !important;
 }
 </style>

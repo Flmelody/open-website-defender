@@ -836,19 +836,19 @@ onMounted(() => {
   width: 100%;
 }
 .glass-panel {
-  background: rgba(10, 30, 10, 0.75);
+  background: rgba(var(--theme-panel-rgb), 0.75);
   backdrop-filter: blur(10px);
-  border: 1px solid #005000;
+  border: 1px solid var(--theme-accent-border);
   box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
   border-radius: 4px;
 }
 .card-header {
   padding: 18px 25px;
-  border-bottom: 1px solid #005000;
+  border-bottom: 1px solid var(--theme-accent-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(0, 60, 0, 0.25);
+  background: rgba(var(--theme-panel-rgb), 0.25);
   border-radius: 4px 4px 0 0;
   flex-wrap: wrap;
   gap: 10px;
@@ -865,9 +865,9 @@ onMounted(() => {
   gap: 8px;
 }
 .prefix {
-  color: #0f0;
+  color: var(--theme-accent);
   font-weight: bold;
-  text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+  text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.3);
 }
 .command {
   color: #fff;
@@ -885,7 +885,7 @@ onMounted(() => {
   font-family: "Courier New", monospace;
 }
 .dim-text {
-  color: #8a8;
+  color: var(--theme-text-dim);
 }
 .bright-text {
   color: #fff;
@@ -898,20 +898,20 @@ onMounted(() => {
 }
 .card-footer {
   padding: 12px 25px;
-  border-top: 1px solid #005000;
+  border-top: 1px solid var(--theme-accent-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(0, 60, 0, 0.2);
+  background: rgba(var(--theme-panel-rgb), 0.2);
   border-radius: 0 0 4px 4px;
 }
 .status-text {
-  color: #0f0;
+  color: var(--theme-accent);
   font-size: 13px;
   font-family: "Courier New", monospace;
 }
 .hacker-form :deep(.el-form-item__label) {
-  color: #0f0 !important;
+  color: var(--theme-accent) !important;
   font-weight: bold;
   font-size: 14px;
 }
@@ -930,13 +930,13 @@ onMounted(() => {
   padding: 0 25px;
 }
 .waf-tabs :deep(.el-tabs__item) {
-  color: #8a8;
+  color: var(--theme-text-dim);
 }
 .waf-tabs :deep(.el-tabs__item.is-active) {
-  color: #0f0;
+  color: var(--theme-accent);
 }
 .waf-tabs :deep(.el-tabs__active-bar) {
-  background-color: #0f0;
+  background-color: var(--theme-accent);
 }
 .waf-tabs :deep(.el-tabs__nav-wrap::after) {
   display: none !important;

@@ -923,20 +923,20 @@ onMounted(() => {
 }
 
 .glass-panel {
-  background: rgba(10, 30, 10, 0.75); /* More visible background */
+  background: rgba(var(--theme-panel-rgb), 0.75); /* More visible background */
   backdrop-filter: blur(10px);
-  border: 1px solid #005000;
+  border: 1px solid var(--theme-accent-border);
   box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
   border-radius: 4px;
 }
 
 .card-header {
   padding: 18px 25px;
-  border-bottom: 1px solid #005000;
+  border-bottom: 1px solid var(--theme-accent-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(0, 60, 0, 0.25);
+  background: rgba(var(--theme-panel-rgb), 0.25);
   border-radius: 4px 4px 0 0;
 }
 
@@ -948,9 +948,9 @@ onMounted(() => {
 }
 
 .prefix {
-  color: #0f0;
+  color: var(--theme-accent);
   font-weight: bold;
-  text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+  text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.3);
 }
 
 .command {
@@ -973,7 +973,7 @@ onMounted(() => {
 }
 
 .dim-text {
-  color: #8a8;
+  color: var(--theme-text-dim);
 }
 
 .bright-text {
@@ -983,12 +983,12 @@ onMounted(() => {
 }
 
 .token-mask {
-  color: #00a000;
+  color: var(--theme-accent-strong);
   letter-spacing: 2px;
 }
 
 .null-value {
-  color: #006000;
+  color: var(--theme-accent-muted);
   font-style: italic;
 }
 
@@ -1020,22 +1020,22 @@ onMounted(() => {
 
 .card-footer {
   padding: 12px 25px;
-  border-top: 1px solid #005000;
+  border-top: 1px solid var(--theme-accent-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(0, 60, 0, 0.2);
+  background: rgba(var(--theme-panel-rgb), 0.2);
   border-radius: 0 0 4px 4px;
 }
 
 .status-text {
-  color: #0f0;
+  color: var(--theme-accent);
   font-size: 13px;
   font-family: "Courier New", monospace;
 }
 
 .hacker-form :deep(.el-form-item__label) {
-  color: #0f0 !important;
+  color: var(--theme-accent) !important;
   font-weight: bold;
   font-size: 14px;
 }
@@ -1073,13 +1073,13 @@ onMounted(() => {
 
 .copy-pwd-btn {
   background: transparent !important;
-  border: 1px solid #005000 !important;
-  color: #0f0 !important;
+  border: 1px solid var(--theme-accent-border) !important;
+  color: var(--theme-accent) !important;
 }
 
 .copy-pwd-btn:hover:not(:disabled) {
-  background: rgba(0, 60, 0, 0.4) !important;
-  border-color: #0f0 !important;
+  background: rgba(var(--theme-panel-rgb), 0.4) !important;
+  border-color: var(--theme-accent) !important;
 }
 
 .copy-pwd-btn:disabled {
@@ -1114,18 +1114,18 @@ onMounted(() => {
   align-items: center;
   gap: 12px;
   padding: 14px 16px;
-  background: rgba(0, 40, 0, 0.6);
-  border: 1px solid #005000;
+  background: rgba(var(--theme-panel-rgb), 0.6);
+  border: 1px solid var(--theme-accent-border);
   border-radius: 4px;
 }
 
 .token-value {
   flex: 1;
-  color: #0f0;
+  color: var(--theme-accent);
   font-size: 13px;
   word-break: break-all;
   line-height: 1.5;
-  text-shadow: 0 0 5px rgba(0, 255, 0, 0.2);
+  text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.2);
 }
 
 .copy-btn {
@@ -1134,13 +1134,13 @@ onMounted(() => {
 
 .copied-hint {
   margin-top: 10px;
-  color: #0f0;
+  color: var(--theme-accent);
   font-size: 12px;
   text-align: right;
 }
 
 .scope-hint {
-  color: #8a8;
+  color: var(--theme-text-dim);
   font-size: 12px;
   margin-top: 4px;
   font-family: "Courier New", monospace;
@@ -1154,7 +1154,7 @@ onMounted(() => {
 .auth-loading {
   text-align: center;
   padding: 30px;
-  color: #0f0;
+  color: var(--theme-accent);
 }
 
 .auth-empty {
@@ -1167,18 +1167,18 @@ onMounted(() => {
   justify-content: space-between;
   align-items: center;
   padding: 14px 16px;
-  border: 1px solid #005000;
+  border: 1px solid var(--theme-accent-border);
   border-radius: 4px;
-  background: rgba(0, 40, 0, 0.4);
+  background: rgba(var(--theme-panel-rgb), 0.4);
   margin-bottom: 10px;
 }
 
 .auth-client-name {
-  color: #0f0;
+  color: var(--theme-accent);
   font-weight: bold;
   font-size: 15px;
   margin-bottom: 4px;
-  text-shadow: 0 0 5px rgba(0, 255, 0, 0.2);
+  text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.2);
 }
 
 .auth-meta {
@@ -1191,7 +1191,7 @@ onMounted(() => {
 }
 
 .totp-instruction {
-  color: #8a8;
+  color: var(--theme-text-dim);
   font-size: 13px;
   margin-bottom: 16px;
 }
@@ -1214,14 +1214,14 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   padding: 8px 12px;
-  background: rgba(0, 40, 0, 0.4);
-  border: 1px solid #005000;
+  background: rgba(var(--theme-panel-rgb), 0.4);
+  border: 1px solid var(--theme-accent-border);
   border-radius: 4px;
   margin-bottom: 16px;
 }
 
 .totp-key-label {
-  color: #8a8;
+  color: var(--theme-text-dim);
   font-size: 12px;
   flex-shrink: 0;
 }
@@ -1235,25 +1235,25 @@ onMounted(() => {
 }
 
 .totp-key-value {
-  color: #0f0;
+  color: var(--theme-accent);
   font-size: 12px;
   word-break: break-all;
   letter-spacing: 1px;
-  text-shadow: 0 0 5px rgba(0, 255, 0, 0.2);
+  text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.2);
   flex: 1;
 }
 
 .totp-copy-btn {
   flex-shrink: 0;
   background: transparent !important;
-  border: 1px solid #005000 !important;
-  color: #0f0 !important;
+  border: 1px solid var(--theme-accent-border) !important;
+  color: var(--theme-accent) !important;
   padding: 4px 8px !important;
 }
 
 .totp-copy-btn:hover {
-  background: rgba(0, 60, 0, 0.4) !important;
-  border-color: #0f0 !important;
+  background: rgba(var(--theme-panel-rgb), 0.4) !important;
+  border-color: var(--theme-accent) !important;
 }
 
 .totp-verify-section {
@@ -1261,7 +1261,7 @@ onMounted(() => {
 }
 
 .totp-verify-label {
-  color: #0f0;
+  color: var(--theme-accent);
   font-size: 13px;
   font-weight: bold;
   flex-shrink: 0;
@@ -1287,6 +1287,6 @@ onMounted(() => {
 .totp-loading {
   text-align: center;
   padding: 40px;
-  color: #0f0;
+  color: var(--theme-accent);
 }
 </style>

@@ -41,6 +41,7 @@ export default {
   layout: {
     net_status: "NET_STATUS: SECURE",
     operator: "OPERATOR:",
+    theme: "THEME",
     terminate_session: "[ TERMINATE_SESSION ]",
     logout: "LOGOUT",
   },

@@ -41,6 +41,7 @@ export default {
   layout: {
     net_status: "ÉTAT_RÉSEAU : SÉCURISÉ",
     operator: "OPÉRATEUR :",
+    theme: "THÈME",
     terminate_session: "[ TERMINER SESSION ]",
     logout: "DÉCONNEXION",
   },

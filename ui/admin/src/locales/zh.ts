@@ -41,6 +41,7 @@ export default {
   layout: {
     net_status: "网络状态: 安全",
     operator: "操作员:",
+    theme: "主题",
     terminate_session: "[ 终止会话 ]",
     logout: "退出",
   },

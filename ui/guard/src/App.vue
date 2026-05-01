@@ -12,7 +12,7 @@
 html, body {
   width: 100%;
   height: 100%;
-  background: #f5f7f9;
+  background: var(--theme-bg);
 }
 
 #app {

@@ -3,6 +3,7 @@ import {nextTick, onMounted, reactive, ref} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import request from '@/utils/request'
 import {getAppConfig} from "../utils/config.js";
+import {getThemeColor} from '@/utils/theme'
 
 const router = useRouter()
 const route = useRoute()
@@ -81,11 +82,13 @@ onMounted(async () => {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-    ctx.fillStyle = '#0F0'
+    const accent = getThemeColor('--theme-accent', '#00ff00')
+    ctx.fillStyle = accent
     ctx.font = fontSize + 'px monospace'
 
     for (let i = 0; i < drops.length; i++) {
       const text = chars[Math.floor(Math.random() * chars.length)]
+      ctx.fillStyle = accent
       ctx.fillText(text, i * fontSize, drops[i] * fontSize)
 
       if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
@@ -333,7 +336,7 @@ const handleCancel2FA = () => {
 .login-container {
   width: 100vw;
   height: 100vh;
-  background: #000;
+  background: var(--theme-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -353,17 +356,17 @@ const handleCancel2FA = () => {
 .login-terminal {
   width: 800px;
   background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(0, 255, 0, 0.3);
-  box-shadow: 0 0 20px rgba(0, 255, 0, 0.1),
-  inset 0 0 30px rgba(0, 255, 0, 0.05);
+  border: 1px solid rgba(var(--theme-accent-rgb), 0.3);
+  box-shadow: 0 0 20px rgba(var(--theme-accent-rgb), 0.1),
+  inset 0 0 30px rgba(var(--theme-accent-rgb), 0.05);
   backdrop-filter: blur(3px);
   z-index: 2;
   overflow: hidden;
 }
 
 .terminal-header {
-  background: rgba(0, 255, 0, 0.2);
-  border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+  background: rgba(var(--theme-accent-rgb), 0.2);
+  border-bottom: 1px solid rgba(var(--theme-accent-rgb), 0.3);
   padding: 8px 15px;
   display: flex;
   justify-content: space-between;
@@ -371,8 +374,8 @@ const handleCancel2FA = () => {
 }
 
 .terminal-title {
-  color: #0F0;
-  text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+  color: var(--theme-accent);
+  text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.5);
 }
 
 .terminal-controls {
@@ -390,8 +393,8 @@ const handleCancel2FA = () => {
 
 .terminal-content {
   padding: 20px;
-  color: #0F0;
-  text-shadow: 0 0 3px rgba(0, 255, 0, 0.5);
+  color: var(--theme-accent);
+  text-shadow: 0 0 3px rgba(var(--theme-accent-rgb), 0.5);
 }
 
 .terminal-output {
@@ -420,16 +423,16 @@ const handleCancel2FA = () => {
 }
 
 .prompt {
-  color: #0F0;
+  color: var(--theme-accent);
   white-space: nowrap;
 }
 
 input {
   background: rgba(0, 0, 0, 0.3);
   border: none;
-  border-bottom: 1px solid rgba(0, 255, 0, 0.3);
-  color: #0F0;
-  text-shadow: 0 0 3px rgba(0, 255, 0, 0.5);
+  border-bottom: 1px solid rgba(var(--theme-accent-rgb), 0.3);
+  color: var(--theme-accent);
+  text-shadow: 0 0 3px rgba(var(--theme-accent-rgb), 0.5);
   font-family: 'Courier New', monospace;
   font-size: 16px;
   padding: 5px 10px;
@@ -439,8 +442,8 @@ input {
 
 input:focus {
   outline: none;
-  border-bottom-color: rgba(0, 255, 0, 0.8);
-  background: rgba(0, 255, 0, 0.1);
+  border-bottom-color: rgba(var(--theme-accent-rgb), 0.8);
+  background: rgba(var(--theme-accent-rgb), 0.1);
 }
 
 input.error {
@@ -452,10 +455,10 @@ input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
-  -webkit-text-fill-color: #0F0 !important;
+  -webkit-text-fill-color: var(--theme-accent) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
-  caret-color: #0F0;
+  caret-color: var(--theme-accent);
 }
 
 .error-text {
@@ -491,7 +494,7 @@ input:-webkit-autofill:active {
 }
 
 .checkbox-text {
-  color: #0F0;
+  color: var(--theme-accent);
 }
 
 .check-mark {
@@ -500,14 +503,14 @@ input:-webkit-autofill:active {
 
 .check-mark.checked {
   visibility: visible;
-  text-shadow: 0 0 5px #0F0;
+  text-shadow: 0 0 5px var(--theme-accent);
 }
 
 button {
-  background: rgba(0, 255, 0, 0.1);
-  border: 1px solid rgba(0, 255, 0, 0.3);
-  color: #0F0;
-  text-shadow: 0 0 3px rgba(0, 255, 0, 0.5);
+  background: rgba(var(--theme-accent-rgb), 0.1);
+  border: 1px solid rgba(var(--theme-accent-rgb), 0.3);
+  color: var(--theme-accent);
+  text-shadow: 0 0 3px rgba(var(--theme-accent-rgb), 0.5);
   padding: 10px 20px;
   font-family: 'Courier New', monospace;
   font-size: 16px;
@@ -516,10 +519,10 @@ button {
 }
 
 button:hover:not(:disabled) {
-  background: rgba(0, 255, 0, 0.2);
-  border-color: rgba(0, 255, 0, 0.5);
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.2),
-  inset 0 0 10px rgba(0, 255, 0, 0.2);
+  background: rgba(var(--theme-accent-rgb), 0.2);
+  border-color: rgba(var(--theme-accent-rgb), 0.5);
+  box-shadow: 0 0 10px rgba(var(--theme-accent-rgb), 0.2),
+  inset 0 0 10px rgba(var(--theme-accent-rgb), 0.2);
 }
 
 button:disabled {
@@ -543,8 +546,8 @@ button:disabled {
 }
 
 .back-button {
-  border-color: rgba(0, 255, 0, 0.2);
-  color: rgba(0, 255, 0, 0.6);
+  border-color: rgba(var(--theme-accent-rgb), 0.2);
+  color: rgba(var(--theme-accent-rgb), 0.6);
 }
 
 @media (max-width: 850px) {
@@ -573,7 +576,7 @@ button:disabled {
   height: 100%;
   background: linear-gradient(
     transparent 0%,
-    rgba(0, 255, 0, 0.05) 50%,
+    rgba(var(--theme-accent-rgb), 0.05) 50%,
     transparent 100%
   );
   animation: scan 8s linear infinite;
@@ -592,11 +595,11 @@ button:disabled {
 .copyright {
   position: absolute;
   bottom: 20px;
-  color: #0F0;
+  color: var(--theme-accent);
   font-size: 12px;
   opacity: 0.6;
   z-index: 10;
-  text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+  text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.3);
   font-family: 'Courier New', monospace;
 }
 </style>

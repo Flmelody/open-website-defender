@@ -1,4 +1,54 @@
 /* Reset CSS */
+:root {
+  --theme-accent: #00ff00;
+  --theme-accent-rgb: 0, 255, 0;
+  --theme-bg: #000000;
+  --theme-panel-rgb: 0, 16, 0;
+  --theme-text: #ccffcc;
+  --theme-text-dim: #88aa88;
+  --theme-border-soft: #004000;
+}
+
+:root[data-theme="cyan"] {
+  --theme-accent: #00e5ff;
+  --theme-accent-rgb: 0, 229, 255;
+  --theme-bg: #020b0e;
+  --theme-panel-rgb: 4, 22, 28;
+  --theme-text: #d5fbff;
+  --theme-text-dim: #87b9c0;
+  --theme-border-soft: #003f4a;
+}
+
+:root[data-theme="amber"] {
+  --theme-accent: #ffb000;
+  --theme-accent-rgb: 255, 176, 0;
+  --theme-bg: #0f0900;
+  --theme-panel-rgb: 26, 18, 4;
+  --theme-text: #ffe8bd;
+  --theme-text-dim: #bfa76f;
+  --theme-border-soft: #4a3300;
+}
+
+:root[data-theme="violet"] {
+  --theme-accent: #b87cff;
+  --theme-accent-rgb: 184, 124, 255;
+  --theme-bg: #090412;
+  --theme-panel-rgb: 18, 10, 30;
+  --theme-text: #eadcff;
+  --theme-text-dim: #aa91c4;
+  --theme-border-soft: #382052;
+}
+
+:root[data-theme="crimson"] {
+  --theme-accent: #ff4d6d;
+  --theme-accent-rgb: 255, 77, 109;
+  --theme-bg: #100307;
+  --theme-panel-rgb: 28, 8, 14;
+  --theme-text: #ffd8df;
+  --theme-text-dim: #c28794;
+  --theme-border-soft: #4c131f;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -14,7 +64,7 @@ html, body {
   -moz-osx-font-smoothing: grayscale;
   font-size: 14px;
   color: #333;
-  background: #f0f2f5;
+  background: var(--theme-bg);
 }
 
 #app {
@@ -33,4 +83,4 @@ html, body {
 
 .h-100 {
   height: 100%;
-} 
+}

@@ -192,6 +192,7 @@ import {
   LegendComponent,
 } from "echarts/components";
 import { DataBoard, WarningFilled, Lock, Timer } from "@element-plus/icons-vue";
+import { getThemeColors, useTheme } from "@/composables/useTheme";
 
 use([
   CanvasRenderer,
@@ -212,6 +213,11 @@ const requestTrend = ref<any[]>([]);
 const blockReasons = ref<any[]>([]);
 const securityStats = ref<any>({});
 const trendHours = ref(24);
+const { currentTheme } = useTheme();
+const chartTheme = computed(() => {
+  currentTheme.value;
+  return getThemeColors();
+});
 
 const trendRangeOptions = computed(() => [
   { hours: 24, label: t("dashboard.trend_1d") },
@@ -258,10 +264,10 @@ const formatHour = (hourStr: string) => {
 const trendOption = computed(() => ({
   tooltip: {
     trigger: "axis",
-    backgroundColor: "rgba(10, 30, 10, 0.9)",
-    borderColor: "#005000",
+    backgroundColor: chartTheme.value.tooltipBg,
+    borderColor: chartTheme.value.border,
     textStyle: {
-      color: "#0f0",
+      color: chartTheme.value.accent,
       fontFamily: "Courier New, monospace",
       fontSize: 12,
     },
@@ -269,7 +275,7 @@ const trendOption = computed(() => ({
   legend: {
     data: [t("dashboard.total_requests"), t("dashboard.blocked_requests")],
     textStyle: {
-      color: "#8a8",
+      color: chartTheme.value.textDim,
       fontFamily: "Courier New, monospace",
       fontSize: 11,
     },
@@ -280,9 +286,9 @@ const trendOption = computed(() => ({
   xAxis: {
     type: "category",
     data: requestTrend.value.map((i) => formatHour(i.hour)),
-    axisLine: { lineStyle: { color: "#005000" } },
+    axisLine: { lineStyle: { color: chartTheme.value.border } },
     axisLabel: {
-      color: "#8a8",
+      color: chartTheme.value.textDim,
       fontFamily: "Courier New, monospace",
       fontSize: 10,
     },
@@ -290,10 +296,10 @@ const trendOption = computed(() => ({
   },
   yAxis: {
     type: "value",
-    splitLine: { lineStyle: { color: "#002800" } },
-    axisLine: { lineStyle: { color: "#005000" } },
+    splitLine: { lineStyle: { color: chartTheme.value.borderFaint } },
+    axisLine: { lineStyle: { color: chartTheme.value.border } },
     axisLabel: {
-      color: "#8a8",
+      color: chartTheme.value.textDim,
       fontFamily: "Courier New, monospace",
       fontSize: 10,
     },
@@ -313,13 +319,13 @@ const trendOption = computed(() => ({
           x2: 0,
           y2: 1,
           colorStops: [
-            { offset: 0, color: "rgba(0, 200, 0, 0.3)" },
-            { offset: 1, color: "rgba(0, 200, 0, 0.02)" },
+            { offset: 0, color: chartTheme.value.areaStart },
+            { offset: 1, color: chartTheme.value.areaEnd },
           ],
         },
       },
-      lineStyle: { color: "#0c0", width: 2 },
-      itemStyle: { color: "#0c0" },
+      lineStyle: { color: chartTheme.value.accentStrong, width: 2 },
+      itemStyle: { color: chartTheme.value.accentStrong },
     },
     {
       name: t("dashboard.blocked_requests"),
@@ -357,10 +363,10 @@ const pieColors = ["#f56c6c", "#e6a23c", "#409eff", "#67c23a", "#909399"];
 
 const pieOption = computed(() => ({
   tooltip: {
-    backgroundColor: "rgba(10, 30, 10, 0.9)",
-    borderColor: "#005000",
+    backgroundColor: chartTheme.value.tooltipBg,
+    borderColor: chartTheme.value.border,
     textStyle: {
-      color: "#0f0",
+      color: chartTheme.value.accent,
       fontFamily: "Courier New, monospace",
       fontSize: 12,
     },
@@ -372,12 +378,12 @@ const pieOption = computed(() => ({
       center: ["50%", "55%"],
       avoidLabelOverlap: true,
       label: {
-        color: "#8a8",
+        color: chartTheme.value.textDim,
         fontFamily: "Courier New, monospace",
         fontSize: 11,
         formatter: "{b}: {c}",
       },
-      labelLine: { lineStyle: { color: "#005000" } },
+      labelLine: { lineStyle: { color: chartTheme.value.border } },
       data: blockReasons.value.map((item, idx) => ({
         name:
           actionLabelMap[item.action] || item.action.replace("blocked_", ""),
@@ -401,10 +407,10 @@ const barOption = computed(() => {
     tooltip: {
       trigger: "axis",
       axisPointer: { type: "shadow" },
-      backgroundColor: "rgba(10, 30, 10, 0.9)",
-      borderColor: "#005000",
+      backgroundColor: chartTheme.value.tooltipBg,
+      borderColor: chartTheme.value.border,
       textStyle: {
-        color: "#0f0",
+        color: chartTheme.value.accent,
         fontFamily: "Courier New, monospace",
         fontSize: 12,
       },
@@ -413,9 +419,9 @@ const barOption = computed(() => {
     xAxis: {
       type: "category",
       data: ips.map((i) => i.client_ip),
-      axisLine: { lineStyle: { color: "#005000" } },
+      axisLine: { lineStyle: { color: chartTheme.value.border } },
       axisLabel: {
-        color: "#8a8",
+        color: chartTheme.value.textDim,
         fontFamily: "Courier New, monospace",
         fontSize: 10,
         rotate: 35,
@@ -424,10 +430,10 @@ const barOption = computed(() => {
     },
     yAxis: {
       type: "value",
-      splitLine: { lineStyle: { color: "#002800" } },
-      axisLine: { lineStyle: { color: "#005000" } },
+      splitLine: { lineStyle: { color: chartTheme.value.borderFaint } },
+      axisLine: { lineStyle: { color: chartTheme.value.border } },
       axisLabel: {
-        color: "#8a8",
+        color: chartTheme.value.textDim,
         fontFamily: "Courier New, monospace",
         fontSize: 10,
       },
@@ -494,20 +500,20 @@ onMounted(() => {
 }
 
 .glass-panel {
-  background: rgba(10, 30, 10, 0.75);
+  background: rgba(var(--theme-panel-rgb), 0.75);
   backdrop-filter: blur(10px);
-  border: 1px solid #005000;
+  border: 1px solid var(--theme-accent-border);
   box-shadow: 0 5px 25px rgba(0, 0, 0, 0.5);
   border-radius: 4px;
 }
 
 .card-header {
   padding: 18px 25px;
-  border-bottom: 1px solid #005000;
+  border-bottom: 1px solid var(--theme-accent-border);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(0, 60, 0, 0.25);
+  background: rgba(var(--theme-panel-rgb), 0.25);
   border-radius: 4px 4px 0 0;
 }
 
@@ -519,9 +525,9 @@ onMounted(() => {
 }
 
 .prefix {
-  color: #0f0;
+  color: var(--theme-accent);
   font-weight: bold;
-  text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+  text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.3);
 }
 .command {
   color: #fff;
@@ -551,8 +557,8 @@ onMounted(() => {
 }
 
 .stat-card {
-  background: rgba(0, 40, 0, 0.5);
-  border: 1px solid #003000;
+  background: rgba(var(--theme-panel-rgb), 0.5);
+  border: 1px solid var(--theme-border-faint);
   border-radius: 4px;
   padding: 16px 18px;
   display: flex;
@@ -571,8 +577,8 @@ onMounted(() => {
 }
 
 .total-icon {
-  background: rgba(0, 200, 0, 0.15);
-  color: #0c0;
+  background: rgba(var(--theme-accent-rgb), 0.15);
+  color: var(--theme-accent-strong);
 }
 .blocked-icon {
   background: rgba(245, 108, 108, 0.15);
@@ -613,8 +619,8 @@ onMounted(() => {
 }
 
 .chart-panel {
-  background: rgba(0, 40, 0, 0.35);
-  border: 1px solid #003000;
+  background: rgba(var(--theme-panel-rgb), 0.35);
+  border: 1px solid var(--theme-border-faint);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -623,8 +629,8 @@ onMounted(() => {
   padding: 10px 16px;
   font-family: "Courier New", monospace;
   font-size: 13px;
-  color: #8a8;
-  border-bottom: 1px solid #002800;
+  color: var(--theme-text-dim);
+  border-bottom: 1px solid var(--theme-border-faint);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -638,8 +644,8 @@ onMounted(() => {
 
 .range-btn {
   background: transparent;
-  border: 1px solid #005000;
-  color: #8a8;
+  border: 1px solid var(--theme-accent-border);
+  color: var(--theme-text-dim);
   font-family: "Courier New", monospace;
   font-size: 11px;
   padding: 2px 10px;
@@ -648,14 +654,14 @@ onMounted(() => {
 }
 
 .range-btn:hover {
-  color: #0f0;
-  border-color: #0f0;
+  color: var(--theme-accent);
+  border-color: var(--theme-accent);
 }
 
 .range-btn.active {
-  background: rgba(0, 255, 0, 0.15);
-  color: #0f0;
-  border-color: #0f0;
+  background: rgba(var(--theme-accent-rgb), 0.15);
+  color: var(--theme-accent);
+  border-color: var(--theme-accent);
 }
 
 .chart {
@@ -677,8 +683,8 @@ onMounted(() => {
 }
 
 .counter-item {
-  background: rgba(0, 40, 0, 0.5);
-  border: 1px solid #003000;
+  background: rgba(var(--theme-panel-rgb), 0.5);
+  border: 1px solid var(--theme-border-faint);
   border-radius: 4px;
   padding: 14px 18px;
   display: flex;
@@ -708,7 +714,7 @@ onMounted(() => {
 }
 
 .dim-text {
-  color: #8a8;
+  color: var(--theme-text-dim);
 }
 .bright-text {
   color: #fff;

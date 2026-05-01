@@ -2,6 +2,7 @@
 import { reactive, ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { getAppConfig } from '../utils/config.js'
+import { getThemeColor } from '@/utils/theme'
 
 const route = useRoute()
 const loading = ref(false)
@@ -46,10 +47,12 @@ onMounted(() => {
   function draw() {
     ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
-    ctx.fillStyle = '#0F0'
+    const accent = getThemeColor('--theme-accent', '#00ff00')
+    ctx.fillStyle = accent
     ctx.font = fontSize + 'px monospace'
     for (let i = 0; i < drops.length; i++) {
       const text = chars[Math.floor(Math.random() * chars.length)]
+      ctx.fillStyle = accent
       ctx.fillText(text, i * fontSize, drops[i] * fontSize)
       if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0
       drops[i]++
@@ -187,7 +190,7 @@ const handleConsent = async (action) => {
 
 <style scoped>
 .consent-container {
-  width: 100vw; height: 100vh; background: #000;
+  width: 100vw; height: 100vh; background: var(--theme-bg);
   display: flex; align-items: center; justify-content: center;
   font-family: 'Courier New', monospace; overflow: hidden;
 }
@@ -196,21 +199,21 @@ const handleConsent = async (action) => {
 
 .consent-terminal {
   width: 600px; background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(0, 255, 0, 0.3);
-  box-shadow: 0 0 20px rgba(0, 255, 0, 0.1), inset 0 0 30px rgba(0, 255, 0, 0.05);
+  border: 1px solid rgba(var(--theme-accent-rgb), 0.3);
+  box-shadow: 0 0 20px rgba(var(--theme-accent-rgb), 0.1), inset 0 0 30px rgba(var(--theme-accent-rgb), 0.05);
   backdrop-filter: blur(3px); z-index: 2; overflow: hidden;
 }
 
 .terminal-header {
-  background: rgba(0, 255, 0, 0.2); border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+  background: rgba(var(--theme-accent-rgb), 0.2); border-bottom: 1px solid rgba(var(--theme-accent-rgb), 0.3);
   padding: 8px 15px; display: flex; justify-content: space-between; align-items: center;
 }
-.terminal-title { color: #0F0; text-shadow: 0 0 5px rgba(0, 255, 0, 0.5); }
+.terminal-title { color: var(--theme-accent); text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.5); }
 .terminal-controls { display: flex; gap: 8px; }
 .control { width: 12px; height: 12px; border-radius: 50%; background: #000; opacity: 0.5; }
 
 .terminal-content {
-  padding: 25px; color: #0F0; text-shadow: 0 0 3px rgba(0, 255, 0, 0.5);
+  padding: 25px; color: var(--theme-accent); text-shadow: 0 0 3px rgba(var(--theme-accent-rgb), 0.5);
 }
 
 .terminal-output { margin-bottom: 20px; }
@@ -226,7 +229,7 @@ const handleConsent = async (action) => {
 .scope-title { margin-bottom: 12px; font-size: 14px; }
 .scope-list { margin-left: 20px; }
 .scope-item { display: flex; align-items: center; gap: 10px; margin: 8px 0; font-size: 14px; }
-.scope-check { color: #0F0; font-weight: bold; }
+.scope-check { color: var(--theme-accent); font-weight: bold; }
 .scope-text { color: #ccc; }
 
 .error-text { color: #F00; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5); margin: 15px 0; font-size: 14px; }
@@ -236,14 +239,14 @@ const handleConsent = async (action) => {
 }
 
 button {
-  background: rgba(0, 255, 0, 0.1); border: 1px solid rgba(0, 255, 0, 0.3);
-  color: #0F0; text-shadow: 0 0 3px rgba(0, 255, 0, 0.5);
+  background: rgba(var(--theme-accent-rgb), 0.1); border: 1px solid rgba(var(--theme-accent-rgb), 0.3);
+  color: var(--theme-accent); text-shadow: 0 0 3px rgba(var(--theme-accent-rgb), 0.5);
   padding: 10px 25px; font-family: 'Courier New', monospace;
   font-size: 16px; cursor: pointer; transition: all 0.3s ease;
 }
 button:hover:not(:disabled) {
-  background: rgba(0, 255, 0, 0.2); border-color: rgba(0, 255, 0, 0.5);
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.2), inset 0 0 10px rgba(0, 255, 0, 0.2);
+  background: rgba(var(--theme-accent-rgb), 0.2); border-color: rgba(var(--theme-accent-rgb), 0.5);
+  box-shadow: 0 0 10px rgba(var(--theme-accent-rgb), 0.2), inset 0 0 10px rgba(var(--theme-accent-rgb), 0.2);
 }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
 
@@ -255,14 +258,14 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .consent-terminal::after {
   content: ""; position: absolute; top: 0; left: 0; right: 0; height: 100%;
-  background: linear-gradient(transparent 0%, rgba(0, 255, 0, 0.05) 50%, transparent 100%);
+  background: linear-gradient(transparent 0%, rgba(var(--theme-accent-rgb), 0.05) 50%, transparent 100%);
   animation: scan 8s linear infinite; pointer-events: none;
 }
 @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
 
 .copyright {
-  position: absolute; bottom: 20px; color: #0F0; font-size: 12px;
-  opacity: 0.6; z-index: 10; text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+  position: absolute; bottom: 20px; color: var(--theme-accent); font-size: 12px;
+  opacity: 0.6; z-index: 10; text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.3);
   font-family: 'Courier New', monospace;
 }
 

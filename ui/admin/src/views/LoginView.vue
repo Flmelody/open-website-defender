@@ -7,10 +7,44 @@
         <span class="terminal-title">{{
           t("login.system_access_required")
         }}</span>
-        <div class="status-dots">
-          <span class="dot red"></span>
-          <span class="dot yellow"></span>
-          <span class="dot green"></span>
+        <div class="terminal-tools">
+          <el-dropdown
+            trigger="click"
+            @command="handleThemeCommand"
+            class="theme-dropdown"
+            popper-class="login-theme-popper"
+          >
+            <span class="theme-switch">
+              THEME:
+              <span
+                class="theme-swatch"
+                :style="{ backgroundColor: currentThemeOption.accent }"
+              ></span>
+              {{ currentThemeOption.label }}
+              <el-icon class="el-icon--right"><arrow-down /></el-icon>
+            </span>
+            <template #dropdown>
+              <el-dropdown-menu class="login-theme-menu">
+                <el-dropdown-item
+                  v-for="theme in themeOptions"
+                  :key="theme.id"
+                  :command="theme.id"
+                  :class="{ active: currentTheme === theme.id }"
+                >
+                  <span
+                    class="theme-swatch menu-swatch"
+                    :style="{ backgroundColor: theme.accent }"
+                  ></span>
+                  {{ theme.label }}
+                </el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+          <div class="status-dots">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+          </div>
         </div>
       </div>
 
@@ -132,10 +166,13 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { ElMessage } from "element-plus";
 import { useI18n } from "vue-i18n";
+import { ArrowDown } from "@element-plus/icons-vue";
+import { getThemeColors, useTheme } from "@/composables/useTheme";
 
 const router = useRouter();
 const authStore = useAuthStore();
 const { t } = useI18n();
+const { themeOptions, currentTheme, setTheme } = useTheme();
 
 const formRef = ref();
 const loading = ref(false);
@@ -143,6 +180,11 @@ const matrixCanvas = ref<HTMLCanvasElement | null>(null);
 const totpInputRef = ref();
 const totpCode = ref("");
 const trustDevice = ref(false);
+const currentThemeOption = computed(
+  () =>
+    themeOptions.find((theme) => theme.id === currentTheme.value) ||
+    themeOptions[0],
+);
 
 const loginForm = reactive({
   username: "",
@@ -214,14 +256,27 @@ const handleCancel2FA = () => {
   trustDevice.value = false;
 };
 
+const handleThemeCommand = (command: string | number | object) => {
+  setTheme(String(command));
+};
+
 // Matrix Effect - Enhanced for Authenticity
 let intervalId: any;
+let matrixAccent = "#00ff00";
+
+const refreshMatrixTheme = () => {
+  matrixAccent = getThemeColors().accent;
+};
+
+watch(currentTheme, refreshMatrixTheme);
+
 const initMatrix = () => {
   const canvas = matrixCanvas.value;
   if (!canvas) return;
 
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
+  refreshMatrixTheme();
 
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -241,7 +296,7 @@ const initMatrix = () => {
     ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    ctx.fillStyle = "#0F0"; // Pure Matrix Green
+    ctx.fillStyle = matrixAccent;
     ctx.font = fontSize + "px monospace";
 
     for (let i = 0; i < drops.length; i++) {
@@ -251,7 +306,7 @@ const initMatrix = () => {
       if (Math.random() > 0.95) {
         ctx.fillStyle = "#FFF";
       } else {
-        ctx.fillStyle = "#0F0";
+        ctx.fillStyle = matrixAccent;
       }
 
       ctx.fillText(text, i * fontSize, drops[i] * fontSize);
@@ -284,7 +339,7 @@ onUnmounted(() => {
 .login-container {
   height: 100vh;
   width: 100vw;
-  background-color: #000;
+  background-color: var(--theme-bg);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -304,10 +359,10 @@ onUnmounted(() => {
 .login-glass-panel {
   width: 550px;
   /* Strong Green Glass Effect */
-  background: rgba(0, 50, 0, 0.6);
+  background: rgba(var(--theme-panel-rgb), 0.6);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 255, 0, 0.3);
-  box-shadow: 0 0 30px rgba(0, 255, 0, 0.2);
+  border: 1px solid rgba(var(--theme-accent-rgb), 0.3);
+  box-shadow: 0 0 30px rgba(var(--theme-accent-rgb), 0.2);
   position: relative;
   z-index: 10;
   padding: 30px;
@@ -318,16 +373,50 @@ onUnmounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+  border-bottom: 1px solid rgba(var(--theme-accent-rgb), 0.3);
   padding-bottom: 15px;
   margin-bottom: 20px;
 }
 
 .terminal-title {
-  color: #0f0;
+  color: var(--theme-accent);
   font-weight: bold;
   font-size: 14px;
-  text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+  text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.5);
+}
+
+.terminal-tools {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.theme-switch {
+  color: var(--theme-text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.theme-switch:hover {
+  color: var(--theme-accent);
+  text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.5);
+}
+
+.theme-swatch {
+  width: 10px;
+  height: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 8px currentColor;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.menu-swatch {
+  margin-right: 6px;
 }
 
 .status-dots {
@@ -355,11 +444,11 @@ onUnmounted(() => {
 }
 
 .system-status {
-  color: #0f0;
+  color: var(--theme-accent);
   margin-bottom: 30px;
   line-height: 1.8;
   font-size: 14px;
-  text-shadow: 0 0 3px rgba(0, 255, 0, 0.3);
+  text-shadow: 0 0 3px rgba(var(--theme-accent-rgb), 0.3);
 }
 
 .system-status p {
@@ -382,11 +471,11 @@ onUnmounted(() => {
 
 .input-label {
   display: block;
-  color: #0f0;
+  color: var(--theme-accent);
   font-weight: bold;
   margin-bottom: 8px;
   font-size: 14px;
-  text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+  text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.3);
 }
 
 .terminal-input {
@@ -395,9 +484,9 @@ onUnmounted(() => {
 
 /* Custom Glass Input Styles */
 :deep(.glass-input .el-input__wrapper) {
-  background-color: rgba(0, 20, 0, 0.5) !important;
+  background-color: rgba(var(--theme-panel-rgb), 0.5) !important;
   box-shadow: none !important;
-  border-bottom: 2px solid rgba(0, 255, 0, 0.3) !important;
+  border-bottom: 2px solid rgba(var(--theme-accent-rgb), 0.3) !important;
   border-radius: 0;
   padding: 0 10px;
   height: 45px;
@@ -406,9 +495,9 @@ onUnmounted(() => {
 
 :deep(.glass-input .el-input__wrapper.is-focus),
 :deep(.glass-input .el-input__wrapper:hover) {
-  background-color: rgba(0, 40, 0, 0.6) !important;
-  border-bottom-color: #0f0 !important;
-  box-shadow: 0 5px 15px rgba(0, 255, 0, 0.1) !important;
+  background-color: rgba(var(--theme-panel-rgb), 0.6) !important;
+  border-bottom-color: var(--theme-accent) !important;
+  box-shadow: 0 5px 15px rgba(var(--theme-accent-rgb), 0.1) !important;
 }
 
 :deep(.glass-input .el-input__inner) {
@@ -448,8 +537,8 @@ onUnmounted(() => {
 
 .login-button {
   background: transparent !important;
-  border: 1px solid #0f0 !important;
-  color: #0f0 !important;
+  border: 1px solid var(--theme-accent) !important;
+  color: var(--theme-accent) !important;
   font-family: "Courier New", monospace;
   font-weight: bold;
   font-size: 14px;
@@ -460,14 +549,14 @@ onUnmounted(() => {
 }
 
 .login-button:hover {
-  background: rgba(0, 255, 0, 0.2) !important;
-  box-shadow: 0 0 20px rgba(0, 255, 0, 0.4);
-  text-shadow: 0 0 8px #0f0;
+  background: rgba(var(--theme-accent-rgb), 0.2) !important;
+  box-shadow: 0 0 20px rgba(var(--theme-accent-rgb), 0.4);
+  text-shadow: 0 0 8px var(--theme-accent);
 }
 
 .back-button {
-  border-color: rgba(0, 255, 0, 0.4) !important;
-  color: rgba(0, 255, 0, 0.6) !important;
+  border-color: rgba(var(--theme-accent-rgb), 0.4) !important;
+  color: rgba(var(--theme-accent-rgb), 0.6) !important;
 }
 
 .trust-device-wrapper {
@@ -485,10 +574,10 @@ onUnmounted(() => {
 }
 
 .trust-checkbox-custom .checkbox-text {
-  color: #0f0;
+  color: var(--theme-accent);
   font-family: "Courier New", monospace;
   font-size: 14px;
-  text-shadow: 0 0 3px rgba(0, 255, 0, 0.3);
+  text-shadow: 0 0 3px rgba(var(--theme-accent-rgb), 0.3);
 }
 
 .trust-checkbox-custom .check-mark {
@@ -497,16 +586,49 @@ onUnmounted(() => {
 
 .trust-checkbox-custom .check-mark.checked {
   visibility: visible;
-  text-shadow: 0 0 5px #0f0;
+  text-shadow: 0 0 5px var(--theme-accent);
 }
 
 .copyright {
   position: absolute;
   bottom: 20px;
-  color: #0f0;
+  color: var(--theme-accent);
   font-size: 12px;
   opacity: 0.6;
   z-index: 10;
-  text-shadow: 0 0 5px rgba(0, 255, 0, 0.3);
+  text-shadow: 0 0 5px rgba(var(--theme-accent-rgb), 0.3);
+}
+
+:global(.login-theme-popper.el-popper) {
+  background: rgba(var(--theme-panel-rgb), 0.95) !important;
+  border: 1px solid var(--theme-border-soft) !important;
+}
+
+:global(.login-theme-popper .el-dropdown-menu) {
+  background: transparent !important;
+  border: none !important;
+  padding: 5px 0 !important;
+}
+
+:global(.login-theme-popper .el-dropdown-menu__item) {
+  color: var(--theme-text-dim) !important;
+  font-family: "Courier New", monospace !important;
+  font-size: 12px !important;
+}
+
+:global(.login-theme-popper .el-dropdown-menu__item:hover),
+:global(.login-theme-popper .el-dropdown-menu__item:focus) {
+  background-color: rgba(var(--theme-accent-rgb), 0.1) !important;
+  color: #fff !important;
+}
+
+:global(.login-theme-popper .el-dropdown-menu__item.active) {
+  color: var(--theme-accent) !important;
+  font-weight: bold !important;
+}
+
+:global(.login-theme-popper .el-popper__arrow::before) {
+  background: rgba(var(--theme-panel-rgb), 0.95) !important;
+  border: 1px solid var(--theme-border-soft) !important;
 }
 </style>

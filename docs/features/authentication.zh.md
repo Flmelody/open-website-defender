@@ -1,13 +1,13 @@
 # 认证与访问控制
 
-Website Defender 提供多层认证机制，满足不同场景下的访问控制需求。
+Castellum 提供多层认证机制，满足不同场景下的访问控制需求。
 
 ## JWT 令牌认证
 
 安全的登录验证机制，支持可配置的令牌过期时间。
 
 - 用户通过 `/login` 端点登录后获取 JWT 令牌（管理后台使用 `/admin-login`，仅管理员可用）
-- 令牌通过 `Defender-Authorization` 请求头传递
+- 令牌通过 `Castellum-Authorization` 请求头传递
 - 令牌过期时间可通过 `security.token-expiration-hours` 配置（默认 24 小时）
 - JWT 密钥可通过 `security.jwt-secret` 配置，留空则每次重启随机生成
 
@@ -16,7 +16,7 @@ Website Defender 提供多层认证机制，满足不同场景下的访问控制
 
 ## 双因素认证 (2FA)
 
-Website Defender 支持基于 TOTP 的双因素认证，适用于管理后台和 Guard 登录。启用 2FA 后，用户在输入用户名和密码后，还需要提供认证器应用（Google Authenticator、Authy 等）生成的 6 位验证码。
+Castellum 支持基于 TOTP 的双因素认证，适用于管理后台和 Guard 登录。启用 2FA 后，用户在输入用户名和密码后，还需要提供认证器应用（Google Authenticator、Authy 等）生成的 6 位验证码。
 
 - 支持通过管理后台为每个用户启用 2FA
 - 兼容主流 TOTP 认证器应用（Google Authenticator、Authy、Microsoft Authenticator 等）
@@ -73,7 +73,7 @@ security:
 
 为机器访问（CI/CD、自动化脚本等）设计的认证方式。
 
-- 通过可配置的 HTTP 请求头传递（默认 `Defender-Git-Token`）
+- 通过可配置的 HTTP 请求头传递（默认 `Castellum-Git-Token`）
 - 令牌格式为 `username:token`
 - Git Token 通过管理后台为每个用户生成
 - 支持[授权域](authorized-domains.md)检查
@@ -96,7 +96,7 @@ security:
 
 为 API 和机器访问设计的简化认证方式。
 
-- 通过可配置的 HTTP 请求头传递（默认 `Defender-License`）
+- 通过可配置的 HTTP 请求头传递（默认 `Castellum-License`）
 - 令牌以 SHA-256 哈希形式安全存储，原始令牌仅在生成时显示一次
 - 通过管理后台生成、激活和吊销
 - 详细管理说明请参阅 [用户管理](user-management.md)
@@ -137,7 +137,7 @@ security:
 
 ## 认证验证流程
 
-当请求到达 `/auth` 端点时，Defender 按以下顺序执行认证检查：
+当请求到达 `/auth` 端点时，Castellum 按以下顺序执行认证检查：
 
 ```mermaid
 graph TD

@@ -8,12 +8,12 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
-	"open-website-defender/internal/infrastructure/config"
-	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/pkg"
-	"open-website-defender/internal/usecase/iplist"
-	"open-website-defender/internal/usecase/system"
-	"open-website-defender/internal/usecase/threat"
+	"castellum/internal/infrastructure/config"
+	"castellum/internal/infrastructure/logging"
+	"castellum/internal/pkg"
+	"castellum/internal/usecase/iplist"
+	"castellum/internal/usecase/system"
+	"castellum/internal/usecase/threat"
 	"strings"
 	"text/template"
 	"time"
@@ -106,7 +106,7 @@ func JSChallenge() gin.HandlerFunc {
 		}
 
 		// Check if client already has a valid pass cookie
-		passCookie, err := c.Cookie("_defender_pow")
+		passCookie, err := c.Cookie("_castellum_pow")
 		if err == nil && passCookie != "" {
 			parts := strings.SplitN(passCookie, "~", 2)
 			if len(parts) == 2 {
@@ -126,7 +126,7 @@ func JSChallenge() gin.HandlerFunc {
 				}
 			}
 		} else {
-			logging.Sugar.Debugf("JS Challenge: no _defender_pow cookie for %s %s", c.Request.Method, c.Request.URL.Path)
+			logging.Sugar.Debugf("JS Challenge: no _castellum_pow cookie for %s %s", c.Request.Method, c.Request.URL.Path)
 		}
 
 		// In "suspicious" mode, only challenge IPs with elevated threat score
@@ -143,7 +143,7 @@ func JSChallenge() gin.HandlerFunc {
 		}
 
 		// Check if client is submitting a solution
-		solutionCookie, err := c.Cookie("_defender_challenge")
+		solutionCookie, err := c.Cookie("_castellum_challenge")
 		if err == nil && solutionCookie != "" {
 			// Solution format: nonce:solution:signature
 			parts := strings.SplitN(solutionCookie, ":", 3)
@@ -175,9 +175,9 @@ func JSChallenge() gin.HandlerFunc {
 						passValue := passData + "~" + passSig
 
 						c.SetSameSite(http.SameSiteLaxMode)
-						c.SetCookie("_defender_pow", passValue, cookieTTL, "/", "", config.Get().Security.SecureCookies, true)
+						c.SetCookie("_castellum_pow", passValue, cookieTTL, "/", "", config.Get().Security.SecureCookies, true)
 						// Clear challenge cookie
-						c.SetCookie("_defender_challenge", "", -1, "/", "", config.Get().Security.SecureCookies, false)
+						c.SetCookie("_castellum_challenge", "", -1, "/", "", config.Get().Security.SecureCookies, false)
 
 						// Redirect to same URL to proceed normally
 						c.Redirect(http.StatusFound, c.Request.URL.String())

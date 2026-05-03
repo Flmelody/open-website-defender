@@ -5,7 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
-	"open-website-defender/internal/infrastructure/config"
+	"castellum/internal/infrastructure/config"
 	"sync"
 )
 

@@ -1,14 +1,14 @@
-# Website Defender
+# Castellum
 
 ## 几分钟内保护你的内部应用
 
-**Website Defender** 是一个轻量级、开源的 WAF（Web 应用防火墙），为任何 Web 应用添加统一认证、访问控制和安全策略 -- 无需修改一行应用代码。
+**Castellum** 是一个轻量级、开源的 WAF（Web 应用防火墙），为任何 Web 应用添加统一认证、访问控制和安全策略 -- 无需修改一行应用代码。
 
 一次部署，全面保护：代码仓库、CI/CD 工具、监控面板、包管理器以及任何其他 Web 服务。
 
 ---
 
-## 为什么选择 Website Defender？
+## 为什么选择 Castellum？
 
 企业每天都在将内部工具暴露到互联网。这些应用通常面临以下问题：
 
@@ -16,19 +16,19 @@
 - **暴力破解风险** -- 登录端点没有速率限制
 - **安全加固不足** -- 缺少 WAF 规则、安全响应头和 IP 访问控制
 
-Website Defender 通过一个与 Nginx 透明集成的单一可执行文件，一次解决所有这些问题。
+Castellum 通过一个与 Nginx 透明集成的单一可执行文件，一次解决所有这些问题。
 
 ---
 
 ## 工作原理
 
-Website Defender 利用 Nginx 的 `auth_request` 模块，在请求到达你的应用之前进行拦截验证：
+Castellum 利用 Nginx 的 `auth_request` 模块，在请求到达你的应用之前进行拦截验证：
 
 ```mermaid
 graph LR
     User[用户 / 浏览器] --> Nginx
-    Nginx -->|1. 认证检查| Defender[Website Defender]
-    Defender -->|2. 允许 / 拒绝| Nginx
+    Nginx -->|1. 认证检查| Castellum[Castellum]
+    Castellum -->|2. 允许 / 拒绝| Nginx
     Nginx -->|3. 转发请求| App[你的应用]
 ```
 
@@ -44,7 +44,7 @@ graph LR
 
 为不同使用场景提供多种认证方式 -- 浏览器会话、CI/CD 管道、API 集成：
 
-- **JWT 令牌** -- 安全登录，支持可配置过期时间，通过 `Defender-Authorization` 请求头传递
+- **JWT 令牌** -- 安全登录，支持可配置过期时间，通过 `Castellum-Authorization` 请求头传递
 - **Cookie 认证** -- 通过 `flmelody.token` Cookie 实现无缝浏览器会话
 - **Git Token** -- 机器访问，格式 `username:token`，适合 CI/CD
 - **许可证令牌** -- API 访问，令牌以 SHA-256 哈希安全存储
@@ -98,11 +98,11 @@ graph LR
 
 ### 防护页面（登录挑战）
 
-![防护页面](assets/images/defender-guard.jpg)
+![防护页面](assets/images/castellum-guard.jpg)
 
 ### 管理后台
 
-![管理后台](assets/images/defender-admin.png)
+![管理后台](assets/images/castellum-admin.png)
 
 ## 演示视频
 
@@ -117,8 +117,8 @@ graph LR
 **1. 构建**
 
 ```bash
-git clone https://github.com/Flmelody/open-website-defender.git
-cd open-website-defender
+git clone https://github.com/Flmelody/castellum.git
+cd castellum
 ./scripts/build.sh
 ```
 
@@ -160,7 +160,7 @@ location = /auth {
 ## 浏览文档
 
 - [快速开始](getting-started/index.md) -- 构建、运行并连接 Nginx
-- [架构说明](architecture/index.md) -- Defender 如何与 Nginx 协同工作及中间件链
+- [架构说明](architecture/index.md) -- Castellum 如何与 Nginx 协同工作及中间件链
 - [功能特性](features/authentication.md) -- 认证、WAF、IP 名单、地域封锁、速率限制等
 - [配置说明](configuration/index.md) -- 运行时 config.yaml 配置参考
 - [API 参考](api-reference/index.md) -- 完整的 REST API 接口文档

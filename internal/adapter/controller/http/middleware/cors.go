@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"net/http"
-	"open-website-defender/internal/infrastructure/config"
+	"castellum/internal/infrastructure/config"
 
 	"github.com/gin-gonic/gin"
 )
@@ -55,7 +55,7 @@ func CORS() gin.HandlerFunc {
 			}
 		}
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Defender-Authorization, X-Requested-With, Cookie")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Castellum-Authorization, X-Requested-With, Cookie")
 		c.Writer.Header().Set("Access-Control-Max-Age", "86400")
 
 		if c.Request.Method == http.MethodOptions {

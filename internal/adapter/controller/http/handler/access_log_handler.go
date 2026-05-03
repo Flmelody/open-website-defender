@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"open-website-defender/internal/adapter/controller/http/request"
-	"open-website-defender/internal/adapter/controller/http/response"
-	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/usecase/accesslog"
+	"castellum/internal/adapter/controller/http/request"
+	"castellum/internal/adapter/controller/http/response"
+	"castellum/internal/infrastructure/logging"
+	"castellum/internal/usecase/accesslog"
 	"time"
 
 	"github.com/gin-gonic/gin"

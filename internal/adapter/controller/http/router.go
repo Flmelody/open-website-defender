@@ -1,9 +1,9 @@
 package http
 
 import (
-	"open-website-defender/internal/adapter/controller/http/handler"
-	"open-website-defender/internal/adapter/controller/http/middleware"
-	"open-website-defender/internal/infrastructure/config"
+	"castellum/internal/adapter/controller/http/handler"
+	"castellum/internal/adapter/controller/http/middleware"
+	"castellum/internal/infrastructure/config"
 
 	"github.com/gin-gonic/gin"
 )

@@ -1,6 +1,6 @@
 # 开发指南
 
-本页面介绍如何从源码构建和开发 Website Defender。
+本页面介绍如何从源码构建和开发 Castellum。
 
 ## 环境要求
 
@@ -18,8 +18,8 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/Flmelody/open-website-defender.git
-cd open-website-defender
+git clone https://github.com/Flmelody/castellum.git
+cd castellum
 
 # 安装前端依赖
 cd ui/admin && npm install && cd ../..
@@ -104,7 +104,7 @@ cd ui/guard && npm run lint
 ## 项目结构
 
 ```
-open-website-defender/
+castellum/
 ├── main.go                    # 应用入口
 ├── config/
 │   └── config.yaml            # 运行时配置文件
@@ -137,7 +137,7 @@ open-website-defender/
 - **Clean Architecture（整洁架构）**：代码分层为 adapter、domain、infrastructure、usecase
 - **单例服务**：使用 `sync.Once` 模式初始化服务（如 `GetAuthService()`、`GetIpBlackListService()`）
 - **仓储接口**：定义在 `internal/usecase/interface/repository.go`，实现在 `internal/adapter/repository/`
-- **JWT 认证**：令牌通过 `Defender-Authorization` 请求头或 `flmelody.token` Cookie 传递
+- **JWT 认证**：令牌通过 `Castellum-Authorization` 请求头或 `flmelody.token` Cookie 传递
 
 ## 测试
 

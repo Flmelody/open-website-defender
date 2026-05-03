@@ -2,7 +2,7 @@ package middleware
 
 import (
 	"net/http"
-	"open-website-defender/internal/adapter/controller/http/response"
+	"castellum/internal/adapter/controller/http/response"
 
 	"github.com/gin-gonic/gin"
 )

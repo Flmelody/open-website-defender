@@ -1,10 +1,10 @@
 # Nginx Setup
 
-Website Defender integrates with Nginx via the `auth_request` module. This page provides the complete Nginx configuration for using Website Defender as an authentication provider.
+Castellum integrates with Nginx via the `auth_request` module. This page provides the complete Nginx configuration for using Castellum as an authentication provider.
 
 ## How auth_request Works
 
-The Nginx `auth_request` module makes an internal subrequest to Website Defender's `/auth` endpoint for every incoming request. Based on the response:
+The Nginx `auth_request` module makes an internal subrequest to Castellum's `/auth` endpoint for every incoming request. Based on the response:
 
 - **200 OK**: Nginx proxies the request to the upstream application
 - **401 Unauthorized**: The user is redirected to the guard (login) page
@@ -17,7 +17,7 @@ server {
     listen 80;
     server_name app.example.com;
 
-    # All requests require authentication via Website Defender
+    # All requests require authentication via Castellum
     location / {
         auth_request /auth;
 
@@ -32,7 +32,7 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
     }
 
-    # Internal auth subrequest to Website Defender
+    # Internal auth subrequest to Castellum
     location = /auth {
         internal;
         proxy_pass http://127.0.0.1:9999/wall/auth;
@@ -77,15 +77,15 @@ location = /auth {
 | Directive | Purpose |
 |-----------|---------|
 | `internal` | Ensures this location can only be accessed via internal subrequests, not directly by clients |
-| `proxy_pass` | Forwards the auth check to Website Defender's `/auth` endpoint |
-| `X-Forwarded-Host` | Passes the original requested domain so Defender can perform [authorized domain](../features/authorized-domains.md) checks |
+| `proxy_pass` | Forwards the auth check to Castellum's `/auth` endpoint |
+| `X-Forwarded-Host` | Passes the original requested domain so Castellum can perform [authorized domain](../features/authorized-domains.md) checks |
 | `X-Forwarded-For` | Passes the real client IP for [IP list](../features/ip-lists.md) checks and [rate limiting](../features/rate-limiting.md) |
-| `X-Original-URI` | Passes the original request URI so Defender can detect git requests for git token authentication |
+| `X-Original-URI` | Passes the original request URI so Castellum can detect git requests for git token authentication |
 | `proxy_pass_request_body off` | The auth check does not need the request body -- this improves performance |
 | `Content-Length ""` | Required when disabling request body forwarding |
 
 !!! warning "X-Forwarded-Host is Required for Authorized Domain Checks"
-    If you use [authorized domain](../features/authorized-domains.md) access control, the `proxy_set_header X-Forwarded-Host $host;` directive is essential. Without it, Defender cannot determine which domain the user is trying to access.
+    If you use [authorized domain](../features/authorized-domains.md) access control, the `proxy_set_header X-Forwarded-Host $host;` directive is essential. Without it, Castellum cannot determine which domain the user is trying to access.
 
 ### The auth_request Directive
 
@@ -96,11 +96,11 @@ location / {
 }
 ```
 
-This tells Nginx to check with Website Defender before serving any content. The auth subrequest carries the original request's headers (including cookies), allowing Defender to validate the user's session.
+This tells Nginx to check with Castellum before serving any content. The auth subrequest carries the original request's headers (including cookies), allowing Castellum to validate the user's session.
 
 ## Multiple Protected Applications
 
-To protect multiple applications behind the same Defender instance, create a server block for each:
+To protect multiple applications behind the same Castellum instance, create a server block for each:
 
 ```nginx
 # Application 1
@@ -147,12 +147,12 @@ server {
 !!! tip "Use Authorized Domain Access Control"
     When protecting multiple applications, use [authorized domains](../features/authorized-domains.md) to control which users can access which services. For example, you can restrict a developer to `app.example.com` while giving an operations engineer access to `*.example.com`.
 
-## Defender Admin and Guard Pages
+## Castellum Admin and Guard Pages
 
-The Defender admin dashboard and guard page are served directly by the Go backend. You may optionally proxy them through Nginx as well:
+The Castellum admin dashboard and guard page are served directly by the Go backend. You may optionally proxy them through Nginx as well:
 
 ```nginx
-# Website Defender admin and guard
+# Castellum admin and guard
 server {
     listen 80;
     server_name defender.example.com;
@@ -166,5 +166,5 @@ server {
 }
 ```
 
-!!! note "Do Not auth_request the Defender Itself"
-    The Defender's own admin and guard pages should **not** be behind `auth_request`, as this would create a circular dependency. The admin dashboard has its own built-in authentication.
+!!! note "Do Not auth_request the Castellum Itself"
+    The Castellum's own admin and guard pages should **not** be behind `auth_request`, as this would create a circular dependency. The admin dashboard has its own built-in authentication.

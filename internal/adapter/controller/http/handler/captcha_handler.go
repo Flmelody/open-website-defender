@@ -6,12 +6,12 @@ import (
 	"strings"
 	"time"
 
-	"open-website-defender/internal/adapter/controller/http/response"
-	"open-website-defender/internal/infrastructure/config"
-	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/pkg"
-	"open-website-defender/internal/usecase/bot"
-	"open-website-defender/internal/usecase/system"
+	"castellum/internal/adapter/controller/http/response"
+	"castellum/internal/infrastructure/config"
+	"castellum/internal/infrastructure/logging"
+	"castellum/internal/pkg"
+	"castellum/internal/usecase/bot"
+	"castellum/internal/usecase/system"
 
 	"github.com/gin-gonic/gin"
 )

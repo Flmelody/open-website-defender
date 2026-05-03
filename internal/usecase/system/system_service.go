@@ -2,19 +2,19 @@ package system
 
 import (
 	"encoding/json"
-	"open-website-defender/internal/adapter/repository"
-	"open-website-defender/internal/domain/entity"
-	"open-website-defender/internal/infrastructure/cache"
-	"open-website-defender/internal/infrastructure/config"
-	"open-website-defender/internal/infrastructure/database"
-	"open-website-defender/internal/infrastructure/event"
-	_interface "open-website-defender/internal/usecase/interface"
+	"castellum/internal/adapter/repository"
+	"castellum/internal/domain/entity"
+	"castellum/internal/infrastructure/cache"
+	"castellum/internal/infrastructure/config"
+	"castellum/internal/infrastructure/database"
+	"castellum/internal/infrastructure/event"
+	_interface "castellum/internal/usecase/interface"
 	"sync"
 )
 
 const (
-	defaultGitTokenHeader         = "Defender-Git-Token"
-	defaultLicenseHeader          = "Defender-License"
+	defaultGitTokenHeader         = "Castellum-Git-Token"
+	defaultLicenseHeader          = "Castellum-License"
 	defaultAccessLogRetentionDays = 30
 	minAccessLogRetentionDays     = 1
 	maxAccessLogRetentionDays     = 3650

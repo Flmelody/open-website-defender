@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"open-website-defender/internal/adapter/controller/http/request"
-	"open-website-defender/internal/adapter/controller/http/response"
-	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/pkg"
-	"open-website-defender/internal/usecase/iplist"
+	"castellum/internal/adapter/controller/http/request"
+	"castellum/internal/adapter/controller/http/response"
+	"castellum/internal/infrastructure/logging"
+	"castellum/internal/pkg"
+	"castellum/internal/usecase/iplist"
 	"strconv"
 	"strings"
 

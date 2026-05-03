@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"open-website-defender/internal/domain/entity"
+	"castellum/internal/domain/entity"
 	"time"
 
 	"gorm.io/gorm"

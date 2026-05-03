@@ -2,10 +2,10 @@
 
 ## 概述
 
-Website Defender 提供 RESTful API 用于管理所有功能。所有路由均以可配置的 `ROOT_PATH`（默认 `/wall`）为前缀。
+Castellum 提供 RESTful API 用于管理所有功能。所有路由均以可配置的 `ROOT_PATH`（默认 `/wall`）为前缀。
 
 !!! info "认证说明"
-    标记为"需要鉴权"的 API 需要在请求中携带有效的 JWT 令牌（通过 `Defender-Authorization` 请求头或 `flmelody.token` Cookie）。
+    标记为"需要鉴权"的 API 需要在请求中携带有效的 JWT 令牌（通过 `Castellum-Authorization` 请求头或 `flmelody.token` Cookie）。
 
 ## 完整 API 参考
 

@@ -1,6 +1,6 @@
 # Deployment
 
-Website Defender is designed for simple, single-binary deployment with minimal dependencies.
+Castellum is designed for simple, single-binary deployment with minimal dependencies.
 
 ## Deployment Model
 
@@ -16,17 +16,17 @@ Website Defender is designed for simple, single-binary deployment with minimal d
 
 ### Option A: Download Pre-built Binary
 
-Download the latest release for your platform from [GitHub Releases](https://github.com/Flmelody/open-website-defender/releases). The release archive contains the binary and a default `config.yaml`:
+Download the latest release for your platform from [GitHub Releases](https://github.com/Flmelody/castellum/releases). The release archive contains the binary and a default `config.yaml`:
 
 ```bash
-tar -xzf open-website-defender-linux-amd64.tar.gz
-cd open-website-defender-linux-amd64
+tar -xzf castellum-linux-amd64.tar.gz
+cd castellum-linux-amd64
 
 # Edit runtime config as needed
 vim config/config.yaml
 
 # Run
-./open-website-defender
+./castellum
 ```
 
 Pre-built binaries use the default paths (`/wall`, `/admin`, `/guard`). If you need custom paths, build from source (see Option B).
@@ -50,8 +50,8 @@ GUARD_PATH=/guard
 #### 2. Build the Binary
 
 ```bash
-git clone https://github.com/Flmelody/open-website-defender.git
-cd open-website-defender
+git clone https://github.com/Flmelody/castellum.git
+cd castellum
 ./scripts/build.sh
 ```
 
@@ -114,11 +114,11 @@ server:
 
 ### 4. Configure Nginx
 
-Set up Nginx to use Website Defender as the auth provider. See [Nginx Setup](nginx-setup.md) for the complete configuration guide.
+Set up Nginx to use Castellum as the auth provider. See [Nginx Setup](nginx-setup.md) for the complete configuration guide.
 
 ## Trusted Proxies
 
-When running behind a reverse proxy (such as Nginx), configure the trusted proxy IPs so that Website Defender correctly identifies client IPs from the `X-Forwarded-For` header:
+When running behind a reverse proxy (such as Nginx), configure the trusted proxy IPs so that Castellum correctly identifies client IPs from the `X-Forwarded-For` header:
 
 ```yaml
 trustedProxies:
@@ -132,7 +132,7 @@ trustedProxies:
 
 ## Graceful Shutdown
 
-Website Defender handles `SIGINT` and `SIGTERM` signals for graceful shutdown. When a shutdown signal is received:
+Castellum handles `SIGINT` and `SIGTERM` signals for graceful shutdown. When a shutdown signal is received:
 
 1. The server stops accepting new connections
 2. In-flight requests are allowed to complete
@@ -146,7 +146,7 @@ Example `systemd` unit file:
 
 ```ini
 [Unit]
-Description=Website Defender WAF
+Description=Castellum WAF
 After=network.target
 
 [Service]

@@ -1,6 +1,6 @@
 package _interface
 
-import "open-website-defender/internal/domain/entity"
+import "castellum/internal/domain/entity"
 
 type UserRepository interface {
 	Save(user *entity.User) error

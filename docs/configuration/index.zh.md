@@ -1,6 +1,6 @@
 # 配置说明
 
-Website Defender 支持通过 `config/config.yaml` 配置文件进行运行时配置。
+Castellum 支持通过 `config/config.yaml` 配置文件进行运行时配置。
 
 ## 运行时配置参考
 
@@ -19,7 +19,7 @@ database:
   # PostgreSQL 配置（driver 为 postgres 时使用）
   # host: localhost
   # port: 5432
-  # name: open_website_defender
+  # name: castellum
   # user: postgres
   # password: your_password
   # ssl-mode: disable
@@ -27,7 +27,7 @@ database:
   # MySQL 配置（driver 为 mysql 时使用）
   # host: localhost
   # port: 3306
-  # name: open_website_defender
+  # name: castellum
   # user: root
   # password: your_password
 
@@ -121,8 +121,9 @@ server:
 # 默认用户凭据（首次启动时创建）
 # ==================================================
 default-user:
-  username: defender
-  password: defender
+  username: castellum
+  # 留空则首次启动自动生成强随机密码，并写入 ./data/bootstrap-admin-credentials（权限 0600）
+  password: ""
 
 # ==================================================
 # OAuth2/OIDC 提供者配置
@@ -222,7 +223,7 @@ trustedProxies:
 
 ### 数据库
 
-配置数据库后端。Website Defender 支持 SQLite、PostgreSQL 和 MySQL。
+配置数据库后端。Castellum 支持 SQLite、PostgreSQL 和 MySQL。
 
 详细的多数据库配置示例请参阅 [数据库](database.md)。
 
@@ -294,11 +295,11 @@ trustedProxies:
 
 | 配置项 | 默认值 | 说明 |
 |--------|--------|------|
-| `username` | `defender` | 首次启动时创建的默认管理员用户名 |
-| `password` | `defender` | 首次启动时创建的默认管理员密码 |
+| `username` | `castellum` | 首次启动时创建的默认管理员用户名 |
+| `password` | *（留空）* | 留空时自动生成强随机密码，写入 `./data/bootstrap-admin-credentials`（权限 `0600`）；启动日志只打印该文件路径。如需指定固定密码可在此配置。 |
 
 !!! warning "修改默认凭据"
-    首次登录后请立即修改默认用户名和密码。
+    首次登录后请立即修改密码并删除 `./data/bootstrap-admin-credentials` 文件。
 
 ### 威胁检测
 

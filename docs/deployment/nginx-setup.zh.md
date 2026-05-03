@@ -2,7 +2,7 @@
 
 ## 概述
 
-Website Defender 设计为配合 Nginx 的 `auth_request` 模块使用。本页面提供完整的 Nginx 配置示例和详细说明。
+Castellum 设计为配合 Nginx 的 `auth_request` 模块使用。本页面提供完整的 Nginx 配置示例和详细说明。
 
 ## 完整配置示例
 
@@ -12,7 +12,7 @@ server {
     server_name app.example.com;
 
     location / {
-        # 在转发请求之前，先向 Defender 发起认证子请求
+        # 在转发请求之前，先向 Castellum 发起认证子请求
         auth_request /auth;
 
         # 认证失败时的错误处理
@@ -25,12 +25,12 @@ server {
         proxy_pass http://app-backend;
     }
 
-    # Defender 认证端点（内部子请求）
+    # Castellum 认证端点（内部子请求）
     location = /auth {
         # 标记为内部请求，外部无法直接访问
         internal;
 
-        # 转发认证请求到 Defender
+        # 转发认证请求到 Castellum
         proxy_pass http://127.0.0.1:9999/wall/auth;
 
         # 传递原始域名（用于授权域检查）
@@ -83,10 +83,10 @@ internal;
 proxy_set_header X-Forwarded-Host $host;
 ```
 
-将客户端请求的原始域名（`Host` 请求头）传递给 Defender。Defender 使用此信息进行[授权域](../features/authorized-domains.md)检查。
+将客户端请求的原始域名（`Host` 请求头）传递给 Castellum。Castellum 使用此信息进行[授权域](../features/authorized-domains.md)检查。
 
 !!! warning "必须配置"
-    如果使用了授权域访问控制功能，此配置项是必需的。没有此配置，Defender 将无法正确判断请求的目标域名。
+    如果使用了授权域访问控制功能，此配置项是必需的。没有此配置，Castellum 将无法正确判断请求的目标域名。
 
 ### X-Forwarded-For
 
@@ -94,7 +94,7 @@ proxy_set_header X-Forwarded-Host $host;
 proxy_set_header X-Forwarded-For $remote_addr;
 ```
 
-将客户端的真实 IP 地址传递给 Defender。Defender 使用此信息进行：
+将客户端的真实 IP 地址传递给 Castellum。Castellum 使用此信息进行：
 
 - IP 黑名单/白名单检查
 - 速率限制
@@ -102,7 +102,7 @@ proxy_set_header X-Forwarded-For $remote_addr;
 - 地域封锁
 
 !!! warning "真实 IP 重要性"
-    如果不配置此项，Defender 看到的将是 Nginx 的 IP 地址（通常是 `127.0.0.1`），导致 IP 相关的安全功能全部失效。
+    如果不配置此项，Castellum 看到的将是 Nginx 的 IP 地址（通常是 `127.0.0.1`），导致 IP 相关的安全功能全部失效。
 
 ### X-Original-URI
 
@@ -110,7 +110,7 @@ proxy_set_header X-Forwarded-For $remote_addr;
 proxy_set_header X-Original-URI $request_uri;
 ```
 
-将客户端的原始请求 URI 传递给 Defender。Defender 使用此信息识别 Git HTTP 请求，仅对 Git 请求进行 Git Token 认证。
+将客户端的原始请求 URI 传递给 Castellum。Castellum 使用此信息识别 Git HTTP 请求，仅对 Git 请求进行 Git Token 认证。
 
 ### proxy_pass_request_body off
 
@@ -123,7 +123,7 @@ proxy_set_header Content-Length "";
 
 ## 多域名配置
 
-如果您使用同一个 Defender 实例保护多个内部服务，可以为每个域名配置独立的 server 块：
+如果您使用同一个 Castellum 实例保护多个内部服务，可以为每个域名配置独立的 server 块：
 
 ```nginx
 # 服务 1
@@ -174,6 +174,6 @@ server {
 
 ## 相关页面
 
-- [架构说明](../architecture/index.md) - 了解 Defender 与 Nginx 的集成架构
+- [架构说明](../architecture/index.md) - 了解 Castellum 与 Nginx 的集成架构
 - [授权域管理](../features/authorized-domains.md) - 多租户访问控制
 - [部署指南](index.md) - 部署概述和检查清单

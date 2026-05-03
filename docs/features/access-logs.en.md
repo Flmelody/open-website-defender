@@ -1,6 +1,6 @@
 # Access Logs & Analytics
 
-Website Defender logs all incoming requests and provides a dashboard for analyzing traffic patterns and identifying blocked threats.
+Castellum logs all incoming requests and provides a dashboard for analyzing traffic patterns and identifying blocked threats.
 
 ## Logged Fields
 

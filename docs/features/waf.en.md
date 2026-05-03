@@ -1,6 +1,6 @@
 # Web Application Firewall (WAF)
 
-Website Defender includes a regex-based Web Application Firewall that inspects incoming requests for common attack patterns including SQL injection, cross-site scripting (XSS), and path traversal.
+Castellum includes a regex-based Web Application Firewall that inspects incoming requests for common attack patterns including SQL injection, cross-site scripting (XSS), and path traversal.
 
 ## How It Works
 
@@ -23,7 +23,7 @@ Each WAF rule supports one of two actions:
 
 ## Built-in Rules
 
-Website Defender ships with **9 built-in rules** covering the most common web attack categories:
+Castellum ships with **9 built-in rules** covering the most common web attack categories:
 
 ### SQL Injection
 
@@ -64,7 +64,7 @@ Custom rules follow the same structure:
 
 ## Semantic Analysis Engine
 
-Beyond regex-based pattern matching, Website Defender includes a **semantic analysis engine** that understands the structure of SQL and HTML rather than relying solely on string patterns. This provides a deeper detection layer that catches attacks designed to bypass regex rules while significantly reducing false positives.
+Beyond regex-based pattern matching, Castellum includes a **semantic analysis engine** that understands the structure of SQL and HTML rather than relying solely on string patterns. This provides a deeper detection layer that catches attacks designed to bypass regex rules while significantly reducing false positives.
 
 ### How It Works
 

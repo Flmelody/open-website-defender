@@ -3,10 +3,10 @@ package threat
 import (
 	"encoding/binary"
 	"fmt"
-	"open-website-defender/internal/infrastructure/cache"
-	"open-website-defender/internal/infrastructure/config"
-	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/usecase/iplist"
+	"castellum/internal/infrastructure/cache"
+	"castellum/internal/infrastructure/config"
+	"castellum/internal/infrastructure/logging"
+	"castellum/internal/usecase/iplist"
 	"sync"
 	"time"
 )

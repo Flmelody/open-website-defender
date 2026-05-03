@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"open-website-defender/internal/infrastructure/config"
+	"castellum/internal/infrastructure/config"
 
 	"github.com/gin-gonic/gin"
 )

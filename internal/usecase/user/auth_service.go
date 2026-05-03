@@ -14,14 +14,14 @@ import (
 	"sync"
 	"time"
 
-	"open-website-defender/internal/adapter/repository"
-	"open-website-defender/internal/domain/entity"
-	domainError "open-website-defender/internal/domain/error"
-	"open-website-defender/internal/infrastructure/cache"
-	"open-website-defender/internal/infrastructure/config"
-	"open-website-defender/internal/infrastructure/database"
-	"open-website-defender/internal/pkg"
-	_interface "open-website-defender/internal/usecase/interface"
+	"castellum/internal/adapter/repository"
+	"castellum/internal/domain/entity"
+	domainError "castellum/internal/domain/error"
+	"castellum/internal/infrastructure/cache"
+	"castellum/internal/infrastructure/config"
+	"castellum/internal/infrastructure/database"
+	"castellum/internal/pkg"
+	_interface "castellum/internal/usecase/interface"
 
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
@@ -403,7 +403,7 @@ func (s *AuthService) SetupTotp(userID uint) (*TotpSetupOutputDTO, error) {
 	}
 
 	key, err := totp.Generate(totp.GenerateOpts{
-		Issuer:      "OpenWebsiteDefender",
+		Issuer:      "Castellum",
 		AccountName: user.Username,
 	})
 	if err != nil {

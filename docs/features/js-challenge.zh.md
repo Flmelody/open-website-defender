@@ -1,6 +1,6 @@
 # JS 挑战（工作量证明）
 
-Website Defender 可以向访问者提供基于 JavaScript 的工作量证明（Proof-of-Work）挑战，有效过滤无法执行 JavaScript 的自动化机器人和简单脚本。
+Castellum 可以向访问者提供基于 JavaScript 的工作量证明（Proof-of-Work）挑战，有效过滤无法执行 JavaScript 的自动化机器人和简单脚本。
 
 ## 工作原理
 
@@ -26,7 +26,7 @@ Website Defender 可以向访问者提供基于 JavaScript 的工作量证明（
 以下请求会自动跳过 JS 挑战：
 
 - **白名单 IP** -- 白名单中的 IP 始终免于挑战
-- **已认证请求** -- 携带有效 `Defender-Authorization` 请求头的请求
+- **已认证请求** -- 携带有效 `Castellum-Authorization` 请求头的请求
 - **Git/许可证令牌** -- 携带配置的 Git 或许可证令牌请求头的请求
 - **非浏览器客户端** -- 被识别为 `git`、`curl`、`wget` 等的客户端
 - **Auth 子请求** -- Nginx `auth_request` 使用的 `/auth` 端点

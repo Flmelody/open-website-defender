@@ -1,14 +1,14 @@
 # Docker 部署
 
-Website Defender 提供了多阶段构建的 Dockerfile，可构建包含所有前端资源和 Go 二进制文件的最小化容器镜像。
+Castellum 提供了多阶段构建的 Dockerfile，可构建包含所有前端资源和 Go 二进制文件的最小化容器镜像。
 
 ## 快速开始
 
 ### 使用 Docker Compose（推荐）
 
 ```bash
-git clone https://github.com/Flmelody/open-website-defender.git
-cd open-website-defender
+git clone https://github.com/Flmelody/castellum.git
+cd castellum
 
 # 复制并编辑环境变量
 cp .env.example .env
@@ -153,7 +153,7 @@ database:
   driver: postgres
   host: postgres
   port: 5432
-  name: open_website_defender
+  name: castellum
   user: postgres
   password: changeme
 ```
@@ -219,7 +219,7 @@ services:
 
 !!! tip "生产环境检查清单"
     - 在 `config.yaml` 中设置稳定的 `security.jwt-secret`
-    - 修改默认凭据（`defender/defender`）
+    - 修改默认凭据（`castellum`/auto-generated）
     - 使用 PostgreSQL 或 MySQL 以获得更好的并发性能
     - 配置 `trustedProxies` 包含反向代理的 IP
     - 设置明确的 `security.cors.allowed-origins`

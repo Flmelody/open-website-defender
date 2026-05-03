@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
-	"open-website-defender/internal/infrastructure/config"
-	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/usecase/system"
+	"castellum/internal/infrastructure/config"
+	"castellum/internal/infrastructure/logging"
+	"castellum/internal/usecase/system"
 	"time"
 )
 

@@ -1,6 +1,6 @@
 # IP 黑白名单
 
-Website Defender 提供 IP 黑名单和白名单机制，实现基于 IP 地址的访问控制。
+Castellum 提供 IP 黑名单和白名单机制，实现基于 IP 地址的访问控制。
 
 ## IP 白名单
 

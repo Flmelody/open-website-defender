@@ -4,9 +4,9 @@ import (
 	"errors"
 	"strconv"
 
-	"open-website-defender/internal/adapter/controller/http/response"
-	domainError "open-website-defender/internal/domain/error"
-	"open-website-defender/internal/usecase/user"
+	"castellum/internal/adapter/controller/http/response"
+	domainError "castellum/internal/domain/error"
+	"castellum/internal/usecase/user"
 
 	"github.com/gin-gonic/gin"
 )

@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"io"
 	"net/http"
-	"open-website-defender/internal/adapter/controller/http/response"
-	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/usecase/waf"
+	"castellum/internal/adapter/controller/http/response"
+	"castellum/internal/infrastructure/logging"
+	"castellum/internal/usecase/waf"
 
 	"github.com/gin-gonic/gin"
 )

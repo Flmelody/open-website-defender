@@ -1,6 +1,6 @@
 # Configuration
 
-Website Defender is configured at runtime via the `config/config.yaml` file. This page documents all available configuration options.
+Castellum is configured at runtime via the `config/config.yaml` file. This page documents all available configuration options.
 
 ## Full Configuration Reference
 
@@ -17,7 +17,7 @@ database:
   # PostgreSQL settings (used when driver is postgres)
   # host: localhost
   # port: 5432
-  # name: open_website_defender
+  # name: castellum
   # user: postgres
   # password: your_password
   # ssl-mode: disable
@@ -25,7 +25,7 @@ database:
   # MySQL settings (used when driver is mysql)
   # host: localhost
   # port: 3306
-  # name: open_website_defender
+  # name: castellum
   # user: root
   # password: your_password
 
@@ -99,8 +99,10 @@ server:
 
 # Default user credentials (created on first startup)
 default-user:
-  username: defender
-  password: defender
+  username: castellum
+  # Leave empty to auto-generate a strong password on first start; the password is
+  # written to ./data/bootstrap-admin-credentials (mode 0600).
+  password: ""
 
 # OAuth2/OIDC Provider configuration
 oauth:
@@ -173,7 +175,7 @@ trustedProxies:
 
 ### Database
 
-Configures the database backend. Website Defender supports SQLite, PostgreSQL, and MySQL.
+Configures the database backend. Castellum supports SQLite, PostgreSQL, and MySQL.
 
 For detailed database configuration with examples for each driver, see [Database](database.md).
 
@@ -245,11 +247,11 @@ For more details, see [Geo-IP Blocking](../features/geo-blocking.md).
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `username` | `defender` | Default admin username created on first startup |
-| `password` | `defender` | Default admin password created on first startup |
+| `username` | `castellum` | Default admin username created on first startup |
+| `password` | *(empty)* | If empty, a strong random password is generated on first start and written to `./data/bootstrap-admin-credentials` (mode `0600`); the startup log only prints this file path. Set this to override and skip auto-generation. |
 
 !!! warning "Change Default Credentials"
-    Change the default username and password immediately after first login.
+    After first login, rotate the password and delete the `./data/bootstrap-admin-credentials` file.
 
 ### Threat Detection
 

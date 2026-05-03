@@ -1,5 +1,5 @@
 services:
-  defender:
+  castellum:
     build:
       context: .
       dockerfile: Dockerfile
@@ -23,7 +23,7 @@ services:
   # postgres:
   #   image: postgres:16-alpine
   #   environment:
-  #     POSTGRES_DB: open_website_defender
+  #     POSTGRES_DB: castellum
   #     POSTGRES_USER: postgres
   #     POSTGRES_PASSWORD: changeme
   #   volumes:
@@ -37,7 +37,7 @@ services:
   #     driver: postgres
   #     host: postgres
   #     port: 5432
-  #     name: open_website_defender
+  #     name: castellum
   #     user: postgres
   #     password: changeme
 

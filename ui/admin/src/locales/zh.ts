@@ -1,6 +1,6 @@
 export default {
   common: {
-    brand: "Defender",
+    brand: "Castellum",
     unknown: "未知",
     confirm: "确认",
     cancel: "取消",
@@ -276,7 +276,7 @@ export default {
     captcha_desc:
       "配置验证码提供商。支持内置图形验证码和 Cloudflare Turnstile。",
     captcha_provider: "提供商",
-    captcha_provider_builtin: "Defender 内置",
+    captcha_provider_builtin: "Castellum 内置",
     captcha_provider_turnstile: "Cloudflare Turnstile",
     captcha_site_key: "站点密钥",
     captcha_secret_key: "密钥",
@@ -408,7 +408,7 @@ export default {
     captcha_site_key: "站点密钥",
     captcha_secret_key: "密钥",
     captcha_cookie_ttl: "验证码 Cookie 有效期（秒）",
-    captcha_provider_builtin: "Defender 内置",
+    captcha_provider_builtin: "Castellum 内置",
     captcha_provider_turnstile: "Cloudflare Turnstile",
     captcha_site_key_required: "站点密钥为必填项",
     captcha_secret_key_required: "密钥为必填项",

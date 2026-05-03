@@ -1,9 +1,9 @@
 package cache
 
 import (
-	"open-website-defender/internal/domain/entity"
-	"open-website-defender/internal/infrastructure/event"
-	"open-website-defender/internal/infrastructure/logging"
+	"castellum/internal/domain/entity"
+	"castellum/internal/infrastructure/event"
+	"castellum/internal/infrastructure/logging"
 	"sync"
 	"sync/atomic"
 	"time"

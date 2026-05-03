@@ -2,10 +2,10 @@ package database
 
 import (
 	"fmt"
-	"open-website-defender/internal/domain/entity"
-	"open-website-defender/internal/infrastructure/config"
-	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/pkg"
+	"castellum/internal/domain/entity"
+	"castellum/internal/infrastructure/config"
+	"castellum/internal/infrastructure/logging"
+	"castellum/internal/pkg"
 	"os"
 	"path/filepath"
 	"time"
@@ -42,7 +42,7 @@ func InitDB() error {
 		}
 		dbName := dbCfg.Name
 		if len(dbName) == 0 {
-			dbName = "open_website_defender"
+			dbName = "castellum"
 		}
 		user := dbCfg.User
 		if len(user) == 0 {
@@ -69,7 +69,7 @@ func InitDB() error {
 		}
 		dbName := dbCfg.Name
 		if len(dbName) == 0 {
-			dbName = "open_website_defender"
+			dbName = "castellum"
 		}
 		user := dbCfg.User
 		if len(user) == 0 {
@@ -185,8 +185,8 @@ func initDefaultSystem() error {
 
 	system := &entity.System{
 		Security: entity.Security{
-			GitTokenHeader: "Defender-Git-Token",
-			LicenseHeader:  "Defender-License",
+			GitTokenHeader: "Castellum-Git-Token",
+			LicenseHeader:  "Castellum-License",
 		},
 	}
 
@@ -211,7 +211,7 @@ func initDefaultUser() error {
 
 	defaultUsername := config.Get().DefaultUser.Username
 	if len(defaultUsername) == 0 {
-		defaultUsername = "defender"
+		defaultUsername = "castellum"
 	}
 
 	defaultPassword := config.Get().DefaultUser.Password

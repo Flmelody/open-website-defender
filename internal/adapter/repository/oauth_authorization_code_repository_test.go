@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"open-website-defender/internal/domain/entity"
+	"castellum/internal/domain/entity"
 
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"

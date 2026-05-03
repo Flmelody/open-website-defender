@@ -1,11 +1,11 @@
 package handler
 
 import (
-	"open-website-defender/internal/adapter/controller/http/response"
-	"open-website-defender/internal/domain/entity"
-	"open-website-defender/internal/infrastructure/database"
-	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/usecase/accesslog"
+	"castellum/internal/adapter/controller/http/response"
+	"castellum/internal/domain/entity"
+	"castellum/internal/infrastructure/database"
+	"castellum/internal/infrastructure/logging"
+	"castellum/internal/usecase/accesslog"
 	"strconv"
 	"time"
 

@@ -1,13 +1,13 @@
-site_name: Website Defender
-site_description: A lightweight WAF (Web Application Firewall) for protecting web applications
+site_name: Castellum
+site_description: Castellum — the fortress at your edge. A lightweight, self-hosted WAF and access-control gateway.
 site_url: https://defender.flmelody.org/
-repo_url: https://github.com/Flmelody/open-website-defender
-repo_name: Flmelody/open-website-defender
+repo_url: https://github.com/Flmelody/castellum
+repo_name: Flmelody/castellum
 
 theme:
   name: material
-  logo: assets/images/website-defender-logo.png
-  favicon: assets/images/website-defender-logo.png
+  logo: assets/images/castellum-logo.png
+  favicon: assets/images/castellum-logo.png
   palette:
     - scheme: default
       primary: indigo

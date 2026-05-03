@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"open-website-defender/internal/domain/entity"
-	_interface "open-website-defender/internal/usecase/interface"
+	"castellum/internal/domain/entity"
+	_interface "castellum/internal/usecase/interface"
 	"time"
 
 	"gorm.io/gorm"

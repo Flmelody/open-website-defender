@@ -3,10 +3,10 @@ package repository
 import (
 	"strings"
 
-	"open-website-defender/internal/domain/entity"
-	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/pkg"
-	_interface "open-website-defender/internal/usecase/interface"
+	"castellum/internal/domain/entity"
+	"castellum/internal/infrastructure/logging"
+	"castellum/internal/pkg"
+	_interface "castellum/internal/usecase/interface"
 
 	"gorm.io/gorm"
 )

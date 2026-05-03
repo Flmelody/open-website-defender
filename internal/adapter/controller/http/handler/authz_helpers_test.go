@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"open-website-defender/internal/usecase/user"
+	"castellum/internal/usecase/user"
 
 	"github.com/gin-gonic/gin"
 )

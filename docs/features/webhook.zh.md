@@ -1,10 +1,10 @@
 # Webhook 通知
 
-Website Defender 可以在安全事件发生时发送 HTTP Webhook 通知，实现与外部告警和监控系统的集成。
+Castellum 可以在安全事件发生时发送 HTTP Webhook 通知，实现与外部告警和监控系统的集成。
 
 ## 工作原理
 
-当[安全事件](security-events.md)被触发时（例如 IP 被自动封禁），Website Defender 会向配置的 Webhook URL 发送包含事件详情的 HTTP POST 请求。
+当[安全事件](security-events.md)被触发时（例如 IP 被自动封禁），Castellum 会向配置的 Webhook URL 发送包含事件详情的 HTTP POST 请求。
 
 Webhook 投递是**异步**的 -- 不会阻塞主请求处理流程。
 

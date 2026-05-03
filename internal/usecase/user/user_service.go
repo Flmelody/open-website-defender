@@ -3,11 +3,11 @@ package user
 import (
 	"errors"
 	"fmt"
-	"open-website-defender/internal/adapter/repository"
-	"open-website-defender/internal/domain/entity"
-	"open-website-defender/internal/infrastructure/database"
-	"open-website-defender/internal/infrastructure/event"
-	_interface "open-website-defender/internal/usecase/interface"
+	"castellum/internal/adapter/repository"
+	"castellum/internal/domain/entity"
+	"castellum/internal/infrastructure/database"
+	"castellum/internal/infrastructure/event"
+	_interface "castellum/internal/usecase/interface"
 	"strconv"
 	"sync"
 )

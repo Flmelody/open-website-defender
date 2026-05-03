@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Security Check — Defender</title>
+    <title>Security Check — Castellum</title>
     <link rel="icon" href="{{.FaviconURL}}" type="image/x-icon">
     <style>
         * {
@@ -214,7 +214,7 @@
             arena.classList.add("done");
             msg.textContent = "VERIFICATION COMPLETE";
             msg.className = "msg show ok";
-            document.cookie = "_defender_challenge=" + nonce + ":" + solvedSolution + ":" + sig + ";path=/;SameSite=Lax";
+            document.cookie = "_castellum_challenge=" + nonce + ":" + solvedSolution + ":" + sig + ";path=/;SameSite=Lax";
             setTimeout(function () {
                 window.location.reload()
             }, 800);

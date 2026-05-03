@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"open-website-defender/internal/usecase/accesslog"
-	"open-website-defender/internal/usecase/threat"
+	"castellum/internal/usecase/accesslog"
+	"castellum/internal/usecase/threat"
 	"time"
 
 	"github.com/gin-gonic/gin"

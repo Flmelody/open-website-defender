@@ -1,6 +1,6 @@
 # Geo-IP Blocking
 
-Website Defender can block requests based on the geographic location of the client's IP address using the MaxMind GeoLite2-Country database.
+Castellum can block requests based on the geographic location of the client's IP address using the MaxMind GeoLite2-Country database.
 
 ## How It Works
 

@@ -1,6 +1,6 @@
 export default {
   common: {
-    brand: "DEFENDER",
+    brand: "CASTELLUM",
     unknown: "UNBEKANNT",
     confirm: "BESTÄTIGEN",
     cancel: "ABBRECHEN",
@@ -283,7 +283,7 @@ export default {
     captcha_desc:
       "CAPTCHA-Anbieter für Bot-Herausforderungen konfigurieren. Unterstützt integriertes Bild-CAPTCHA und Cloudflare Turnstile.",
     captcha_provider: "ANBIETER",
-    captcha_provider_builtin: "Defender Built-in",
+    captcha_provider_builtin: "Castellum Built-in",
     captcha_provider_turnstile: "Cloudflare Turnstile",
     captcha_site_key: "SITE_SCHLÜSSEL",
     captcha_secret_key: "GEHEIMER_SCHLÜSSEL",
@@ -423,7 +423,7 @@ export default {
     captcha_site_key: "CAPTCHA_SITE_KEY",
     captcha_secret_key: "CAPTCHA_SECRET_KEY",
     captcha_cookie_ttl: "CAPTCHA_COOKIE_TTL (Sekunden)",
-    captcha_provider_builtin: "Defender Built-in",
+    captcha_provider_builtin: "Castellum Built-in",
     captcha_provider_turnstile: "Cloudflare Turnstile",
     captcha_site_key_required: "Site-Schlüssel ist erforderlich",
     captcha_secret_key_required: "Geheimschlüssel ist erforderlich",

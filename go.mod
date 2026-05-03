@@ -1,4 +1,4 @@
-module open-website-defender
+module castellum
 
 go 1.25.1
 

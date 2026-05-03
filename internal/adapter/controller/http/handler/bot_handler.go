@@ -1,9 +1,9 @@
 package handler
 
 import (
-	"open-website-defender/internal/adapter/controller/http/response"
-	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/usecase/bot"
+	"castellum/internal/adapter/controller/http/response"
+	"castellum/internal/infrastructure/logging"
+	"castellum/internal/usecase/bot"
 	"strconv"
 	"strings"
 

@@ -1,6 +1,6 @@
 # OAuth2/OIDC 单点登录配置指南
 
-Open Website Defender (OWD) 可作为 OIDC Provider，让任何支持 OAuth2/OIDC 的应用对接 OWD，实现单点登录 (SSO)。
+Castellum (OWD) 可作为 OIDC Provider，让任何支持 OAuth2/OIDC 的应用对接 OWD，实现单点登录 (SSO)。
 
 ## 前置条件
 

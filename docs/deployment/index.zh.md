@@ -2,7 +2,7 @@
 
 ## 概述
 
-Website Defender 采用单文件部署模式，极大简化了部署和运维流程。
+Castellum 采用单文件部署模式，极大简化了部署和运维流程。
 
 ## 部署特性
 
@@ -19,17 +19,17 @@ Website Defender 采用单文件部署模式，极大简化了部署和运维流
 
 ### 方式 A：下载预编译二进制
 
-从 [GitHub Releases](https://github.com/Flmelody/open-website-defender/releases) 下载对应平台的最新版本。发布包包含二进制文件和默认 `config.yaml`：
+从 [GitHub Releases](https://github.com/Flmelody/castellum/releases) 下载对应平台的最新版本。发布包包含二进制文件和默认 `config.yaml`：
 
 ```bash
-tar -xzf open-website-defender-linux-amd64.tar.gz
-cd open-website-defender-linux-amd64
+tar -xzf castellum-linux-amd64.tar.gz
+cd castellum-linux-amd64
 
 # 按需编辑运行时配置
 vim config/config.yaml
 
 # 运行
-./open-website-defender
+./castellum
 ```
 
 预编译二进制使用默认路径（`/wall`、`/admin`、`/guard`）。如需自定义路径，请从源码构建（参见方式 B）。
@@ -53,8 +53,8 @@ GUARD_PATH=/guard
 #### 2. 构建
 
 ```bash
-git clone https://github.com/Flmelody/open-website-defender.git
-cd open-website-defender
+git clone https://github.com/Flmelody/castellum.git
+cd castellum
 ./scripts/build.sh
 ```
 
@@ -115,7 +115,7 @@ server:
 
 ### 4. 配置 Nginx
 
-配置 Nginx 使用 Website Defender 作为认证提供者。完整配置指南请参阅 [Nginx 配置](nginx-setup.md)。
+配置 Nginx 使用 Castellum 作为认证提供者。完整配置指南请参阅 [Nginx 配置](nginx-setup.md)。
 
 ## 信任代理
 
@@ -132,14 +132,14 @@ trustedProxies:
 
 ## 优雅关停
 
-Website Defender 支持优雅关停（Graceful Shutdown）：
+Castellum 支持优雅关停（Graceful Shutdown）：
 
 - 接收到 `SIGINT` 或 `SIGTERM` 信号时，停止接受新请求
 - 等待正在处理的请求完成
 - 安全关闭数据库连接和其他资源
 
 !!! info "进程管理"
-    建议使用 `systemd`、`supervisord` 或其他进程管理工具来管理 Defender 进程，确保服务的自动重启和日志收集。
+    建议使用 `systemd`、`supervisord` 或其他进程管理工具来管理 Castellum 进程，确保服务的自动重启和日志收集。
 
 ## 作为系统服务运行
 
@@ -147,7 +147,7 @@ Website Defender 支持优雅关停（Graceful Shutdown）：
 
 ```ini
 [Unit]
-Description=Website Defender WAF
+Description=Castellum WAF
 After=network.target
 
 [Service]
@@ -166,9 +166,9 @@ WantedBy=multi-user.target
 
 ## 部署检查清单
 
-在将 Website Defender 部署到生产环境之前，请确认以下事项：
+在将 Castellum 部署到生产环境之前，请确认以下事项：
 
-- [ ] 修改默认用户密码（`defender/defender`）
+- [ ] 修改默认用户密码（`castellum`/auto-generated）
 - [ ] 设置 `security.jwt-secret`（避免重启后令牌失效）
 - [ ] 配置 `security.cors.allowed-origins`（限制跨域来源）
 - [ ] 配置 `trustedProxies`（正确获取客户端 IP）

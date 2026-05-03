@@ -1,6 +1,6 @@
 # OAuth2/OIDC Single Sign-On Configuration Guide
 
-Open Website Defender (OWD) can act as an OIDC Provider, allowing any application that supports OAuth2/OIDC to authenticate users via the standard protocol for single sign-on (SSO).
+Castellum (OWD) can act as an OIDC Provider, allowing any application that supports OAuth2/OIDC to authenticate users via the standard protocol for single sign-on (SSO).
 
 ## Prerequisites
 

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"open-website-defender/internal/domain/entity"
-	"open-website-defender/internal/infrastructure/cache"
+	"castellum/internal/domain/entity"
+	"castellum/internal/infrastructure/cache"
 )
 
 func TestConsentTokenIsOneTimeAndBindsRequest(t *testing.T) {

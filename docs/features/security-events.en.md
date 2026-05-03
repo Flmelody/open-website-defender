@@ -1,6 +1,6 @@
 # Security Events
 
-Website Defender records security events when threats are detected, providing a centralized view of all automated security actions.
+Castellum records security events when threats are detected, providing a centralized view of all automated security actions.
 
 ## Event Types
 

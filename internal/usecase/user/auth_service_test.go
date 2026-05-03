@@ -7,8 +7,8 @@ import (
 
 	"github.com/pquerna/otp"
 	"github.com/pquerna/otp/totp"
-	domainError "open-website-defender/internal/domain/error"
-	"open-website-defender/internal/infrastructure/cache"
+	domainError "castellum/internal/domain/error"
+	"castellum/internal/infrastructure/cache"
 )
 
 func TestValidateTotpCodeOnceRejectsReplay(t *testing.T) {

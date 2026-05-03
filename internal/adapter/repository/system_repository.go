@@ -1,9 +1,9 @@
 package repository
 
 import (
-	_interface "open-website-defender/internal/usecase/interface"
+	_interface "castellum/internal/usecase/interface"
 
-	"open-website-defender/internal/domain/entity"
+	"castellum/internal/domain/entity"
 
 	"gorm.io/gorm"
 )

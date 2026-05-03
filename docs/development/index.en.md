@@ -1,6 +1,6 @@
 # Development
 
-This guide covers building Website Defender from source and setting up a local development environment.
+This guide covers building Castellum from source and setting up a local development environment.
 
 ## Prerequisites
 
@@ -13,7 +13,7 @@ This guide covers building Website Defender from source and setting up a local d
 ## Project Structure
 
 ```
-open-website-defender/
+castellum/
 ├── main.go                    # Application entry point
 ├── config/
 │   └── config.yaml            # Runtime configuration
@@ -48,8 +48,8 @@ open-website-defender/
 The build script compiles both Vue 3 frontends and the Go backend into a single binary:
 
 ```bash
-git clone https://github.com/Flmelody/open-website-defender.git
-cd open-website-defender
+git clone https://github.com/Flmelody/castellum.git
+cd castellum
 ./scripts/build.sh
 ```
 
@@ -63,7 +63,7 @@ If you prefer to build each component separately:
 
     ```bash
     # Requires frontend dist/ folders to exist (for go:embed)
-    go build -o open-website-defender main.go
+    go build -o castellum main.go
     ```
 
     !!! warning "Frontend Assets Required"
@@ -186,10 +186,10 @@ The auth middleware chain:
 
 1. **IP Blacklist check** -- immediately deny blocked IPs
 2. **IP Whitelist check** -- immediately allow trusted IPs
-3. **JWT Token validation** -- check `Defender-Authorization` header or `flmelody.token` cookie
+3. **JWT Token validation** -- check `Castellum-Authorization` header or `flmelody.token` cookie
 4. **Authorized Domain check** -- verify the user can access the requested domain
-5. **Git Token validation** -- check `Defender-Git-Token` header
-6. **License Token validation** -- check `Defender-License` header
+5. **Git Token validation** -- check `Castellum-Git-Token` header
+6. **License Token validation** -- check `Castellum-License` header
 
 ### API Routes
 

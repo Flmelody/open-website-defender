@@ -6,9 +6,9 @@ import (
 	"encoding/base64"
 	"fmt"
 	"math/big"
-	"open-website-defender/internal/domain/entity"
-	"open-website-defender/internal/infrastructure/config"
-	"open-website-defender/internal/pkg"
+	"castellum/internal/domain/entity"
+	"castellum/internal/infrastructure/config"
+	"castellum/internal/pkg"
 	"sync"
 	"time"
 

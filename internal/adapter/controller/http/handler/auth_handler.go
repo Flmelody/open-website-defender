@@ -7,17 +7,17 @@ import (
 	"strings"
 	"time"
 
-	"open-website-defender/internal/adapter/controller/http/request"
-	"open-website-defender/internal/adapter/controller/http/response"
-	domainError "open-website-defender/internal/domain/error"
-	"open-website-defender/internal/infrastructure/config"
-	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/pkg"
-	"open-website-defender/internal/usecase/iplist"
-	"open-website-defender/internal/usecase/license"
-	"open-website-defender/internal/usecase/system"
-	"open-website-defender/internal/usecase/threat"
-	"open-website-defender/internal/usecase/user"
+	"castellum/internal/adapter/controller/http/request"
+	"castellum/internal/adapter/controller/http/response"
+	domainError "castellum/internal/domain/error"
+	"castellum/internal/infrastructure/config"
+	"castellum/internal/infrastructure/logging"
+	"castellum/internal/pkg"
+	"castellum/internal/usecase/iplist"
+	"castellum/internal/usecase/license"
+	"castellum/internal/usecase/system"
+	"castellum/internal/usecase/threat"
+	"castellum/internal/usecase/user"
 
 	"github.com/gin-gonic/gin"
 )
@@ -87,7 +87,7 @@ func clearAuthCookie(c *gin.Context) {
 }
 
 func authTokenFromRequest(c *gin.Context) string {
-	authHeader := c.GetHeader("Defender-Authorization")
+	authHeader := c.GetHeader("Castellum-Authorization")
 	if authHeader != "" {
 		return strings.TrimPrefix(authHeader, "Bearer ")
 	}
@@ -184,7 +184,7 @@ func Auth(c *gin.Context) {
 	service := user.GetAuthService()
 	clientToken, err := c.Cookie("flmelody.token")
 	if err != nil {
-		clientToken = c.GetHeader("Defender-Authorization")
+		clientToken = c.GetHeader("Castellum-Authorization")
 	}
 	if clientToken == "" {
 		cookieHeader := c.GetHeader("Cookie")

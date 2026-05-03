@@ -1,6 +1,6 @@
 # Security Headers
 
-Website Defender automatically adds security-hardening HTTP headers to all responses. These headers instruct browsers to enable built-in security mechanisms and restrict potentially dangerous behaviors.
+Castellum automatically adds security-hardening HTTP headers to all responses. These headers instruct browsers to enable built-in security mechanisms and restrict potentially dangerous behaviors.
 
 ## Headers
 

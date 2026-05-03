@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide walks you through building and running Website Defender from source.
+This guide walks you through building and running Castellum from source.
 
 ## Prerequisites
 
@@ -19,8 +19,8 @@ The project includes a build script that compiles both the Vue 3 frontends and t
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Flmelody/open-website-defender.git
-cd open-website-defender
+git clone https://github.com/Flmelody/castellum.git
+cd castellum
 
 # 2. Build the project
 ./scripts/build.sh
@@ -49,15 +49,18 @@ The application starts with default configuration and is immediately ready to us
 | Setting | Default Value |
 |---------|--------------|
 | **Admin URL** | `http://localhost:9999/wall/admin/` |
-| **Default Username** | `defender` |
-| **Default Password** | `defender` |
+| **Default Username** | `castellum` |
+| **Default Password** | auto-generated on first start; read from `./data/bootstrap-admin-credentials` (mode `0600`) |
 
 !!! warning "Change Default Credentials"
-    The default username and password are both `defender`. **Change these immediately** after first login, especially in production environments. Default credentials are a common attack vector.
+    On first start the default password is randomly generated and written to `./data/bootstrap-admin-credentials` (mode `0600`). The startup log only prints the file path — open the file to read the password. After your first login, **rotate the credentials and delete the file**. To skip auto-generation, set `default-user.username` / `default-user.password` in `config/config.yaml`.
+
+!!! warning "Upgrading from Open Website Defender (PostgreSQL / MySQL)"
+    The fallback default database name was changed from `open_website_defender` to `castellum`. If your `config/config.yaml` does **not** set `database.name` and you are upgrading an existing PG/MySQL deployment, either set `database.name: open_website_defender` explicitly or rename the database to `castellum` before upgrading. SQLite deployments are not affected.
 
 ## Next Steps
 
-- **[Configure Nginx](../deployment/nginx-setup.md)** to use Website Defender as an auth provider
+- **[Configure Nginx](../deployment/nginx-setup.md)** to use Castellum as an auth provider
 - **[Review the configuration](../configuration/index.md)** to customize runtime settings
 - **[Set up the WAF](../features/waf.md)** and review built-in filtering rules
 - **[Register authorized domains](../features/authorized-domains.md)** and **[manage users](../features/user-management.md)** with authorized domain assignment

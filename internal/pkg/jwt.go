@@ -4,7 +4,7 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
-	"open-website-defender/internal/infrastructure/logging"
+	"castellum/internal/infrastructure/logging"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"

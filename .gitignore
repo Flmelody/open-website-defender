@@ -22,5 +22,6 @@ site/
 
 # Build artifacts
 /app
-/open-website-defender-*
+/castellum
+/castellum-*
 /release/

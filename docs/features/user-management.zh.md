@@ -2,7 +2,7 @@
 
 ## 概述
 
-Website Defender 提供完整的用户管理功能，支持通过管理后台或 API 进行用户的增删改查操作。
+Castellum 提供完整的用户管理功能，支持通过管理后台或 API 进行用户的增删改查操作。
 
 ## 用户增删改查
 
@@ -30,7 +30,7 @@ Website Defender 提供完整的用户管理功能，支持通过管理后台或
 - **普通用户**：仅拥有认证通过后的访问权限，受授权域限制。
 
 !!! info "默认用户"
-    首次启动时，系统会自动创建默认管理员用户（默认用户名和密码均为 `defender`）。请在首次登录后立即修改密码。
+    首次启动时，系统会自动创建默认管理员用户（默认用户名为 `castellum`，密码首次启动自动生成）。请在首次登录后立即修改密码。
 
 ## Git Token 生成
 
@@ -39,7 +39,7 @@ Website Defender 提供完整的用户管理功能，支持通过管理后台或
 - 在用户管理页面一键生成 Git Token
 - Token 格式为 `username:token`
 - 支持一键复制到剪贴板
-- 通过 `Defender-Git-Token` 请求头使用（请求头名称可配置）
+- 通过 `Castellum-Git-Token` 请求头使用（请求头名称可配置）
 - Git Token 支持[授权域](authorized-domains.md)检查
 
 !!! tip "使用场景"

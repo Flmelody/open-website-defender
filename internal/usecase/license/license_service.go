@@ -2,13 +2,13 @@ package license
 
 import (
 	"encoding/json"
-	"open-website-defender/internal/adapter/repository"
-	"open-website-defender/internal/domain/entity"
-	"open-website-defender/internal/infrastructure/cache"
-	"open-website-defender/internal/infrastructure/database"
-	"open-website-defender/internal/infrastructure/event"
-	"open-website-defender/internal/pkg"
-	_interface "open-website-defender/internal/usecase/interface"
+	"castellum/internal/adapter/repository"
+	"castellum/internal/domain/entity"
+	"castellum/internal/infrastructure/cache"
+	"castellum/internal/infrastructure/database"
+	"castellum/internal/infrastructure/event"
+	"castellum/internal/pkg"
+	_interface "castellum/internal/usecase/interface"
 	"sync"
 )
 

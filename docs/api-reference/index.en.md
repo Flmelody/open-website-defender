@@ -6,7 +6,7 @@ All API routes are prefixed with the configurable `ROOT_PATH` (default: `/wall`)
 
 Protected endpoints (marked **Yes** in the Auth column) require one of the following:
 
-- `Defender-Authorization` header with a valid JWT token
+- `Castellum-Authorization` header with a valid JWT token
 - `flmelody.token` cookie with a valid JWT token
 
 Obtain a token by calling `POST /login` (or `POST /admin-login` for admin-only access).
@@ -117,7 +117,7 @@ Obtain a token by calling `POST /login` (or `POST /admin-login` for admin-only a
 
 ## Auth Endpoint Details
 
-The `GET /auth` endpoint is the core of Website Defender's Nginx integration. It is called by Nginx's `auth_request` directive for every incoming request.
+The `GET /auth` endpoint is the core of Castellum's Nginx integration. It is called by Nginx's `auth_request` directive for every incoming request.
 
 **Request headers inspected:**
 
@@ -125,9 +125,9 @@ The `GET /auth` endpoint is the core of Website Defender's Nginx integration. It
 |--------|---------|
 | `X-Forwarded-For` | Client IP address (from trusted proxy) |
 | `X-Forwarded-Host` | Original requested domain (for authorized domain checking) |
-| `Defender-Authorization` | JWT token |
-| `Defender-Git-Token` | Git token (`username:token` format) |
-| `Defender-License` | License token |
+| `Castellum-Authorization` | JWT token |
+| `Castellum-Git-Token` | Git token (`username:token` format) |
+| `Castellum-License` | License token |
 | `Cookie: flmelody.token` | JWT token via cookie |
 
 **Response codes:**

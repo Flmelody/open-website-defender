@@ -9,7 +9,7 @@ database:
   # driver: postgres
   # host: localhost
   # port: 5432
-  # name: open_website_defender
+  # name: castellum
   # user: postgres
   # password: your_password
   # ssl-mode: disable
@@ -18,7 +18,7 @@ database:
   # driver: mysql
   # host: localhost
   # port: 3306
-  # name: open_website_defender
+  # name: castellum
   # user: root
   # password: your_password
 
@@ -103,14 +103,14 @@ server:
 
 # Bootstrap admin user (created only on first startup)
 default-user:
-  username: defender
+  username: castellum
   # Leave empty to auto-generate a strong password and print it once in the startup log.
   password: ""
 
 # OAuth2/OIDC Provider configuration
 oauth:
   enabled: true
-  # Issuer URL - must match the public-facing URL of OWD (including root path)
+  # Issuer URL - must match the public-facing URL of Castellum (including root path)
   # Example: https://auth.example.com/wall
   issuer: "https://auth.example.com/wall"
   # Path to RSA private key (PEM format) for signing ID tokens.

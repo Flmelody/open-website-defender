@@ -1,6 +1,6 @@
 # 授权域管理
 
-授权域是 Website Defender 中所有受保护域名的集中注册表，作为 IP 白名单域名绑定和用户访问控制的**统一数据源**。
+授权域是 Castellum 中所有受保护域名的集中注册表，作为 IP 白名单域名绑定和用户访问控制的**统一数据源**。
 
 ## 功能定位
 
@@ -9,7 +9,7 @@
 - 提供一个**集中管理**所有受保护域名的位置
 - 为 IP 白名单和用户管理表单中的域名字段提供**下拉选择器**
 
-- 实现**多租户访问控制**，允许不同用户通过同一个 Defender 实例访问不同的受保护服务
+- 实现**多租户访问控制**，允许不同用户通过同一个 Castellum 实例访问不同的受保护服务
 
 ## 管理方式
 
@@ -38,12 +38,12 @@
 
 ### 工作原理
 
-1. 当请求到达 `/auth` 时，Defender 从 `X-Forwarded-Host` 读取域名（回退到 `Host` 请求头）
+1. 当请求到达 `/auth` 时，Castellum 从 `X-Forwarded-Host` 读取域名（回退到 `Host` 请求头）
 2. 令牌/Git Token 认证成功后，检查用户的授权域是否匹配请求的域名
 3. 如果域名不匹配任何授权域模式，返回 `403 Forbidden`
 
 !!! info "适用场景"
-    当您使用同一个 Defender 实例保护多个内部服务时，授权域访问控制可以限制每个用户只能访问被授权的服务。例如，开发人员只能访问 `app.example.com`，而运维人员可以同时访问 `app.example.com` 和 `app2.example.com`。
+    当您使用同一个 Castellum 实例保护多个内部服务时，授权域访问控制可以限制每个用户只能访问被授权的服务。例如，开发人员只能访问 `app.example.com`，而运维人员可以同时访问 `app.example.com` 和 `app2.example.com`。
 
 ### 授权域模式
 
@@ -69,7 +69,7 @@
 
 ### Nginx 配置示例
 
-要将域名信息传递给 Defender 用于访问控制，需配置 Nginx 通过 `X-Forwarded-Host` 转发 `Host` 请求头：
+要将域名信息传递给 Castellum 用于访问控制，需配置 Nginx 通过 `X-Forwarded-Host` 转发 `Host` 请求头：
 
 ```nginx
 server {
@@ -78,7 +78,7 @@ server {
     location / {
         auth_request /auth;
 
-        # 将原始域名传递给 Defender 用于授权域检查
+        # 将原始域名传递给 Castellum 用于授权域检查
         proxy_pass http://app-backend;
     }
 
@@ -95,7 +95,7 @@ server {
 ```
 
 !!! warning "必须设置 X-Forwarded-Host"
-    如果 Nginx 未配置 `proxy_set_header X-Forwarded-Host $host;`，Defender 将回退到 `Host` 请求头。在反向代理环境中，`Host` 请求头可能是内部地址而非用户请求的原始域名，导致授权域检查不正确。
+    如果 Nginx 未配置 `proxy_set_header X-Forwarded-Host $host;`，Castellum 将回退到 `Host` 请求头。在反向代理环境中，`Host` 请求头可能是内部地址而非用户请求的原始域名，导致授权域检查不正确。
 
 完整的 Nginx 配置指南请参阅 [Nginx 配置](../deployment/nginx-setup.md)。
 

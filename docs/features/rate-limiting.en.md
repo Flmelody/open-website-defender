@@ -1,6 +1,6 @@
 # Rate Limiting
 
-Website Defender includes per-IP rate limiting to protect against brute-force attacks and abuse. Two separate rate limiters operate at different levels.
+Castellum includes per-IP rate limiting to protect against brute-force attacks and abuse. Two separate rate limiters operate at different levels.
 
 ## Global Rate Limiting
 

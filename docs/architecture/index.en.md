@@ -1,28 +1,28 @@
 # Architecture
 
-Website Defender is designed to work with **Nginx** using the `auth_request` module. It acts as an authentication and security provider that validates every request before Nginx forwards traffic to your actual applications.
+Castellum is designed to work with **Nginx** using the `auth_request` module. It acts as an authentication and security provider that validates every request before Nginx forwards traffic to your actual applications.
 
 ## Request Flow
 
-When a user makes a request to a protected application, Nginx first consults Website Defender to decide whether to allow or deny the request.
+When a user makes a request to a protected application, Nginx first consults Castellum to decide whether to allow or deny the request.
 
 ```mermaid
 graph LR
     User[User / Browser] --> Nginx
-    Nginx -->|1. Check Auth| Defender[Website Defender]
-    Defender -->|2. Allow / Deny| Nginx
+    Nginx -->|1. Check Auth| Castellum[Castellum]
+    Castellum -->|2. Allow / Deny| Nginx
     Nginx -->|3. Proxy if Allowed| App[Internal App]
 ```
 
 1. **User** sends a request to Nginx
-2. **Nginx** makes an internal subrequest to Website Defender's `/auth` endpoint
-3. **Website Defender** evaluates the request through its security pipeline
+2. **Nginx** makes an internal subrequest to Castellum's `/auth` endpoint
+3. **Castellum** evaluates the request through its security pipeline
 4. If allowed, **Nginx** proxies the request to the internal application
 5. If denied, the user is redirected to the guard (challenge) page or receives a 403 response
 
 ## Middleware Chain
 
-Every request to Website Defender passes through the following middleware in order:
+Every request to Castellum passes through the following middleware in order:
 
 ```
 SecurityHeaders → CORS → BodyLimit → AccessLog → GeoBlock → WAF → RateLimiter → JS Challenge → Route Handler
@@ -45,7 +45,7 @@ SecurityHeaders → CORS → BodyLimit → AccessLog → GeoBlock → WAF → Ra
 
 ## Auth Verification Flow
 
-When the `/auth` endpoint is called, Website Defender evaluates the request through a series of checks in strict order:
+When the `/auth` endpoint is called, Castellum evaluates the request through a series of checks in strict order:
 
 ```mermaid
 graph TD
@@ -77,7 +77,7 @@ IP Blacklist → IP Whitelist (+ Authorized Domain Check) → JWT Token (+ Autho
 
 ## Single-Binary Deployment
 
-Website Defender compiles into a **single binary** with all frontend assets embedded via Go's `go:embed` directive. This means:
+Castellum compiles into a **single binary** with all frontend assets embedded via Go's `go:embed` directive. This means:
 
 - No external file dependencies for the UI
 - Simple deployment -- just copy the binary and optional config file

@@ -2,7 +2,7 @@ package repository
 
 import (
 	"context"
-	"open-website-defender/internal/domain/entity"
+	"castellum/internal/domain/entity"
 	"time"
 
 	"gorm.io/gorm"

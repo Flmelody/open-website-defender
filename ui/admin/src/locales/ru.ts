@@ -1,6 +1,6 @@
 export default {
   common: {
-    brand: "DEFENDER",
+    brand: "CASTELLUM",
     unknown: "НЕИЗВЕСТНО",
     confirm: "ПОДТВЕРДИТЬ",
     cancel: "ОТМЕНА",
@@ -284,7 +284,7 @@ export default {
     captcha_desc:
       "Настроить провайдера CAPTCHA для проверки ботов. Поддерживает встроенную CAPTCHA и Cloudflare Turnstile.",
     captcha_provider: "ПРОВАЙДЕР",
-    captcha_provider_builtin: "Defender Built-in",
+    captcha_provider_builtin: "Castellum Built-in",
     captcha_provider_turnstile: "Cloudflare Turnstile",
     captcha_site_key: "КЛЮЧ_САЙТА",
     captcha_secret_key: "СЕКРЕТНЫЙ_КЛЮЧ",
@@ -423,7 +423,7 @@ export default {
     captcha_site_key: "КЛЮЧ_САЙТА_CAPTCHA",
     captcha_secret_key: "СЕКРЕТНЫЙ_КЛЮЧ_CAPTCHA",
     captcha_cookie_ttl: "TTL_COOKIE_CAPTCHA (секунды)",
-    captcha_provider_builtin: "Defender Built-in",
+    captcha_provider_builtin: "Castellum Built-in",
     captcha_provider_turnstile: "Cloudflare Turnstile",
     captcha_site_key_required: "Ключ сайта обязателен",
     captcha_secret_key_required: "Секретный ключ обязателен",

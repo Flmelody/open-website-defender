@@ -1,14 +1,14 @@
-# Website Defender
+# Castellum
 
 ## Protect Your Internal Applications in Minutes
 
-**Website Defender** is a lightweight, open-source WAF (Web Application Firewall) that adds unified authentication, access control, and security policies to any web application -- without modifying a single line of your application code.
+**Castellum** is a lightweight, open-source WAF (Web Application Firewall) that adds unified authentication, access control, and security policies to any web application -- without modifying a single line of your application code.
 
 Deploy once, protect everything: code repositories, CI/CD tools, monitoring dashboards, package registries, and any other web service.
 
 ---
 
-## Why Website Defender?
+## Why Castellum?
 
 Enterprises expose internal tools to the internet every day. These applications often lack:
 
@@ -16,19 +16,19 @@ Enterprises expose internal tools to the internet every day. These applications 
 - **Brute-force protection** -- no rate limiting on login endpoints
 - **Security hardening** -- missing WAF rules, security headers, and IP controls
 
-Website Defender solves all of these with a single binary that integrates transparently with Nginx.
+Castellum solves all of these with a single binary that integrates transparently with Nginx.
 
 ---
 
 ## How It Works
 
-Website Defender uses Nginx's `auth_request` module to intercept every request before it reaches your application:
+Castellum uses Nginx's `auth_request` module to intercept every request before it reaches your application:
 
 ```mermaid
 graph LR
     User[User / Browser] --> Nginx
-    Nginx -->|1. Auth Check| Defender[Website Defender]
-    Defender -->|2. Allow / Deny| Nginx
+    Nginx -->|1. Auth Check| Castellum[Castellum]
+    Castellum -->|2. Allow / Deny| Nginx
     Nginx -->|3. Proxy if Allowed| App[Your Application]
 ```
 
@@ -44,7 +44,7 @@ No code changes needed. No SDK to integrate. Just configure Nginx and deploy.
 
 Multiple auth methods for different use cases -- browser sessions, CI/CD pipelines, API integrations:
 
-- **JWT Token** -- secure login with configurable expiration via `Defender-Authorization` header
+- **JWT Token** -- secure login with configurable expiration via `Castellum-Authorization` header
 - **Cookie-based** -- seamless browser sessions via `flmelody.token` cookie
 - **Git Token** -- machine access for CI/CD, format `username:token`
 - **License Token** -- API access with SHA-256 hashed storage
@@ -98,11 +98,11 @@ Each rule can `block` (return 403) or `log` (allow but record). Add your own rul
 
 ### Guard Page (Login Challenge)
 
-![Guard Page](assets/images/defender-guard.jpg)
+![Guard Page](assets/images/castellum-guard.jpg)
 
 ### Admin Dashboard
 
-![Admin Dashboard](assets/images/defender-admin.png)
+![Admin Dashboard](assets/images/castellum-admin.png)
 
 ## Demo Video
 
@@ -117,8 +117,8 @@ Each rule can `block` (return 403) or `log` (allow but record). Add your own rul
 **1. Build**
 
 ```bash
-git clone https://github.com/Flmelody/open-website-defender.git
-cd open-website-defender
+git clone https://github.com/Flmelody/castellum.git
+cd castellum
 ./scripts/build.sh
 ```
 
@@ -160,7 +160,7 @@ location = /auth {
 ## Explore the Docs
 
 - [Getting Started](getting-started/index.md) -- Build, run, and connect to Nginx
-- [Architecture](architecture/index.md) -- How Defender works with Nginx and the middleware chain
+- [Architecture](architecture/index.md) -- How Castellum works with Nginx and the middleware chain
 - [Features](features/authentication.md) -- Authentication, WAF, IP lists, geo-blocking, rate limiting, and more
 - [Configuration](configuration/index.md) -- Runtime config.yaml reference
 - [API Reference](api-reference/index.md) -- Complete REST API documentation

@@ -2,7 +2,7 @@
 
 ## 概述
 
-Website Defender 支持基于国家/地区的地域封锁功能，使用 **MaxMind GeoLite2-Country** 数据库将请求 IP 映射到国家/地区代码，并根据封锁列表决定是否拒绝访问。
+Castellum 支持基于国家/地区的地域封锁功能，使用 **MaxMind GeoLite2-Country** 数据库将请求 IP 映射到国家/地区代码，并根据封锁列表决定是否拒绝访问。
 
 !!! info "GeoLite2 数据库"
     使用地域封锁功能需要下载 MaxMind GeoLite2-Country 数据库文件（`.mmdb` 格式）。您可以从 [MaxMind 官网](https://dev.maxmind.com/geoip/geolite2-free-geolocation-data) 免费注册并下载。

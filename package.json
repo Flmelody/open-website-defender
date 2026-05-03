@@ -1,5 +1,5 @@
 {
-  "name": "open-website-defender-workspace",
+  "name": "castellum-workspace",
   "private": true,
   "workspaces": [
     "ui/admin",

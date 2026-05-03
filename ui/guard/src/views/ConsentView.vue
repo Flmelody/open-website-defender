@@ -178,7 +178,7 @@ const handleConsent = async (action) => {
     </div>
 
     <div class="copyright">
-      Copyright &copy; 2023 Open Website Defender. All rights reserved.
+      Copyright &copy; 2023 Castellum. All rights reserved.
     </div>
   </div>
 </template>

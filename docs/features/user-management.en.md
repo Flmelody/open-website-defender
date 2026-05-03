@@ -1,6 +1,6 @@
 # User Management
 
-Website Defender provides full user management capabilities through the admin dashboard and API, including role-based access control, token generation, and authorized domain assignment.
+Castellum provides full user management capabilities through the admin dashboard and API, including role-based access control, token generation, and authorized domain assignment.
 
 ## User CRUD Operations
 
@@ -40,7 +40,7 @@ Each user can have a Git token for machine access (CI/CD, scripts, automated too
 
 - Tokens are **auto-generated** via the admin dashboard
 - **One-click copy** for easy integration
-- Token format: `username:token` (sent via the `Defender-Git-Token` header)
+- Token format: `username:token` (sent via the `Castellum-Git-Token` header)
 - Git tokens are subject to the user's [authorized domain](authorized-domains.md) restrictions
 
 !!! tip "Regenerating Git Tokens"
@@ -68,7 +68,7 @@ For details on how 2FA affects the login flow, see [Authentication](authenticati
 
 ## License Management
 
-Website Defender also supports license tokens for API and machine access, managed separately from user accounts.
+Castellum also supports license tokens for API and machine access, managed separately from user accounts.
 
 ### Generating Licenses
 

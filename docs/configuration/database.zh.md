@@ -1,6 +1,6 @@
 # 数据库
 
-Website Defender 支持多种数据库后端，可根据部署环境和性能需求选择合适的数据库。
+Castellum 支持多种数据库后端，可根据部署环境和性能需求选择合适的数据库。
 
 ## 支持的数据库
 
@@ -11,7 +11,7 @@ Website Defender 支持多种数据库后端，可根据部署环境和性能需
 | **MySQL** | `mysql` | `localhost:3306` | 生产环境、团队熟悉 MySQL 生态 |
 
 !!! info "默认数据库"
-    如果不指定数据库配置，Website Defender 默认使用 SQLite，数据文件存储在 `./data/app.db`。SQLite 无需额外安装数据库服务，适合快速体验和小规模部署。
+    如果不指定数据库配置，Castellum 默认使用 SQLite，数据文件存储在 `./data/app.db`。SQLite 无需额外安装数据库服务，适合快速体验和小规模部署。
 
 ## 配置示例
 
@@ -39,14 +39,14 @@ Website Defender 支持多种数据库后端，可根据部署环境和性能需
       driver: postgres
       host: localhost
       port: 5432
-      name: open_website_defender
+      name: castellum
       user: postgres
       password: your_password
       ssl-mode: disable
     ```
 
     !!! tip "PostgreSQL 注意事项"
-        - 需要预先创建数据库（如 `open_website_defender`）
+        - 需要预先创建数据库（如 `castellum`）
         - 生产环境建议启用 SSL（`ssl-mode: require`）
         - 支持高并发访问
         - 建议配置连接池参数
@@ -58,15 +58,15 @@ Website Defender 支持多种数据库后端，可根据部署环境和性能需
       driver: mysql
       host: localhost
       port: 3306
-      name: open_website_defender
+      name: castellum
       user: root
       password: your_password
     ```
 
     !!! tip "MySQL 注意事项"
-        - 需要预先创建数据库（如 `open_website_defender`）
+        - 需要预先创建数据库（如 `castellum`）
         - 建议使用 `utf8mb4` 字符集
-        - 建议为 Defender 创建独立的数据库用户，避免使用 `root`
+        - 建议为 Castellum 创建独立的数据库用户，避免使用 `root`
 
 !!! warning "密码安全"
     不要将数据库密码直接写入配置文件并提交到版本控制系统。建议通过环境变量或密钥管理服务注入敏感配置。

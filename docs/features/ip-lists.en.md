@@ -1,6 +1,6 @@
 # IP Lists
 
-Website Defender provides IP whitelist and blacklist management to control access at the network level. IP checks are the **first step** in the [auth verification flow](authentication.md), evaluated before any token-based authentication.
+Castellum provides IP whitelist and blacklist management to control access at the network level. IP checks are the **first step** in the [auth verification flow](authentication.md), evaluated before any token-based authentication.
 
 ## IP Whitelist
 

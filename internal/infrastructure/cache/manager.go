@@ -2,8 +2,8 @@ package cache
 
 import (
 	"fmt"
-	"open-website-defender/internal/infrastructure/event"
-	"open-website-defender/internal/infrastructure/logging"
+	"castellum/internal/infrastructure/event"
+	"castellum/internal/infrastructure/logging"
 )
 
 // cache key constants — single source of truth for all cache keys

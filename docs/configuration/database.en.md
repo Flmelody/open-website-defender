@@ -1,6 +1,6 @@
 # Database Configuration
 
-Website Defender supports three database backends. Choose the one that best fits your deployment requirements.
+Castellum supports three database backends. Choose the one that best fits your deployment requirements.
 
 ## Supported Databases
 
@@ -38,16 +38,16 @@ Website Defender supports three database backends. Choose the one that best fits
       driver: postgres
       host: localhost
       port: 5432
-      name: open_website_defender
+      name: castellum
       user: postgres
       password: your_password
       ssl-mode: disable
     ```
 
-    Create the database before starting Website Defender:
+    Create the database before starting Castellum:
 
     ```sql
-    CREATE DATABASE open_website_defender;
+    CREATE DATABASE castellum;
     ```
 
     !!! warning "SSL Mode"
@@ -62,15 +62,15 @@ Website Defender supports three database backends. Choose the one that best fits
       driver: mysql
       host: localhost
       port: 3306
-      name: open_website_defender
+      name: castellum
       user: root
       password: your_password
     ```
 
-    Create the database before starting Website Defender:
+    Create the database before starting Castellum:
 
     ```sql
-    CREATE DATABASE open_website_defender CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+    CREATE DATABASE castellum CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
     ```
 
     !!! tip "Character Set"
@@ -82,7 +82,7 @@ To switch from SQLite to PostgreSQL or MySQL:
 
 1. Update `config/config.yaml` with the new driver and connection settings
 2. Create the target database (if using PostgreSQL or MySQL)
-3. Restart Website Defender -- tables are created automatically on startup
+3. Restart Castellum -- tables are created automatically on startup
 4. Recreate your users, IP lists, and WAF rules in the new database
 
 !!! warning "No Automatic Migration"

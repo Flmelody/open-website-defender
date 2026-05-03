@@ -1,29 +1,29 @@
-# Website Defender
+# Castellum
 
 [中文文档](README-zh.md)
 
 A **self-hosted**, **lightweight**, **simple** WAF (Web Application Firewall) -- single binary, deploy in minutes.
 
-`Website Defender` provides unified authentication, intelligent threat detection, and multi-layer access control for websites exposed on public networks. No agents to install, no cloud subscriptions -- just one binary in front of Nginx.
+`Castellum` provides unified authentication, intelligent threat detection, and multi-layer access control for websites exposed on public networks. No agents to install, no cloud subscriptions -- just one binary in front of Nginx.
 
-![Website Defender Dashboard](assets/defender-glance-en.png)
+![Castellum Dashboard](assets/castellum-glance-en.png)
 
 Enterprises often deploy many internal applications such as `Gitlab`, `Jenkins`, `Prometheus`, `Nexus`, `Nacos`, etc. When exposed, these services may face security risks like:
 - Lack of unified authentication
 - Brute-force attacks
 - Vulnerabilities in open-source versions
 
-`Website Defender` addresses these issues by providing a self-hosted security gateway with authentication and access control policies -- **no code changes required** for your existing applications.
+`Castellum` addresses these issues by providing a self-hosted security gateway with authentication and access control policies -- **no code changes required** for your existing applications.
 
 ## Architecture
 
-`Website Defender` is designed to work with **Nginx** using the `auth_request` module. It acts as an authentication provider that validates requests before Nginx forwards them to your actual applications.
+`Castellum` is designed to work with **Nginx** using the `auth_request` module. It acts as an authentication provider that validates requests before Nginx forwards them to your actual applications.
 
 ```mermaid
 graph LR
     User[User/Browser] --> Nginx
-    Nginx -->|1. Check Auth| Defender[Website Defender]
-    Defender -->|2. Allow/Deny| Nginx
+    Nginx -->|1. Check Auth| Castellum[Castellum]
+    Castellum -->|2. Allow/Deny| Nginx
     Nginx -->|3. Proxy if Allowed| App[Internal App]
 ```
 
@@ -31,10 +31,10 @@ graph LR
 
 ### Authentication & Access Control
 
-- **JWT Token Authentication**: Secure login with configurable token expiration, issued via `Defender-Authorization` header.
+- **JWT Token Authentication**: Secure login with configurable token expiration, issued via `Castellum-Authorization` header.
 - **Cookie-based Authentication**: Supports `flmelody.token` cookie for seamless browser sessions.
-- **Git Token Authentication**: Machine access via configurable HTTP header (default `Defender-Git-Token`), format `username:token`.
-- **License Token Authentication**: API access via configurable HTTP header (default `Defender-License`), tokens are SHA-256 hashed before storage.
+- **Git Token Authentication**: Machine access via configurable HTTP header (default `Castellum-Git-Token`), format `username:token`.
+- **License Token Authentication**: API access via configurable HTTP header (default `Castellum-License`), tokens are SHA-256 hashed before storage.
 - **IP Whitelist**: Allow specific IPs or CIDR ranges (e.g. `192.168.1.0/24`) to bypass authentication.
 - **IP Blacklist**: Block malicious IPs by exact match or CIDR range. Supports temporary bans with auto-expiry and optional remarks.
 
@@ -48,11 +48,11 @@ IP Blacklist → IP Whitelist (+ Authorized Domain Check) → JWT Token (+ Autho
 
 ### Authorized Domain Access Control
 
-Authorized domains enable multi-tenant access control, allowing different users to access different protected services behind the same Defender instance.
+Authorized domains enable multi-tenant access control, allowing different users to access different protected services behind the same Castellum instance.
 
 **How it works:**
 
-1. When a request hits `/auth`, Defender reads the domain from `X-Forwarded-Host` (fallback: `Host` header)
+1. When a request hits `/auth`, Castellum reads the domain from `X-Forwarded-Host` (fallback: `Host` header)
 2. After successful token/git-token authentication, the user's authorized domains are checked against the requested domain
 3. If the domain doesn't match any authorized domain pattern, a `403 Forbidden` is returned
 
@@ -74,7 +74,7 @@ Authorized domains enable multi-tenant access control, allowing different users 
 
 **Nginx configuration:**
 
-To pass the domain information to Defender, configure Nginx to forward the `Host` header via `X-Forwarded-Host`:
+To pass the domain information to Castellum, configure Nginx to forward the `Host` header via `X-Forwarded-Host`:
 
 ```nginx
 server {
@@ -83,7 +83,7 @@ server {
     location / {
         auth_request /auth;
 
-        # Pass the original host to Defender for authorized domain checking
+        # Pass the original host to Castellum for authorized domain checking
         proxy_pass http://gitea-backend;
     }
 
@@ -230,10 +230,10 @@ All requests are logged with client IP, method, path, status code, latency, User
 ## Screenshots
 
 ### Guard Page (Interception)
-![Guard Page](assets/defender-guard.jpg)
+![Guard Page](assets/castellum-guard.jpg)
 
 ### Admin Dashboard
-[![Admin Dashboard](assets/defender-admin.png)](https://www.bilibili.com/video/BV1CYUZBdEqv?t=8.8 "Open Website Defender")
+[![Admin Dashboard](assets/castellum-admin.png)](https://www.bilibili.com/video/BV1CYUZBdEqv?t=8.8 "Castellum")
 
 ## Quick Start
 
@@ -248,8 +248,8 @@ The project includes a build script to compile both the frontend and backend.
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/Flmelody/open-website-defender.git
-cd open-website-defender
+git clone https://github.com/Flmelody/castellum.git
+cd castellum
 
 # 2. Build the project
 # You can customize the build environments in scripts/build.sh or via environment variables
@@ -267,8 +267,10 @@ After building, an executable file named `app` will be generated in the root dir
 
 The application will start with the default configuration.
 - **Admin URL**: `http://localhost:9999/wall/admin/`
-- **Default User**: `defender`
-- **Default Password**: `defender`
+- **Default User**: `castellum`
+- **Default Password**: auto-generated on first start and written to `./data/bootstrap-admin-credentials` (mode `0600`). The startup log prints the file path; read the file to get the password. Delete it after rotating the credentials. Override via `default-user.password` in `config/config.yaml` to skip auto-generation.
+
+> **Upgrading from Open Website Defender (PostgreSQL / MySQL deployments)**: the fallback default database name changed from `open_website_defender` to `castellum`. If your `config/config.yaml` does **not** set `database.name`, set it explicitly to your existing database name (e.g. `name: open_website_defender`) before upgrading, or rename the database to `castellum`. SQLite deployments are not affected (they use `database.file-path`).
 
 ## Configuration
 

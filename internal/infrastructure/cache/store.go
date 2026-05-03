@@ -1,7 +1,7 @@
 package cache
 
 import (
-	"open-website-defender/internal/infrastructure/logging"
+	"castellum/internal/infrastructure/logging"
 	"sync"
 )
 

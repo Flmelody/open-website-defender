@@ -1,14 +1,14 @@
 # Docker Deployment
 
-Website Defender provides a multi-stage Dockerfile for building a minimal container image with all frontend assets and the Go binary.
+Castellum provides a multi-stage Dockerfile for building a minimal container image with all frontend assets and the Go binary.
 
 ## Quick Start
 
 ### Using Docker Compose (Recommended)
 
 ```bash
-git clone https://github.com/Flmelody/open-website-defender.git
-cd open-website-defender
+git clone https://github.com/Flmelody/castellum.git
+cd castellum
 
 # Copy and edit environment variables
 cp .env.example .env
@@ -153,7 +153,7 @@ database:
   driver: postgres
   host: postgres
   port: 5432
-  name: open_website_defender
+  name: castellum
   user: postgres
   password: changeme
 ```
@@ -219,7 +219,7 @@ No `trustedProxies` configuration is needed in this mode. Note that `ports` mapp
 
 !!! tip "Production Checklist"
     - Set a stable `security.jwt-secret` in `config.yaml`
-    - Change the default credentials (`defender/defender`)
+    - Change the default credentials (`castellum`/auto-generated)
     - Use PostgreSQL or MySQL for better concurrency
     - Configure `trustedProxies` to include your reverse proxy IPs
     - Set explicit `security.cors.allowed-origins`

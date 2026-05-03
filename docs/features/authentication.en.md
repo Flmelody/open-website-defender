@@ -1,12 +1,12 @@
 # Authentication & Access Control
 
-Website Defender supports multiple authentication methods to accommodate different access patterns -- from interactive browser sessions to automated machine access.
+Castellum supports multiple authentication methods to accommodate different access patterns -- from interactive browser sessions to automated machine access.
 
 ## JWT Token Authentication
 
 The primary authentication method. Users authenticate via the `/login` endpoint (or `/admin-login` for admin-only access) and receive a JWT token.
 
-- Tokens are issued in the `Defender-Authorization` response header
+- Tokens are issued in the `Castellum-Authorization` response header
 - Token expiration is configurable (default: 24 hours)
 - The JWT secret can be set in `config/config.yaml`; if left empty, a random key is generated on each restart
 
@@ -21,7 +21,7 @@ security:
 
 ## Two-Factor Authentication (2FA)
 
-Website Defender supports TOTP-based two-factor authentication for both admin and guard login flows. When 2FA is enabled for a user, they must provide a 6-digit code from an authenticator app (Google Authenticator, Authy, etc.) after entering their username and password.
+Castellum supports TOTP-based two-factor authentication for both admin and guard login flows. When 2FA is enabled for a user, they must provide a 6-digit code from an authenticator app (Google Authenticator, Authy, etc.) after entering their username and password.
 
 - 2FA can be enabled per user through the admin dashboard
 - Supports standard TOTP apps (Google Authenticator, Authy, Microsoft Authenticator, etc.)
@@ -68,11 +68,11 @@ For 2FA management details, see [User Management](user-management.md).
 
 ## Cookie-based Authentication
 
-For seamless browser sessions, Website Defender also supports authentication via the `flmelody.token` cookie. This allows users to navigate between protected applications without re-authenticating, as long as they share the same cookie domain.
+For seamless browser sessions, Castellum also supports authentication via the `flmelody.token` cookie. This allows users to navigate between protected applications without re-authenticating, as long as they share the same cookie domain.
 
 ## Git Token Authentication
 
-Designed for machine access (CI/CD pipelines, scripts, automated tools). Git tokens are sent via a configurable HTTP header (default: `Defender-Git-Token`).
+Designed for machine access (CI/CD pipelines, scripts, automated tools). Git tokens are sent via a configurable HTTP header (default: `Castellum-Git-Token`).
 
 - Token format: `username:token`
 - Tokens are auto-generated per user via the admin dashboard
@@ -94,7 +94,7 @@ This mechanism is designed to improve performance for git operations (such as `g
 
 ## License Token Authentication
 
-API access via a configurable HTTP header (default: `Defender-License`). License tokens provide a simplified authentication mechanism for third-party integrations.
+API access via a configurable HTTP header (default: `Castellum-License`). License tokens provide a simplified authentication mechanism for third-party integrations.
 
 - Tokens are generated via the admin dashboard
 - Shown only once at creation time -- store them securely
@@ -118,7 +118,7 @@ For details, see [IP Lists](ip-lists.md).
 
 ## Authorized Domains & Access Control
 
-Protected domains are centrally registered in the [Authorized Domains](authorized-domains.md) registry. Users can then be restricted to specific authorized domains using domain patterns, enabling multi-tenant access control where different users access different services behind the same Defender instance.
+Protected domains are centrally registered in the [Authorized Domains](authorized-domains.md) registry. Users can then be restricted to specific authorized domains using domain patterns, enabling multi-tenant access control where different users access different services behind the same Castellum instance.
 
 - **Authorized Domains**: register and manage all protected domains in one place.
 - **Domain Patterns**: comma-separated patterns assigned per user, typically selected from authorized domains (e.g., `app.example.com, *.internal.org`).

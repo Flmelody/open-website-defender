@@ -1,6 +1,6 @@
 # Bot Management
 
-Website Defender includes a Bot Management system that detects, classifies, and responds to automated traffic using configurable bot signatures. When enabled, incoming requests are matched against a library of regex-based signatures, and the system takes action based on the bot's classification -- allowing legitimate crawlers, challenging suspicious visitors with CAPTCHA or JS Proof-of-Work, and blocking known malicious bots.
+Castellum includes a Bot Management system that detects, classifies, and responds to automated traffic using configurable bot signatures. When enabled, incoming requests are matched against a library of regex-based signatures, and the system takes action based on the bot's classification -- allowing legitimate crawlers, challenging suspicious visitors with CAPTCHA or JS Proof-of-Work, and blocking known malicious bots.
 
 ## How It Works
 

@@ -5,13 +5,13 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"open-website-defender/internal/adapter/controller/http/request"
-	"open-website-defender/internal/adapter/controller/http/response"
-	"open-website-defender/internal/infrastructure/config"
-	"open-website-defender/internal/infrastructure/logging"
-	"open-website-defender/internal/pkg"
-	"open-website-defender/internal/usecase/oauth"
-	"open-website-defender/internal/usecase/user"
+	"castellum/internal/adapter/controller/http/request"
+	"castellum/internal/adapter/controller/http/response"
+	"castellum/internal/infrastructure/config"
+	"castellum/internal/infrastructure/logging"
+	"castellum/internal/pkg"
+	"castellum/internal/usecase/oauth"
+	"castellum/internal/usecase/user"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -320,7 +320,7 @@ func authenticateOWDUser(c *gin.Context) *user.UserInfoDTO {
 
 	if clientToken == "" {
 		// Also check Authorization header
-		authHeader := c.GetHeader("Defender-Authorization")
+		authHeader := c.GetHeader("Castellum-Authorization")
 		if authHeader != "" {
 			clientToken = strings.TrimPrefix(authHeader, "Bearer ")
 		}

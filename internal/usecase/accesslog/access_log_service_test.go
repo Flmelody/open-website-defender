@@ -2,9 +2,9 @@ package accesslog
 
 import (
 	"context"
-	"open-website-defender/internal/adapter/repository"
-	"open-website-defender/internal/domain/entity"
-	"open-website-defender/internal/infrastructure/logging"
+	"castellum/internal/adapter/repository"
+	"castellum/internal/domain/entity"
+	"castellum/internal/infrastructure/logging"
 	"testing"
 	"time"
 )

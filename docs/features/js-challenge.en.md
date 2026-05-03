@@ -1,6 +1,6 @@
 # JS Challenge (Proof-of-Work)
 
-Website Defender can serve a JavaScript-based Proof-of-Work challenge to visitors, effectively filtering out automated bots and simple scripts that cannot execute JavaScript.
+Castellum can serve a JavaScript-based Proof-of-Work challenge to visitors, effectively filtering out automated bots and simple scripts that cannot execute JavaScript.
 
 ## How It Works
 
@@ -26,7 +26,7 @@ Website Defender can serve a JavaScript-based Proof-of-Work challenge to visitor
 The following requests skip the JS challenge automatically:
 
 - **Whitelisted IPs** -- IPs on the whitelist are always exempt
-- **Authenticated requests** -- Requests with a valid `Defender-Authorization` header
+- **Authenticated requests** -- Requests with a valid `Castellum-Authorization` header
 - **Git/License tokens** -- Requests with configured git or license token headers
 - **Non-browser clients** -- Clients identified as `git`, `curl`, `wget`, etc.
 - **Auth subrequests** -- The `/auth` endpoint used by Nginx `auth_request`

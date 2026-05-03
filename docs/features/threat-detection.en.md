@@ -1,6 +1,6 @@
 # Threat Detection
 
-Website Defender includes an advanced threat detection engine that automatically identifies and blocks malicious behavior patterns. When suspicious activity is detected, the offending IP is automatically added to the blacklist with a configurable ban duration.
+Castellum includes an advanced threat detection engine that automatically identifies and blocks malicious behavior patterns. When suspicious activity is detected, the offending IP is automatically added to the blacklist with a configurable ban duration.
 
 ## Detection Methods
 

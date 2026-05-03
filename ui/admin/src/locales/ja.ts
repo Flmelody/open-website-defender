@@ -1,6 +1,6 @@
 export default {
   common: {
-    brand: "DEFENDER",
+    brand: "CASTELLUM",
     unknown: "不明",
     confirm: "確認",
     cancel: "キャンセル",
@@ -282,7 +282,7 @@ export default {
     captcha_desc:
       "Botチャレンジ用のCAPTCHAプロバイダーを設定。内蔵画像CAPTCHAとCloudflare Turnstileに対応。",
     captcha_provider: "プロバイダー",
-    captcha_provider_builtin: "Defender Built-in",
+    captcha_provider_builtin: "Castellum Built-in",
     captcha_provider_turnstile: "Cloudflare Turnstile",
     captcha_site_key: "サイトキー",
     captcha_secret_key: "シークレットキー",
@@ -419,7 +419,7 @@ export default {
     captcha_site_key: "CAPTCHAサイトキー",
     captcha_secret_key: "CAPTCHAシークレットキー",
     captcha_cookie_ttl: "CAPTCHA Cookie有効期間（秒）",
-    captcha_provider_builtin: "Defender Built-in",
+    captcha_provider_builtin: "Castellum Built-in",
     captcha_provider_turnstile: "Cloudflare Turnstile",
     captcha_site_key_required: "サイトキーは必須です",
     captcha_secret_key_required: "シークレットキーは必須です",

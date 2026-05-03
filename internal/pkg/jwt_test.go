@@ -1,7 +1,7 @@
 package pkg
 
 import (
-	"open-website-defender/internal/infrastructure/logging"
+	"castellum/internal/infrastructure/logging"
 	"os"
 	"testing"
 	"time"

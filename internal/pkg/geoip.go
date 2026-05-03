@@ -2,7 +2,7 @@ package pkg
 
 import (
 	"net"
-	"open-website-defender/internal/infrastructure/logging"
+	"castellum/internal/infrastructure/logging"
 	"sync"
 
 	"github.com/oschwald/geoip2-golang"

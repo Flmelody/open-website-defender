@@ -49,7 +49,7 @@
             >
               <el-input
                 v-model="form.git_token_header"
-                placeholder="Defender-Git-Token"
+                placeholder="Castellum-Git-Token"
               />
             </el-form-item>
 
@@ -59,7 +59,7 @@
             >
               <el-input
                 v-model="form.license_header"
-                placeholder="Defender-License"
+                placeholder="Castellum-License"
               />
             </el-form-item>
           </div>

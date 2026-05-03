@@ -1,6 +1,6 @@
 # Environment Variables
 
-Website Defender uses a small set of environment variables at **build time** to configure frontend path prefixes. Host, domain, and port settings are **runtime configuration** managed through `config.yaml` or OS environment variables, so a single pre-built binary works across different deployments.
+Castellum uses a small set of environment variables at **build time** to configure frontend path prefixes. Host, domain, and port settings are **runtime configuration** managed through `config.yaml` or OS environment variables, so a single pre-built binary works across different deployments.
 
 !!! info "Build Time vs Runtime"
     Only path variables (`ROOT_PATH`, `ADMIN_PATH`, `GUARD_PATH`) are injected during the build. They are compiled into the binary via Vite env vars and Go ldflags, and cannot be changed after building. Host, domain, and port settings are read at startup -- see [Runtime Configuration](#runtime-configuration) below.

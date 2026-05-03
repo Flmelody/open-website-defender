@@ -1,10 +1,10 @@
 # Webhook Notifications
 
-Website Defender can send HTTP webhook notifications when security events occur, enabling integration with external alerting and monitoring systems.
+Castellum can send HTTP webhook notifications when security events occur, enabling integration with external alerting and monitoring systems.
 
 ## How It Works
 
-When a [security event](security-events.md) is triggered (e.g., an IP is auto-banned), Website Defender sends an HTTP POST request to the configured webhook URL with event details.
+When a [security event](security-events.md) is triggered (e.g., an IP is auto-banned), Castellum sends an HTTP POST request to the configured webhook URL with event details.
 
 Webhook delivery is **asynchronous** -- it does not block the main request processing pipeline.
 

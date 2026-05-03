@@ -6,7 +6,7 @@
 set -e
 
 # Project name
-PROJECT="open-website-defender"
+PROJECT="castellum"
 VERSION=${VERSION:-$(git describe --tags --always --dirty 2>/dev/null || echo "dev")}
 OUTPUT_DIR=${OUTPUT_DIR:-"dist"}
 

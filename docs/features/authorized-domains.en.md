@@ -1,6 +1,6 @@
 # Authorized Domains
 
-Authorized Domains is a centralized registry of all protected domains managed by Website Defender. It serves as the **single source of truth** for domain names used across the system -- in IP whitelist bindings and user access control.
+Authorized Domains is a centralized registry of all protected domains managed by Castellum. It serves as the **single source of truth** for domain names used across the system -- in IP whitelist bindings and user access control.
 
 ## Purpose
 
@@ -9,7 +9,7 @@ Without Authorized Domains, users must manually type domain names when configuri
 - Providing a **central place** to register all protected domains
 - Populating **dropdown selectors** in the IP whitelist and user management forms
 
-- Enabling **multi-tenant access control**, allowing different users to access different protected services behind the same Defender instance
+- Enabling **multi-tenant access control**, allowing different users to access different protected services behind the same Castellum instance
 
 ## Management
 
@@ -40,7 +40,7 @@ Authorized domains enable **multi-tenant access control**. Each user can be assi
 
 ### How It Works
 
-1. When a request hits the `/auth` endpoint, Defender reads the target domain from the `X-Forwarded-Host` header (with fallback to the `Host` header)
+1. When a request hits the `/auth` endpoint, Castellum reads the target domain from the `X-Forwarded-Host` header (with fallback to the `Host` header)
 2. After successful token or Git token authentication, the user's configured authorized domains are checked against the requested domain
 3. If the domain does not match any of the user's authorized domain patterns, a `403 Forbidden` response is returned
 
@@ -70,7 +70,7 @@ Authorized domains are defined as comma-separated patterns on each user, typical
 
 ### Nginx Configuration
 
-To pass the domain information to Defender for access control, configure Nginx to forward the `Host` header via `X-Forwarded-Host`:
+To pass the domain information to Castellum for access control, configure Nginx to forward the `Host` header via `X-Forwarded-Host`:
 
 ```nginx
 server {
@@ -79,7 +79,7 @@ server {
     location / {
         auth_request /auth;
 
-        # Pass the original host to Defender for authorized domain checking
+        # Pass the original host to Castellum for authorized domain checking
         proxy_pass http://app-backend;
     }
 
@@ -96,7 +96,7 @@ server {
 ```
 
 !!! warning "X-Forwarded-Host Required"
-    Without the `proxy_set_header X-Forwarded-Host $host;` directive, Defender will fall back to the `Host` header, which in an `auth_request` subrequest context may not reflect the original requested domain.
+    Without the `proxy_set_header X-Forwarded-Host $host;` directive, Castellum will fall back to the `Host` header, which in an `auth_request` subrequest context may not reflect the original requested domain.
 
 For the complete Nginx configuration reference, see [Nginx Setup](../deployment/nginx-setup.md).
 

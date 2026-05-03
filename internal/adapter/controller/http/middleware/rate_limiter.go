@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"open-website-defender/internal/adapter/controller/http/response"
-	"open-website-defender/internal/infrastructure/cache"
-	"open-website-defender/internal/infrastructure/logging"
+	"castellum/internal/adapter/controller/http/response"
+	"castellum/internal/infrastructure/cache"
+	"castellum/internal/infrastructure/logging"
 
 	"github.com/gin-gonic/gin"
 )

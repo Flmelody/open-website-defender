@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"open-website-defender/internal/adapter/controller/http/response"
-	"open-website-defender/internal/usecase/user"
+	"castellum/internal/adapter/controller/http/response"
+	"castellum/internal/usecase/user"
 
 	"github.com/gin-gonic/gin"
 )
